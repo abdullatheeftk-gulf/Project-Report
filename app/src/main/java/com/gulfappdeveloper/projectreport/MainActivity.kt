@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
 
         val rootViewModel by viewModels<RootViewModel>()
 
-        val deviceId = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)+"AB"
+        val deviceId = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)+"PQ"
 
         setContent {
             ProjectReportTheme {

@@ -21,8 +21,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,7 +39,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
+import com.gulfappdeveloper.projectreport.navigation.RootNavScreens
+import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.splash_screen.components.NoLicenseAlertDialog
 import com.gulfappdeveloper.projectreport.root.RootViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = "SplashScreen"
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,9 +56,12 @@ fun SplashScreen(
 ) {
     val message by rootViewModel.welcomeMessage
 
-    Log.d(TAG, "SplashScreen: $message")
 
     val density = LocalDensity.current
+
+    val snackBarHostState = remember{
+        SnackbarHostState()
+    }
 
     var showProgressBar by remember {
         mutableStateOf(false)
@@ -69,9 +80,51 @@ fun SplashScreen(
         mutableStateOf(false)
     }
 
+    LaunchedEffect(key1 = true ){
+        rootViewModel.splashScreenEvent.collectLatest {value->
+            when(value.event){
+                is UiEvent.ShowProgressBar->{
+                    showProgressBar = true
+                }
+                is UiEvent.CloseProgressBar->{
+                    showProgressBar = false
+                }
+                is UiEvent.Navigate->{
+                    rootViewModel.saveDeviceIdUseCase(deviceId = deviceId)
+                   // navHostController.popBackStack()
+                  //  navHostController.navigate(value.event.route)
+                }
+                is UiEvent.ShowSnackBar->{
+                    snackBarHostState.showSnackbar(message = value.event.message)
+                }
+                is UiEvent.ShowAlertDialog->{
+                    if (value.event.message=="License_Expired"){
+                        // ToDo
+                    }
+                    else{
+                        showNoLicenseAlertDialog = true
+                    }
+                }
+                else->Unit
+            }
+        }
+    }
+
+    if (showNoLicenseAlertDialog){
+        NoLicenseAlertDialog {
+            showLicenseExpiryAlertDialog = true
+            navHostController.popBackStack()
+            navHostController.navigate(RootNavScreens.RegisterCompanyScreen.route)
+        }
+    }
 
 
-    Scaffold() {
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackBarHostState)
+        }
+    ) {
         it.calculateTopPadding()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -84,7 +137,7 @@ fun SplashScreen(
                 contentDescription = null,
                 modifier = Modifier.size(250.dp),
                 colorFilter = ColorFilter.tint(
-                    color = Color(0xFFF57C00)
+                    color = Color(0xFF8BC34A)
                 )
             )
             Spacer(modifier = Modifier.height(50.dp))

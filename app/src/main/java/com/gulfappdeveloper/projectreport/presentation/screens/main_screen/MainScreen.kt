@@ -75,11 +75,11 @@ fun MainScreen(
                 item {
                     MenuItem(
                         onClickMenuItem = {
-
+                            navHostController.navigate(RootNavScreens.CustomerPaymentReportScreens.route)
                         },
                         containerColor = Color(0xFF03A9F4),
                         contentColor = Color(0xFF484545),
-                        menuText = "CUSTOMER PAYMENT"
+                        menuText = "CUSTOMER PAYMENT REPORT"
                     )
                 }
                 item {

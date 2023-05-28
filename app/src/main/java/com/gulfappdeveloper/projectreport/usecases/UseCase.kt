@@ -1,5 +1,6 @@
 package com.gulfappdeveloper.projectreport.usecases
 
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.customer_payment.GetCustomerPaymentUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.ledger.GetCustomerForLedgerUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.ledger.GetCustomerLedgers
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.license.GetIP4AddressUseCase
@@ -56,9 +57,12 @@ data class UseCase(
     val roomInsertDataUseCase: RoomInsertDataUseCase,
     val getAllLocalCompanyData: GetAllLocalCompanyData,
 
-    //ledger
+    // ledger
     val getCustomerForLedgerUseCase: GetCustomerForLedgerUseCase,
-    val getCustomerLedgers: GetCustomerLedgers
+    val getCustomerLedgers: GetCustomerLedgers,
+
+    // customer payment
+    val getCustomerPaymentUseCase: GetCustomerPaymentUseCase
 
 
 )

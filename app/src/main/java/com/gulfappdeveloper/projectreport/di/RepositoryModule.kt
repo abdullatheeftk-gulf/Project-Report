@@ -4,6 +4,7 @@ import com.gulfappdeveloper.projectreport.repositories.ApiRepository
 import com.gulfappdeveloper.projectreport.repositories.DataStoreRepository
 import com.gulfappdeveloper.projectreport.repositories.RoomDatabaseRepository
 import com.gulfappdeveloper.projectreport.usecases.UseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.customer_payment.GetCustomerPaymentUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.ledger.GetCustomerForLedgerUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.ledger.GetCustomerLedgers
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.license.GetIP4AddressUseCase
@@ -69,6 +70,8 @@ object RepositoryModule {
         getAllLocalCompanyData = GetAllLocalCompanyData(roomDatabaseRepository = roomDatabaseRepository),
 
         getCustomerForLedgerUseCase = GetCustomerForLedgerUseCase(apiRepository = apiRepository),
-        getCustomerLedgers = GetCustomerLedgers(apiRepository = apiRepository)
+        getCustomerLedgers = GetCustomerLedgers(apiRepository = apiRepository),
+
+        getCustomerPaymentUseCase = GetCustomerPaymentUseCase(apiRepository = apiRepository)
     )
 }

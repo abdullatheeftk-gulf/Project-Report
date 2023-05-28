@@ -788,12 +788,13 @@ class ApiServiceImpl(
     }
 
     override suspend fun getCustomerPayment(url: String): Flow<GetDataFromRemote<List<CustomerPaymentResponse>>> {
+        Log.d(TAG, "getCustomerPayment: test")
         return flow {
             emit(GetDataFromRemote.Loading)
             try {
                 val httpResponse = client.get(urlString = url)
                 val result = httpResponse.bodyAsText()
-                Log.e(TAG, "getCustomerLedgers: $result", )
+                Log.e(TAG, "getCustomerPayment: $result", )
                 when (val statusCode = httpResponse.status.value) {
                     in 200..299 -> {
                         emit(

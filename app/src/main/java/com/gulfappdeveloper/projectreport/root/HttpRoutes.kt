@@ -22,5 +22,8 @@ object HttpRoutes {
     const val GET_CUSTOMER_FOR_LEDGER = "/api/Accounts/"
     const val LEDGER_REPORT = "/api/customerLedgers/"
 
+    // Customer payment
+    const val GET_CUSTOMER_PAYMENT_REPORT = "/api/customerPayment/"
+
 
 }

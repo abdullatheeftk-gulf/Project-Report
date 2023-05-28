@@ -42,6 +42,6 @@ class ApiRepository @Inject constructor(
     suspend fun getCustomerForLedger(url: String) = apiService.getCustomerForLedger(url = url)
     suspend fun getCustomerLedgers(url: String) = apiService.getCustomerLedgers(url = url)
 
-    suspend fun getCustomerPayment(url:String) = apiService.getCustomerPayment(url = url)
+    suspend fun getCustomerPaymentReport(url:String) = apiService.getCustomerPayment(url = url)
 
 }

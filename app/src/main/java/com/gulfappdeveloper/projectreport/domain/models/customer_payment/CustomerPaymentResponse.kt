@@ -5,14 +5,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CustomerPaymentResponse(
-    val card: Double,
-    val cash: Double,
+    val card: Float,
+    val cash: Float,
     @SerialName("credt")
-    val credit: Int,
+    val credit: Float,
     val date: String,
-    val online: Int,
+    val online: Float,
     val party: String,
     val receiptNo: Int,
-    val returnAmount: Int,
-    val total: Int
+    val returnAmount: Float,
+    val total: Float
 )

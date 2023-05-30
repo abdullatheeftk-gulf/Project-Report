@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -55,6 +56,13 @@ fun RegisterCompanyScreen(
         mutableStateOf(false)
     }
 
+    var showErrorOnRegistration by remember {
+        mutableStateOf(false)
+    }
+    var errorText by remember {
+        mutableStateOf("")
+    }
+
 
     LaunchedEffect(key1 = true) {
         rootViewModel.registerCompanyScreenEvent.collectLatest { value ->
@@ -77,7 +85,8 @@ fun RegisterCompanyScreen(
                 }
 
                 is UiEvent.ShowSnackBar -> {
-
+                    errorText = value.uiEvent.message
+                    showErrorOnRegistration = true
                 }
 
                 else -> Unit
@@ -94,12 +103,13 @@ fun RegisterCompanyScreen(
                         text = "Register Your company",
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
-                        color = Color.Yellow
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    //containerColor = MaterialTheme.colorScheme.primary,
                 )
 
             )
@@ -138,7 +148,15 @@ fun RegisterCompanyScreen(
                 ),
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done
-                )
+                ),
+                supportingText = {
+                    if (showErrorOnRegistration) {
+                        Text(
+                            text = errorText,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
             )
             /*Spacer(modifier = Modifier.height(10.dp))
             Text(text = "Or")
@@ -170,25 +188,31 @@ fun RegisterCompanyScreen(
                     if (companyCode.isNotEmpty() || companyCode.isNotBlank()) {
                         hideKeyboard()
                         rootViewModel.registerCompany(companyCode = companyCode)
+                        showErrorOnRegistration = false
+                    }else{
+                        showErrorOnRegistration = true
+                        errorText = "Empty Company code"
                     }
+
                 },
                 enabled = !showProgressBar
             ) {
                 Text(text = "Register")
             }
         }
-        if (showProgressBar) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(50.dp))
-            }
+
+
+    }
+
+    if (showProgressBar) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(50.dp))
         }
-
-
     }
 }
 

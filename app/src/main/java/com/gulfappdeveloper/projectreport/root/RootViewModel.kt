@@ -84,13 +84,21 @@ class RootViewModel @Inject constructor(
     private val _deviceIdState: MutableState<String> = mutableStateOf("")
     // val deviceIdState:State<String> = _deviceIdState
 
+    private val _userNameState = mutableStateOf("")
+    val userNameState: State<String> = _userNameState
+
+    fun setUserName(value:String){
+        _userNameState.value = value
+    }
+
     init {
-        updateOperationCount()
-        readUniLicenseKeyDetails()
-        readOperationCount()
-        readIpAddressUseCase()
-        readDeviceIdUseCase()
-        readCompanyData()
+        // updateOperationCount()
+        // readUniLicenseKeyDetails()
+        // readOperationCount()
+        // readIpAddressUseCase()
+        // readDeviceIdUseCase()
+        //readCompanyData()
+        getWelcomeMessage()
 
     }
 
@@ -208,14 +216,19 @@ class RootViewModel @Inject constructor(
     private fun readCompanyData() {
         viewModelScope.launch {
             useCase.readCompanyDataUseCase().collectLatest { value ->
-                Log.w(TAG, "readCompanyData: $value")
+                // Log.w(TAG, "readCompanyData: $value")
                 try {
                     if (value.isNotEmpty() || value.isNotBlank()) {
                         val companyDataResponse =
                             Json.decodeFromString<CompanyRegisterResponse>(value)
                         _companyId = companyDataResponse.id
                         commonMemory.companyId = _companyId.toShort()
-                        Log.e(TAG, "readCompanyData: $_companyId")
+                        // Log.e(TAG, "readCompanyData: $_companyId")
+                        sendSplashScreenEvent(UiEvent.Navigate(route = RootNavScreens.LoginScreen.route))
+
+                    } else {
+                        sendSplashScreenEvent(UiEvent.ShowAlertDialog(AppConstants.COMPANY_NOT_REGISTERED))
+                        //sendSplashScreenEvent(UiEvent.Navigate(route = RootNavScreens.RegisterCompanyScreen.route))
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "readCompanyData: $e")
@@ -226,7 +239,7 @@ class RootViewModel @Inject constructor(
     }
 
     private fun getWelcomeMessage() {
-        Log.i(TAG, "getWelcomeMessage: ")
+        // Log.i(TAG, "getWelcomeMessage: ")
         viewModelScope.launch(Dispatchers.IO) {
             useCase.welcomeMessageUseCase(
                 url = HttpRoutes.BASE_URL + HttpRoutes.WELCOME_MESSAGE
@@ -237,15 +250,22 @@ class RootViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Success -> {
-                        _isInitialLoadingFinished = true
+                        //_isInitialLoadingFinished = true
                         sendSplashScreenEvent(UiEvent.CloseProgressBar)
-                        _welcomeMessage.value = it.data
-                        Log.w(TAG, "getWelcomeMessage: ${it.data}")
+
+                        _welcomeMessage.value = "Unipospro"
+                        delay(2000L)
+
+
+                        readCompanyData()
+                        readUserNameFromDataStore()
+                        // Log.w(TAG, "getWelcomeMessage: ${it.data}")
                     }
 
                     is GetDataFromRemote.Failed -> {
-                        sendSplashScreenEvent(UiEvent.ShowProgressBar)
-                        _welcomeMessage.value = it.error.message!!
+                        sendSplashScreenEvent(UiEvent.CloseProgressBar)
+                        Log.e(TAG, "getWelcomeMessage: ${it.error}")
+                        _welcomeMessage.value = "Error on Loading data from server"
                     }
 
                 }
@@ -342,6 +362,7 @@ class RootViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Success -> {
+
                         sendRegisterCompanyScreenEvent(UiEvent.CloseProgressBar)
                         val result = value.data
                         val localCompanyData = LocalCompanyData(
@@ -360,6 +381,7 @@ class RootViewModel @Inject constructor(
                     is GetDataFromRemote.Failed -> {
                         Log.e(TAG, "registerCompany: ${value.error.code}")
                         sendRegisterCompanyScreenEvent(UiEvent.CloseProgressBar)
+                        sendRegisterCompanyScreenEvent(UiEvent.ShowSnackBar("Failed to register"))
                     }
                 }
 
@@ -383,12 +405,15 @@ class RootViewModel @Inject constructor(
 
                     is GetDataFromRemote.Success -> {
                         sendLoginScreenEvent(UiEvent.CloseProgressBar)
+                        sendLoginScreenEvent(UiEvent.Navigate(RootNavScreens.MainScreen.route))
                         commonMemory.userId = value.data.userId.toShort()
                         Log.d(TAG, "login: ${value.data}")
+                        saveUserNameInDataStore(userName = userName)
                     }
 
                     is GetDataFromRemote.Failed -> {
                         sendLoginScreenEvent(UiEvent.CloseProgressBar)
+                        sendLoginScreenEvent(UiEvent.Navigate("Error"))
                         Log.e(TAG, "login: ${value.error.code}")
                     }
 
@@ -402,6 +427,20 @@ class RootViewModel @Inject constructor(
             useCase.roomInsertDataUseCase(
                 localCompanyData = localCompanyData
             )
+        }
+    }
+
+    private fun saveUserNameInDataStore(userName: String) {
+        viewModelScope.launch {
+            useCase.saveUserNameUseCase(userName)
+        }
+    }
+
+    private fun readUserNameFromDataStore() {
+        viewModelScope.launch {
+            useCase.readUserNameUseCase().collectLatest { value ->
+                _userNameState.value = value
+            }
         }
     }
 

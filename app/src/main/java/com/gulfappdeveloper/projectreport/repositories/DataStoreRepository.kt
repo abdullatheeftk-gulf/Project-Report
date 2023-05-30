@@ -32,6 +32,10 @@ class DataStoreRepository @Inject constructor(
         dataStoreService.saveCompanyData(companyData = companyData)
     }
 
+    suspend fun saveUserName(userName:String){
+        dataStoreService.saveUserName(userName = userName)
+    }
+
 
 
     fun readOperationCount(): Flow<Int> {
@@ -52,4 +56,6 @@ class DataStoreRepository @Inject constructor(
     }
 
     fun readCompanyData() = dataStoreService.readCompanyData()
+
+    fun readUserName() = dataStoreService.readUserName()
 }

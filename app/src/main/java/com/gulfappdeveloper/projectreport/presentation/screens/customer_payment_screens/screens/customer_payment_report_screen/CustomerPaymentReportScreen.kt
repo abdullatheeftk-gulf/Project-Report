@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.util.Log
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -64,15 +66,14 @@ fun CustomerPaymentReportScreen(
     val customerPaymentReportList = customerPaymentScreenViewModel.customerPaymentReportList
 
 
-    LaunchedEffect(key1 = true) {
+    /*LaunchedEffect(key1 = true) {
 
-    }
+    }*/
 
-    
 
     val context = LocalContext.current
 
-    
+
 
 
 
@@ -121,12 +122,35 @@ fun CustomerPaymentReportScreen(
             Spacer(modifier = Modifier.height(70.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
 
-              Text(text = "Report from ")
+                Text(text = "Report from ")
                 Text(text = fromDate, color = MaterialTheme.colorScheme.primary, fontSize = 17.sp)
                 Text(text = " to ")
                 Text(text = toDate, color = MaterialTheme.colorScheme.primary, fontSize = 17.sp)
             }
             Spacer(modifier = Modifier.height(10.dp))
+
+            if (customerPaymentReportList.isEmpty()){
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Empty List",
+                        fontSize = MaterialTheme.typography.headlineMedium.fontSize,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.alpha(.5f),
+                        fontStyle = MaterialTheme.typography.headlineLarge.fontStyle,
+                        fontWeight = MaterialTheme.typography.headlineMedium.fontWeight
+                    )
+                }
+                try {
+                    return@Scaffold
+                }catch (e:Exception){
+                    Log.e(TAG, "CustomerPaymentReportScreen: $e", )
+                }
+
+            }
 
             CustomerPaymentReportTable(customerPaymentReportList = customerPaymentReportList)
         }
@@ -136,24 +160,29 @@ fun CustomerPaymentReportScreen(
 }
 
 @Composable
-fun ScreenOrientationAction(context: Context,customerPaymentScreenViewModel: CustomerPaymentScreenViewModel) {
+fun ScreenOrientationAction(
+    context: Context,
+    customerPaymentScreenViewModel: CustomerPaymentScreenViewModel
+) {
     val activity = context as Activity
     val portrait by customerPaymentScreenViewModel.orientation
     IconButton(onClick = {
         Log.d(TAG, "CustomerPaymentReportScreen: ${portrait}")
-        if (portrait){
+        if (portrait) {
 
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        }else{
+        } else {
 
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
         customerPaymentScreenViewModel.setOrientation(!portrait)
 
     }) {
-        Icon(painter = painterResource(
-            id = R.drawable.baseline_screen_rotation_24),
-            contentDescription =null,
+        Icon(
+            painter = painterResource(
+                id = R.drawable.baseline_screen_rotation_24
+            ),
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.primary
         )
     }

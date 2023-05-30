@@ -3,9 +3,7 @@ package com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_sc
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,13 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,11 +32,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.gulfappdeveloper.projectreport.presentation.screen_util.TableCell
+import com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_screens.screens.ledger_report_screen.componenets.TableCell
 import com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_screens.LedgerReportViewModel
+import com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_screens.screens.ledger_report_screen.componenets.ItemTableCell
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -56,6 +52,8 @@ fun LedgerReportScreen(
     val fromDate by ledgerReportViewModel.fromDateToDisplay
     val toDate by ledgerReportViewModel.toDateToDisplay
 
+    val selectedAccountType by ledgerReportViewModel.selectedAccountType
+
     val ledgerList = ledgerReportViewModel.ledgerList
 
 
@@ -64,7 +62,7 @@ fun LedgerReportScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Ledger Report",
+                        text = if (selectedAccountType == "Customer") "Customer Ledger Report" else if(selectedAccountType == "Supplier") "Expense Ledger Report" else "Expense Report",
                         textDecoration = TextDecoration.Underline,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.fillMaxWidth(),
@@ -105,21 +103,21 @@ fun LedgerReportScreen(
                 Text(
                     text = "Name",
                     modifier = Modifier
-                        .fillMaxWidth()
+                       // .fillMaxWidth()
                         .weight(0.5f)
                 )
                 Text(
                     text = ":",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(.5f),
+                       // .fillMaxWidth()
+                        .weight(.1f),
                     textAlign = TextAlign.Center
                 )
                 Text(
                     text = partyName,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
+                        //.fillMaxWidth()
+                        .weight(2f),
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -136,21 +134,18 @@ fun LedgerReportScreen(
                 Text(
                     text = "Balance",
                     modifier = Modifier
-                        .fillMaxWidth()
                         .weight(0.5f)
                 )
                 Text(
-                    text = ":",
+                    text = " :",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(.5f),
+                        .weight(.1f),
                     textAlign = TextAlign.Center
                 )
                 Text(
                     text = balance.toString(),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
+                        .weight(2f),
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -167,25 +162,43 @@ fun LedgerReportScreen(
                 Text(
                     text = "Period",
                     modifier = Modifier
-                        .fillMaxWidth()
+                        //.fillMaxWidth()
                         .weight(0.5f)
                 )
                 Text(
                     text = ":",
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(.5f),
+                        //.fillMaxWidth()
+                        .weight(.1f),
                     textAlign = TextAlign.Center
                 )
-                Text(
-                    text = "$fromDate to $toDate",
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    textAlign = TextAlign.Start,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                        //.fillMaxWidth()
+                        .weight(2f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = fromDate,
+                        textAlign = TextAlign.Start,
+                        maxLines = 2,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 18.sp
+                    )
+                    Text(
+                        text = " to ",
+                        textAlign = TextAlign.Start,
+                        maxLines = 2,
+                    )
+                    Text(
+                        text = toDate,
+                        textAlign = TextAlign.Start,
+                        maxLines = 2,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontSize = 18.sp
+                    )
+                }
+
             }
             Spacer(modifier = Modifier.height(25.dp))
             if (ledgerList.isEmpty()) {
@@ -198,7 +211,7 @@ fun LedgerReportScreen(
                     modifier = Modifier.alpha(0.5f)
                 )
 
-            }else {
+            } else {
                 OutlinedCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(0),
@@ -211,27 +224,19 @@ fun LedgerReportScreen(
                         val particularsWeight = 0.35f
                         stickyHeader {
 
-                            Row(modifier = Modifier.background(Color(0xFF908989))) {
+                            Row(modifier = Modifier.background(Color(0xFFB7B4B4))) {
                                 TableCell(
                                     weight = dateWeight,
                                     text = "Date    ",
-                                    textColor = Color.White
                                 )
-                                /*TableCell(
-                                weight = voucherNoWeight,
-                                text = "Vch No",
-                                textColor = Color.White
-                            )*/
 
                                 TableCell(
                                     weight = particularsWeight,
                                     text = "Particulars",
-                                    textColor = Color.White
                                 )
                                 TableCell(
                                     weight = amountWeight,
                                     text = "Amount",
-                                    textColor = Color.White
                                 )
 
                             }
@@ -242,32 +247,29 @@ fun LedgerReportScreen(
                         itemsIndexed(ledgerList) { index, ledgerDetail ->
                             Row(
                                 modifier = Modifier.background(
-                                    if (index % 2 == 0) MaterialTheme.colorScheme.background else Color(
-                                        0xFFC9C3C3
-                                    )
+                                    if (index % 2 == 0)
+                                        MaterialTheme.colorScheme.background
+                                    else
+                                        Color(0xFFEDE6E6)
                                 ),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                TableCell(
+                                ItemTableCell(
                                     weight = dateWeight,
                                     text = ledgerDetail.vchrDate,
-                                    textColor = MaterialTheme.colorScheme.primary
+                                    textColor = MaterialTheme.colorScheme.onBackground,
+                                    fontSize = 14.sp
                                 )
-                                /*TableCell(
-                                weight = voucherNoWeight,
-                                text = ledgerDetail.amount.toString(),
-                                textColor = MaterialTheme.colorScheme.primary
-                            )*/
-                                TableCell(
+                                ItemTableCell(
                                     weight = particularsWeight,
                                     text = ledgerDetail.particulars,
-                                    textColor = MaterialTheme.colorScheme.primary,
+                                    textColor = MaterialTheme.colorScheme.onBackground,
                                 )
                                 val s = if (ledgerDetail.vchrType == "Debit") "+ " else "- "
-                                TableCell(
+                                ItemTableCell(
                                     weight = amountWeight,
-                                    text = s+ledgerDetail.amount.toString(),
+                                    text = s + ledgerDetail.amount.toString(),
                                     textColor = if (ledgerDetail.vchrType == "Debit") Color(
                                         0xFF54AB57
                                     ) else Color.Red

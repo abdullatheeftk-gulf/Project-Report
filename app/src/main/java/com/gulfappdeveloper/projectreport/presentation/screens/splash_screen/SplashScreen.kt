@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -41,25 +42,28 @@ import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
 import com.gulfappdeveloper.projectreport.navigation.RootNavScreens
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.splash_screen.components.CompanyNotRegisteredAlert
 import com.gulfappdeveloper.projectreport.presentation.screens.splash_screen.components.NoLicenseAlertDialog
+import com.gulfappdeveloper.projectreport.root.AppConstants
 import com.gulfappdeveloper.projectreport.root.RootViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = "SplashScreen"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SplashScreen(
     navHostController: NavHostController,
     rootViewModel: RootViewModel,
-    deviceId:String
+    deviceId: String
 ) {
     val message by rootViewModel.welcomeMessage
 
 
-    val density = LocalDensity.current
+    // val density = LocalDensity.current
 
-    val snackBarHostState = remember{
+    val snackBarHostState = remember {
         SnackbarHostState()
     }
 
@@ -67,52 +71,73 @@ fun SplashScreen(
         mutableStateOf(false)
     }
 
-
-    var showLogoImage by remember {
+    var showCompanyNotRegisteredAlertDialog by remember {
         mutableStateOf(false)
     }
 
-    var showLicenseExpiryAlertDialog by remember{
-        mutableStateOf(false)
-    }
 
-    var showNoLicenseAlertDialog by remember{
-        mutableStateOf(false)
-    }
+    /* var showLogoImage by remember {
+         mutableStateOf(false)
+     }
 
-    LaunchedEffect(key1 = true ){
-        rootViewModel.splashScreenEvent.collectLatest {value->
-            when(value.event){
-                is UiEvent.ShowProgressBar->{
+     var showLicenseExpiryAlertDialog by remember{
+         mutableStateOf(false)
+     }
+
+     var showNoLicenseAlertDialog by remember{
+         mutableStateOf(false)
+     }*/
+
+    LaunchedEffect(key1 = true) {
+        rootViewModel.splashScreenEvent.collectLatest { value ->
+            when (value.event) {
+                is UiEvent.ShowProgressBar -> {
                     showProgressBar = true
                 }
-                is UiEvent.CloseProgressBar->{
+
+                is UiEvent.CloseProgressBar -> {
                     showProgressBar = false
                 }
-                is UiEvent.Navigate->{
-                    rootViewModel.saveDeviceIdUseCase(deviceId = deviceId)
-                   // navHostController.popBackStack()
-                  //  navHostController.navigate(value.event.route)
+
+                is UiEvent.Navigate -> {
+                    // rootViewModel.saveDeviceIdUseCase(deviceId = deviceId)
+                    navHostController.popBackStack()
+                    navHostController.navigate(value.event.route)
                 }
-                is UiEvent.ShowSnackBar->{
+
+                is UiEvent.ShowSnackBar -> {
                     snackBarHostState.showSnackbar(message = value.event.message)
                 }
-                is UiEvent.ShowAlertDialog->{
-                    if (value.event.message=="License_Expired"){
+
+                is UiEvent.ShowAlertDialog -> {
+                    /*if (value.event.message=="License_Expired"){
                         // ToDo
                     }
                     else{
                         showNoLicenseAlertDialog = true
+                    }*/
+
+                    if (value.event.message == AppConstants.COMPANY_NOT_REGISTERED) {
+                        showCompanyNotRegisteredAlertDialog = true
                     }
                 }
-                else->Unit
+
+                else -> Unit
             }
         }
     }
 
-    if (showNoLicenseAlertDialog){
+    /*if (showNoLicenseAlertDialog){
         NoLicenseAlertDialog {
             showLicenseExpiryAlertDialog = true
+            navHostController.popBackStack()
+            navHostController.navigate(RootNavScreens.RegisterCompanyScreen.route)
+        }
+    }*/
+
+    if (showCompanyNotRegisteredAlertDialog) {
+        CompanyNotRegisteredAlert {
+            showCompanyNotRegisteredAlertDialog = false
             navHostController.popBackStack()
             navHostController.navigate(RootNavScreens.RegisterCompanyScreen.route)
         }
@@ -143,21 +168,20 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(50.dp))
 
 
+            /* AnimatedVisibility(
+                 visible = showLogoImage,
+                 enter = slideInVertically {
+                     with(density) {
+                         100.dp.roundToPx()
+                     }
+                 } + expandVertically(
+                     expandFrom = Alignment.Top,
 
-           /* AnimatedVisibility(
-                visible = showLogoImage,
-                enter = slideInVertically {
-                    with(density) {
-                        100.dp.roundToPx()
-                    }
-                } + expandVertically(
-                    expandFrom = Alignment.Top,
-
-                    )
-                        + fadeIn(initialAlpha = 0.3f),
-                exit = slideOutVertically() + shrinkVertically() + fadeOut()
-            ) {
-               *//* Image(
+                     )
+                         + fadeIn(initialAlpha = 0.3f),
+                 exit = slideOutVertically() + shrinkVertically() + fadeOut()
+             ) {
+                *//* Image(
                     painter = painterResource(id = R.drawable.ic_launcher_foreground),
                     contentDescription = null,
                     modifier = Modifier
@@ -175,27 +199,28 @@ fun SplashScreen(
                     modifier = Modifier.padding(16.dp),
                 )
             }*/
-            
-            Text(text = message)
+
+            Text(
+                text = message,
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = MaterialTheme.typography.headlineMedium.fontSize,
+                fontWeight = MaterialTheme.typography.headlineMedium.fontWeight,
+                fontStyle = MaterialTheme.typography.headlineMedium.fontStyle
+            )
 
 
         }
 
-
-
-
-        if (showProgressBar) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(50.dp))
-            }
-
+    }
+    if (showProgressBar) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(50.dp))
         }
-
 
     }
 }

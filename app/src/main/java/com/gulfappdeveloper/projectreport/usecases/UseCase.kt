@@ -18,6 +18,8 @@ import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.operatio
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.operation_counter_use_cases.UpdateOperationCountUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.uni_license_use_cases.ReadUniLicenseUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.uni_license_use_cases.SaveUniLicenseUseCase
+import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.user_name_use_case.ReadUserNameUseCase
+import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.user_name_use_case.SaveUserNameUseCase
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.GetAllLocalCompanyData
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.RoomInsertDataUseCase
 
@@ -54,6 +56,11 @@ data class UseCase(
     val saveCompanyDataUseCase: SaveCompanyDataUseCase,
     val readCompanyDataUseCase: ReadCompanyDataUseCase,
 
+    val saveUserNameUseCase: SaveUserNameUseCase,
+    val readUserNameUseCase: ReadUserNameUseCase,
+
+
+    // Room
     val roomInsertDataUseCase: RoomInsertDataUseCase,
     val getAllLocalCompanyData: GetAllLocalCompanyData,
 

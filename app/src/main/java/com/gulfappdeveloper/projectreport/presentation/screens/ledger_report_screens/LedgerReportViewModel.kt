@@ -74,11 +74,17 @@ class LedgerReportViewModel @Inject constructor(
     private val _toDateToDisplay = mutableStateOf("")
     val toDateToDisplay:State<String> = _toDateToDisplay
 
-    init {
+    private val _selectedAccountType = mutableStateOf("Customer")
+    val selectedAccountType:State<String> = _selectedAccountType
+
+    /*init {
         getCustomerForLedger("customer")
-    }
+    }*/
 
     fun getCustomerForLedger(selectedAccountType:String){
+
+        _selectedAccountType.value = selectedAccountType
+
         val url = HttpRoutes.BASE_URL+HttpRoutes.GET_CUSTOMER_FOR_LEDGER+commonMemory.companyId+"/$selectedAccountType"
         viewModelScope.launch(Dispatchers.IO) {
             useCase.getCustomerForLedgerUseCase(url = url).collectLatest {value->

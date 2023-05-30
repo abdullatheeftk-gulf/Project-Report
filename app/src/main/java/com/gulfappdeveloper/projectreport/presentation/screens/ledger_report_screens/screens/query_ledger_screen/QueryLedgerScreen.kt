@@ -111,21 +111,23 @@ fun QueryLedgerScreen(
         }
     )
 
-    var showAccountTypeDropDownMenu by remember {
+    /*var showAccountTypeDropDownMenu by remember {
         mutableStateOf(false)
-    }
+    }*/
 
     var showAccountDropDownMenu by remember {
         mutableStateOf(false)
     }
 
-    val accountTypeList = listOf<String>(
+    /*val accountTypeList = listOf<String>(
         "Customer", "Supplier", "Expense"
-    )
+    )*/
 
-    var selectedAccountType by remember {
+    /*var selectedAccountType by remember {
         mutableStateOf("Customer")
-    }
+    }*/
+
+    val accountType by ledgerReportViewModel.selectedAccountType
 
     val accountList = ledgerReportViewModel.accountList
 
@@ -172,7 +174,7 @@ fun QueryLedgerScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Ledger Report",
+                        text = if (accountType=="Customer") "Customer Ledger Report" else if(accountType =="Supplier") "Supplier Ledger Report" else "Expense Report",
                         textDecoration = TextDecoration.Underline,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.fillMaxWidth(),
@@ -204,85 +206,6 @@ fun QueryLedgerScreen(
         ) {
             Spacer(modifier = Modifier.height(60.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Account Type",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                )
-                Text(
-                    text = ":",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    textAlign = TextAlign.Center
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(2f),
-                    contentAlignment = Alignment.Center
-                ) {
-
-                    OutlinedCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        border = BorderStroke(width = 0.60.dp, color = Color(0xFF666464)),
-                        shape = RoundedCornerShape(8)
-                    ) {
-                        TextButton(
-                            onClick = {
-                                showAccountTypeDropDownMenu = true
-                            },
-                            enabled = !showProgressBar
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(text = selectedAccountType)
-
-                                Icon(
-                                    imageVector = Icons.Filled.ArrowDropDown,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                        DropdownMenu(
-                            expanded = showAccountTypeDropDownMenu,
-                            onDismissRequest = {
-                                showAccountTypeDropDownMenu = false
-                            },
-                        )
-                        {
-                            accountTypeList.forEach { accountType ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            text = accountType,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    },
-                                    onClick = {
-                                        ledgerReportViewModel.getCustomerForLedger(accountType)
-                                        selectedAccountType = accountType
-                                        showAccountTypeDropDownMenu = false
-                                    }
-                                )
-                            }
-
-
-                        }
-                    }
-
-                }
-
-            }
 
             Spacer(modifier = Modifier.height(20.dp))
             Row(
@@ -477,9 +400,7 @@ fun QueryLedgerScreen(
                     onClick = {
                         selectedFromDate = LocalDate.now().minusYears(1)
                         selectedToDate = LocalDate.now()
-                        selectedAccountType = accountTypeList[0]
                         ledgerReportViewModel.setSelectedAccount(accountList[0])
-                        ledgerReportViewModel.getCustomerForLedger("Customer")
                     },
                     enabled = !showProgressBar
                 ) {

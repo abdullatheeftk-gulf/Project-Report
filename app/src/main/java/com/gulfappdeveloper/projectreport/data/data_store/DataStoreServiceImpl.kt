@@ -17,7 +17,7 @@ import java.io.IOException
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = DataStoreConstants.PREFERENCE_NAME)
 
-class DataStoreServiceImpl(context: Context):DataStoreService {
+class DataStoreServiceImpl(context: Context) : DataStoreService {
 
     private object PreferenceKeys {
         val operationCountKey = intPreferencesKey(name = DataStoreConstants.OPERATION_COUNT_KEY)
@@ -25,6 +25,7 @@ class DataStoreServiceImpl(context: Context):DataStoreService {
         val uniLicenseKey = stringPreferencesKey(name = DataStoreConstants.UNI_LICENSE_SAVE_KEY)
         val deviceIdKey = stringPreferencesKey(name = DataStoreConstants.DEVICE_ID_KEY)
         val companyDataKey = stringPreferencesKey(name = DataStoreConstants.COMPANY_DATA_KEY)
+        val userNameKey = stringPreferencesKey(name = DataStoreConstants.USER_NAME_KEY)
     }
 
     private val dataStore = context.dataStore
@@ -57,6 +58,12 @@ class DataStoreServiceImpl(context: Context):DataStoreService {
     override suspend fun saveCompanyData(companyData: String) {
         dataStore.edit { preference ->
             preference[PreferenceKeys.companyDataKey] = companyData
+        }
+    }
+
+    override suspend fun saveUserName(userName: String) {
+        dataStore.edit { preference ->
+            preference[PreferenceKeys.userNameKey] = userName
         }
     }
 
@@ -126,6 +133,20 @@ class DataStoreServiceImpl(context: Context):DataStoreService {
             }
             .map { preferences ->
                 val companyData = preferences[PreferenceKeys.companyDataKey] ?: ""
+                companyData
+            }
+    }
+
+    override fun readUserName(): Flow<String> {
+        return dataStore.data
+            .catch { exception ->
+                if (exception is IOException)
+                    emit(emptyPreferences())
+                else
+                    throw exception
+            }
+            .map { preferences ->
+                val companyData = preferences[PreferenceKeys.userNameKey] ?: ""
                 companyData
             }
     }

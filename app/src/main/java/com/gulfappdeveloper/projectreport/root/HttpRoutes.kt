@@ -25,5 +25,7 @@ object HttpRoutes {
     // Customer payment
     const val GET_CUSTOMER_PAYMENT_REPORT = "/api/customerPayment/"
 
+    // Sales
+
 
 }

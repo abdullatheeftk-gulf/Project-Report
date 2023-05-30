@@ -22,6 +22,8 @@ import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.operatio
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.operation_counter_use_cases.UpdateOperationCountUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.uni_license_use_cases.ReadUniLicenseUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.uni_license_use_cases.SaveUniLicenseUseCase
+import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.user_name_use_case.ReadUserNameUseCase
+import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.user_name_use_case.SaveUserNameUseCase
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.GetAllLocalCompanyData
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.RoomInsertDataUseCase
 import dagger.Module
@@ -66,12 +68,18 @@ object RepositoryModule {
         saveCompanyDataUseCase = SaveCompanyDataUseCase(dataStoreRepository = dataStoreRepository),
         readCompanyDataUseCase = ReadCompanyDataUseCase(dataStoreRepository = dataStoreRepository),
 
+        saveUserNameUseCase = SaveUserNameUseCase(dataStoreRepository = dataStoreRepository),
+        readUserNameUseCase = ReadUserNameUseCase(dataStoreRepository = dataStoreRepository),
+
+        // Room
         roomInsertDataUseCase = RoomInsertDataUseCase(roomDatabaseRepository = roomDatabaseRepository),
         getAllLocalCompanyData = GetAllLocalCompanyData(roomDatabaseRepository = roomDatabaseRepository),
 
+        // Ledger
         getCustomerForLedgerUseCase = GetCustomerForLedgerUseCase(apiRepository = apiRepository),
         getCustomerLedgers = GetCustomerLedgers(apiRepository = apiRepository),
 
+        // Customer payment
         getCustomerPaymentUseCase = GetCustomerPaymentUseCase(apiRepository = apiRepository)
     )
 }

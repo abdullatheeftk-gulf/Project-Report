@@ -12,4 +12,6 @@ object DataStoreConstants {
     const val DEVICE_ID_KEY = "device_android_id_key_data_store"
 
     const val COMPANY_DATA_KEY = "company_data_data_store"
+
+    const val USER_NAME_KEY = "user_name_key"
 }

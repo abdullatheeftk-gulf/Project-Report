@@ -2,8 +2,10 @@ package com.gulfappdeveloper.projectreport.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.CustomerPaymentMainScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_screens.LedgerReportMainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.login_screen.LoginScreen
@@ -21,7 +23,7 @@ fun RootNavGraph(
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = RootNavScreens.MainScreen.route
+        startDestination = RootNavScreens.SplashScreen.route
     ) {
         composable(RootNavScreens.SplashScreen.route) {
             SplashScreen(
@@ -50,11 +52,20 @@ fun RootNavGraph(
                 rootViewModel = rootViewModel
             )
         }
-        composable(RootNavScreens.LedgerReportScreens.route) {
+        composable(
+            route = RootNavScreens.LedgerReportScreens.route + "/{accountType}",
+            arguments = listOf(
+                navArgument(name = "accountType") {
+                    type = NavType.StringType
+                    defaultValue = "Customer"
+                }
+            )
+        ) {
             LedgerReportMainScreen(
                 navHostController = navHostController,
                 rootViewModel = rootViewModel,
-                hideKeyboard = hideKeyboard
+                hideKeyboard = hideKeyboard,
+                accountType = it.arguments?.getString("accountType") ?: "Customer"
             )
         }
         composable(RootNavScreens.CustomerPaymentReportScreens.route) {

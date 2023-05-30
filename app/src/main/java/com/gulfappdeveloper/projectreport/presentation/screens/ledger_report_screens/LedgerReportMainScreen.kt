@@ -12,9 +12,12 @@ fun LedgerReportMainScreen(
     navHostController: NavHostController,
     rootViewModel: RootViewModel,
     hideKeyboard:()->Unit,
+    accountType:String = "Customer",
     ledgerReportViewModel: LedgerReportViewModel = hiltViewModel()
 ) {
     val ledgerReportNavHostController = rememberNavController()
+
+    ledgerReportViewModel.getCustomerForLedger(selectedAccountType = accountType)
 
     LedgerReportNavGraph(
         ledgerReportNavHostController = ledgerReportNavHostController,

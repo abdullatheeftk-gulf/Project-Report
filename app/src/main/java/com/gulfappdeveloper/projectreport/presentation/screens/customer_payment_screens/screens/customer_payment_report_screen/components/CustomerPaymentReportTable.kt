@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -92,7 +93,7 @@ fun CustomerPaymentReportTable(customerPaymentReportList: SnapshotStateList<Cust
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.background)
+                    .background(if(rowCount%2==0) Color(0xFFEDE6E6) else MaterialTheme.colorScheme.background )
                     .border(Dp.Hairline, Color.Black)
             ) {
                 if (columCont%9==1){
@@ -101,7 +102,8 @@ fun CustomerPaymentReportTable(customerPaymentReportList: SnapshotStateList<Cust
                         modifier = Modifier.wrapContentSize().padding(horizontal = 4.dp),
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
+                        //color = if ()
                     )
                 }else {
                     Text(

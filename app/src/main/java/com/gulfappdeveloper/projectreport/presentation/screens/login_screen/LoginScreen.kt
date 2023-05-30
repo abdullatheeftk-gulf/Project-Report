@@ -34,9 +34,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -52,9 +54,9 @@ fun LoginScreen(
     hideKeyboard: () -> Unit,
     rootViewModel: RootViewModel
 ) {
-    var userName by remember {
+    /*var userName by remember {
         mutableStateOf("")
-    }
+    }*/
 
     var password by remember {
         mutableStateOf("")
@@ -68,9 +70,19 @@ fun LoginScreen(
         mutableStateOf(false)
     }
 
-    val snackBarHostState = remember{
+    val snackBarHostState = remember {
         SnackbarHostState()
     }
+
+    var showErrorMessage by remember {
+        mutableStateOf(false)
+    }
+
+    var errorMessage by remember {
+        mutableStateOf("")
+    }
+
+    val userNameState by rootViewModel.userNameState
 
     LaunchedEffect(key1 = true) {
         rootViewModel.loginScreenEvent.collectLatest { value ->
@@ -84,11 +96,14 @@ fun LoginScreen(
                 }
 
                 is UiEvent.ShowSnackBar -> {
+                    showErrorMessage = true
+                    errorMessage = value.uiEvent.message
                     snackBarHostState.showSnackbar(value.uiEvent.message)
                 }
 
                 is UiEvent.Navigate -> {
-
+                    navHostController.popBackStack()
+                    navHostController.navigate(value.uiEvent.route)
                 }
 
                 is UiEvent.ShowAlertDialog -> {
@@ -105,22 +120,23 @@ fun LoginScreen(
             SnackbarHost(hostState = snackBarHostState)
         },
         topBar = {
-        TopAppBar(
-            title = {
-                Text(
-                    text = "Login",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = Color.Yellow
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = TopAppBarDefaults.mediumTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-            )
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Login",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                /* colors = TopAppBarDefaults.mediumTopAppBarColors(
+                     //containerColor = MaterialTheme.colorScheme.primary,
+                 )*/
 
-        )
-    }) {
+            )
+        }) {
         it.calculateTopPadding()
         Column(
             modifier = Modifier
@@ -131,9 +147,9 @@ fun LoginScreen(
         ) {
             Spacer(modifier = Modifier.height(70.dp))
             OutlinedTextField(
-                value = userName,
+                value = userNameState,
                 onValueChange = { value ->
-                    userName = value
+                    rootViewModel.setUserName(value)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -153,9 +169,13 @@ fun LoginScreen(
                 label = {
                     Text(text = "UserName")
                 },
-
-                )
-            Spacer(modifier = Modifier.height(20.dp))
+                supportingText = {
+                    if (showErrorMessage) {
+                        Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
                 value = password,
                 onValueChange = { value ->
@@ -163,11 +183,14 @@ fun LoginScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.Password
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-
+                        showErrorMessage = false
+                        rootViewModel.login(userName = userNameState, password = password)
+                        hideKeyboard()
                     }
                 ),
                 placeholder = {
@@ -179,7 +202,7 @@ fun LoginScreen(
                 label = {
                     Text(text = "Password")
                 },
-                visualTransformation = if (!showPasswordToggle) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (showPasswordToggle) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = {
                         showPasswordToggle = !showPasswordToggle
@@ -198,10 +221,11 @@ fun LoginScreen(
             )
 
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(40.dp))
             Button(
                 onClick = {
-                    rootViewModel.login(userName = userName, password = password)
+                    showErrorMessage = false
+                    rootViewModel.login(userName = userNameState, password = password)
                     hideKeyboard()
                 },
                 enabled = !showProgressBar
@@ -210,18 +234,17 @@ fun LoginScreen(
             }
 
         }
+    }
 
-        if (showProgressBar) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(50.dp))
-            }
+    if (showProgressBar) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(50.dp))
         }
-
     }
 }
 

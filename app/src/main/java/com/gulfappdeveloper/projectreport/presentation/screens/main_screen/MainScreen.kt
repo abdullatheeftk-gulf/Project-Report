@@ -45,7 +45,7 @@ fun MainScreen(
                 item {
                     MenuItem(
                         onClickMenuItem = {
-                           navHostController.navigate(RootNavScreens.LedgerReportScreens.route)
+                           navHostController.navigate(RootNavScreens.LedgerReportScreens.route+"/Customer")
                         },
                         containerColor = Color(0xFF6ED872),
                         contentColor = Color(0xFF484545),
@@ -55,7 +55,7 @@ fun MainScreen(
                 item {
                     MenuItem(
                         onClickMenuItem = {
-                            navHostController.navigate(RootNavScreens.LedgerReportScreens.route)
+                            navHostController.navigate(RootNavScreens.LedgerReportScreens.route+"/Supplier")
                         },
                         containerColor = Color(0xFF6ED872),
                         contentColor = Color(0xFF484545),
@@ -65,7 +65,7 @@ fun MainScreen(
                 item {
                     MenuItem(
                         onClickMenuItem = {
-                            navHostController.navigate(RootNavScreens.LedgerReportScreens.route)
+                            navHostController.navigate(RootNavScreens.LedgerReportScreens.route+"/Expense")
                         },
                         containerColor = Color(0xFFF4776D),
                         contentColor = Color(0xFF484545),

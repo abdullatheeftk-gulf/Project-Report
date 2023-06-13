@@ -6,11 +6,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.CustomerPaymentMainScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_screens.LedgerReportMainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.login_screen.LoginScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.main_screen.MainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.register_company_screen.RegisterCompanyScreen
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.SalesMainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.splash_screen.SplashScreen
 import com.gulfappdeveloper.projectreport.root.RootViewModel
 
@@ -68,10 +68,17 @@ fun RootNavGraph(
                 accountType = it.arguments?.getString("accountType") ?: "Customer"
             )
         }
-        composable(RootNavScreens.CustomerPaymentReportScreens.route) {
+        /*composable(RootNavScreens.CustomerPaymentReportScreens.route) {
             CustomerPaymentMainScreens(
                 navHostController = navHostController,
                 rootViewModel = rootViewModel
+            )
+        }*/
+        composable(RootNavScreens.SalesScreens.route){
+            SalesMainScreen(
+                navHostController = navHostController,
+                rootViewModel = rootViewModel,
+                hideKeyboard = hideKeyboard
             )
         }
 

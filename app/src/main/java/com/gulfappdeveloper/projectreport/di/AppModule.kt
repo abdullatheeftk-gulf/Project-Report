@@ -6,9 +6,13 @@ import com.gulfappdeveloper.projectreport.data.data_store.DataStoreServiceImpl
 import com.gulfappdeveloper.projectreport.data.room.LocalCompanyDataDao
 import com.gulfappdeveloper.projectreport.data.room.RoomDatabaseServiceImpl
 import com.gulfappdeveloper.projectreport.domain.services.DataStoreService
+import com.gulfappdeveloper.projectreport.domain.services.ExcelService
+import com.gulfappdeveloper.projectreport.domain.services.PdfService
 import com.gulfappdeveloper.projectreport.domain.services.RoomDatabaseService
 import com.gulfappdeveloper.projectreport.root.AppRoomDatabase
 import com.gulfappdeveloper.projectreport.root.CommonMemory
+import com.gulfappdeveloper.projectreport.share.excel.ExcelServiceImpl
+import com.gulfappdeveloper.projectreport.share.pdf.PdfServiceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,4 +48,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideRoomDatabaseService(dao:LocalCompanyDataDao):RoomDatabaseService = RoomDatabaseServiceImpl(dao = dao)
+
+    @Provides
+    @Singleton
+    fun providePdfService(@ApplicationContext context: Context):PdfService = PdfServiceImpl(context = context)
+
+    @Provides
+    @Singleton
+    fun provideExcelService(@ApplicationContext context: Context):ExcelService = ExcelServiceImpl(context = context)
 }

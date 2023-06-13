@@ -3,6 +3,7 @@ package com.gulfappdeveloper.projectreport
 import android.content.Context
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +21,7 @@ import com.gulfappdeveloper.projectreport.root.RootViewModel
 import com.gulfappdeveloper.projectreport.ui.theme.ProjectReportTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -27,6 +29,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val rootViewModel by viewModels<RootViewModel>()
+        
+
 
         val deviceId = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)+"PQ"
 
@@ -58,5 +62,9 @@ class MainActivity : ComponentActivity() {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             imm?.hideSoftInputFromWindow(view.windowToken, 0)
         }
+    }
+    
+    fun myAdd(list:MutableList<Int>,value:Int){
+        list.add(value)
     }
 }

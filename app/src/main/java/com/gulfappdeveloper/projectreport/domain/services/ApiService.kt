@@ -9,6 +9,9 @@ import com.gulfappdeveloper.projectreport.domain.models.license.LicenseRequestBo
 import com.gulfappdeveloper.projectreport.domain.models.license.LicenseResponse
 import com.gulfappdeveloper.projectreport.domain.models.login_and_register.CompanyRegisterResponse
 import com.gulfappdeveloper.projectreport.domain.models.login_and_register.LoginResponse
+import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
+import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
+import com.gulfappdeveloper.projectreport.domain.models.sales.UserSalesResponse
 import kotlinx.coroutines.flow.Flow
 
 interface ApiService {
@@ -34,6 +37,10 @@ interface ApiService {
 
 
     // customer payment
-
     suspend fun getCustomerPayment(url:String):Flow<GetDataFromRemote<List<CustomerPaymentResponse>>>
+
+    // Sales
+    suspend fun getSaleSummariesReport(url:String):Flow<GetDataFromRemote<List<SaleSummariesResponse>>>
+    suspend fun getSalesInvoiceReport(url:String):Flow<GetDataFromRemote<List<SalesInvoiceResponse>>>
+    suspend fun getUserSalesReport(url:String):Flow<GetDataFromRemote<List<UserSalesResponse>>>
 }

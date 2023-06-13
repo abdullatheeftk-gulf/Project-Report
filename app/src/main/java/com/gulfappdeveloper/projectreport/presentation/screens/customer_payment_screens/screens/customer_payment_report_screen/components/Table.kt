@@ -1,3 +1,4 @@
+/*
 package com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.screens.customer_payment_report_screen.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -78,4 +79,4 @@ fun Table(
             }
         }
     }
-}
+}*/

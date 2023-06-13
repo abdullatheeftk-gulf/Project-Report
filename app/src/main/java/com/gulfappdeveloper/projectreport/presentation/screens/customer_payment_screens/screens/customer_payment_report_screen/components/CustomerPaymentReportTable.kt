@@ -1,3 +1,4 @@
+/*
 package com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.screens.customer_payment_report_screen.components
 
 import androidx.compose.foundation.background
@@ -27,7 +28,9 @@ import eu.wewox.lazytable.lazyTablePinConfiguration
 private const val TAG = "NewTable"
 
 @Composable
-fun CustomerPaymentReportTable(customerPaymentReportList: SnapshotStateList<CustomerPaymentResponse>) {
+fun CustomerPaymentReportTable(
+    customerPaymentReportList: SnapshotStateList<CustomerPaymentResponse>
+) {
 
     LazyTable(
         modifier = Modifier
@@ -82,11 +85,11 @@ fun CustomerPaymentReportTable(customerPaymentReportList: SnapshotStateList<Cust
                 1-> rowData.date
                 2-> rowData.receiptNo.toString()
                 3-> rowData.party
-                4-> rowData.cash.toString()
-                5-> rowData.card.toString()
-                6-> rowData.online.toString()
-                7-> rowData.credit.toString()
-                8->rowData.total.toString()
+                4-> rowData.cash
+                5-> rowData.card
+                6-> rowData.onlineAmount
+                7-> rowData.credit
+                8->rowData.total
                 else->"Error"
             }
 
@@ -181,4 +184,4 @@ fun CustomerPaymentReportTable(customerPaymentReportList: SnapshotStateList<Cust
         }
 
     }
-}
+}*/

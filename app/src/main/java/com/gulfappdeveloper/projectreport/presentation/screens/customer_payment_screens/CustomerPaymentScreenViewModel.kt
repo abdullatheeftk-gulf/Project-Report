@@ -1,3 +1,4 @@
+/*
 package com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens
 
 import android.util.Log
@@ -101,4 +102,4 @@ class CustomerPaymentScreenViewModel @Inject constructor(
             }
         }
     }
-}
+}*/

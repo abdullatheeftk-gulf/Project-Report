@@ -1,3 +1,4 @@
+/*
 package com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.screens.customer_payment_report_screen
 
 import android.app.Activity
@@ -66,9 +67,11 @@ fun CustomerPaymentReportScreen(
     val customerPaymentReportList = customerPaymentScreenViewModel.customerPaymentReportList
 
 
-    /*LaunchedEffect(key1 = true) {
+    */
+/*LaunchedEffect(key1 = true) {
 
-    }*/
+    }*//*
+
 
 
     val context = LocalContext.current
@@ -186,4 +189,4 @@ fun ScreenOrientationAction(
             tint = MaterialTheme.colorScheme.primary
         )
     }
-}
+}*/

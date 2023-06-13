@@ -6,16 +6,17 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SaleSummariesResponse(
-    @SerialName("date")
-    val date: String,
-    @SerialName("taxable")
-    val taxable: Float,
-    @SerialName("tax")
-    val tax: Float,
-    @SerialName("returnTaxable")
-    val returnTaxable: Float,
-    @SerialName("returnTax")
     val returnTax: Float,
-    @SerialName("net")
+    val date: String,
+
+    val taxable: Float,
+
+    val tax: Float,
+
+
+    val returnTaxable: Float,
+
+
+
     val net: Float
 )

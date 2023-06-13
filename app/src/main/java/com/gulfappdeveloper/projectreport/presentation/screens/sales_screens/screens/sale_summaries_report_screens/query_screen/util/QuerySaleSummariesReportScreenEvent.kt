@@ -1,0 +1,5 @@
+package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sale_summaries_report_screens.query_screen.util
+
+import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
+
+data class QuerySaleSummariesReportScreenEvent(val uiEvent: UiEvent)

@@ -8,4 +8,7 @@ sealed class RootNavScreens(val route:String){
     object MainScreen : RootNavScreens("main_screen")
     object LedgerReportScreens : RootNavScreens("Ledger_report_screens")
     object CustomerPaymentReportScreens : RootNavScreens("customer_payment_report_screen")
+    object SalesScreens:RootNavScreens("sales_screens")
+
+
 }

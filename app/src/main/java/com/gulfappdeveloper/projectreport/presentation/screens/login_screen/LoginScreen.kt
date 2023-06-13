@@ -103,7 +103,11 @@ fun LoginScreen(
 
                 is UiEvent.Navigate -> {
                     navHostController.popBackStack()
-                    navHostController.navigate(value.uiEvent.route)
+                    if (value.uiEvent.route == "Error") {
+                        snackBarHostState.showSnackbar("Incorrect Password")
+                    } else {
+                        navHostController.navigate(value.uiEvent.route)
+                    }
                 }
 
                 is UiEvent.ShowAlertDialog -> {

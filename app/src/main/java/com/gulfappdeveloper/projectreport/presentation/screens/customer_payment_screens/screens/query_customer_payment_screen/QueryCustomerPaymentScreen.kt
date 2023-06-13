@@ -1,4 +1,4 @@
-package com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.screens.query_customer_payment_screen
+/*package com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.screens.query_customer_payment_screen
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -300,7 +300,7 @@ fun QueryCustomerPaymentScreen(
         }
     }
 
-}
+}*/
 
 /*
 @Preview

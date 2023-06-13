@@ -30,6 +30,8 @@ fun MainScreen(
         SnackbarHostState()
     }
 
+
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState)
@@ -42,7 +44,7 @@ fun MainScreen(
             horizontalArrangement = Arrangement.Center,
             verticalArrangement = Arrangement.Top,
             content = {
-                item {
+                /*item {
                     MenuItem(
                         onClickMenuItem = {
                            navHostController.navigate(RootNavScreens.LedgerReportScreens.route+"/Customer")
@@ -71,8 +73,8 @@ fun MainScreen(
                         contentColor = Color(0xFF484545),
                         menuText = "EXPENSE REPORT"
                     )
-                }
-                item {
+                }*/
+               /* item {
                     MenuItem(
                         onClickMenuItem = {
                             navHostController.navigate(RootNavScreens.CustomerPaymentReportScreens.route)
@@ -80,6 +82,36 @@ fun MainScreen(
                         containerColor = Color(0xFF03A9F4),
                         contentColor = Color(0xFF484545),
                         menuText = "CUSTOMER PAYMENT REPORT"
+                    )
+                }*/
+                item {
+                    MenuItem(
+                        onClickMenuItem = {
+                            navHostController.navigate(RootNavScreens.SalesScreens.route)
+                        },
+                        containerColor = Color(0xFFFF9800),
+                        contentColor = Color(0xFF484545),
+                        menuText = "SALES"
+                    )
+                }
+                item {
+                    MenuItem(
+                        onClickMenuItem = {
+                           // navHostController.navigate(RootNavScreens.SalesScreens.route)
+                        },
+                        containerColor = Color(0xFF74B8D6),
+                        contentColor = Color(0xFF484545),
+                        menuText = "PURCHASE"
+                    )
+                }
+                item {
+                    MenuItem(
+                        onClickMenuItem = {
+                           // navHostController.navigate(RootNavScreens.SalesScreens.route)
+                        },
+                        containerColor = Color(0xFF99E597),
+                        contentColor = Color(0xFF484545),
+                        menuText = "ACCOUNTS"
                     )
                 }
                 item {

@@ -1,4 +1,4 @@
-package com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens
+/*package com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -23,4 +23,4 @@ fun CustomerPaymentMainScreens(
        navHostController = navHostController
    )
 
-}
+}*/

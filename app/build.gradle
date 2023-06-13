@@ -88,7 +88,7 @@ dependencies {
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
     //compose navigation
-    def nav_version = "2.5.3"
+    def nav_version = "2.6.0"
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
     //for qr code and barcode
@@ -111,6 +111,9 @@ dependencies {
     implementation "com.maxkeppeler.sheets-compose-dialogs:calendar:1.1.1"
 
     // Table
-
     implementation 'io.github.oleksandrbalan:lazytable:1.0.0'
+
+     // Excel
+    implementation 'org.apache.poi:poi:5.2.2'
+    implementation 'org.apache.poi:poi-ooxml:5.2.2'
 }

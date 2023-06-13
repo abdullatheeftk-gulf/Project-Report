@@ -2,6 +2,7 @@ package com.gulfappdeveloper.projectreport.di
 
 import com.gulfappdeveloper.projectreport.repositories.ApiRepository
 import com.gulfappdeveloper.projectreport.repositories.DataStoreRepository
+import com.gulfappdeveloper.projectreport.repositories.PdfExcelRepository
 import com.gulfappdeveloper.projectreport.repositories.RoomDatabaseRepository
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.customer_payment.GetCustomerPaymentUseCase
@@ -11,6 +12,9 @@ import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.license.GetI
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.license.UniLicenseActivationUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.register_and_login_use_cases.LoginUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.register_and_login_use_cases.RegisterCompanyUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.sales.GetSalesInvoiceReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.sales.GetSalesSummariesReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.sales.GetUserSalesReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.welcome.WelcomeMessageUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.company_data_use_case.ReadCompanyDataUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.company_data_use_case.SaveCompanyDataUseCase
@@ -24,6 +28,8 @@ import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.uni_lice
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.uni_license_use_cases.SaveUniLicenseUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.user_name_use_case.ReadUserNameUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.user_name_use_case.SaveUserNameUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.customer_payment_report.ExcelMakerUseCaseForCustomerPaymentReport
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.customer_payment_report.PdfMakerUseCaseForCustomerPaymentReport
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.GetAllLocalCompanyData
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.RoomInsertDataUseCase
 import dagger.Module
@@ -41,7 +47,8 @@ object RepositoryModule {
     fun provideUseCase(
         apiRepository: ApiRepository,
         dataStoreRepository: DataStoreRepository,
-        roomDatabaseRepository: RoomDatabaseRepository
+        roomDatabaseRepository: RoomDatabaseRepository,
+        pdfExcelRepository: PdfExcelRepository
     ) = UseCase(
         welcomeMessageUseCase = WelcomeMessageUseCase(apiRepository = apiRepository),
         uniLicenseActivationUseCase = UniLicenseActivationUseCase(apiRepository = apiRepository),
@@ -80,6 +87,14 @@ object RepositoryModule {
         getCustomerLedgers = GetCustomerLedgers(apiRepository = apiRepository),
 
         // Customer payment
-        getCustomerPaymentUseCase = GetCustomerPaymentUseCase(apiRepository = apiRepository)
+        getCustomerPaymentUseCase = GetCustomerPaymentUseCase(apiRepository = apiRepository),
+
+        // Sales
+        getSalesInvoiceReportUseCase = GetSalesInvoiceReportUseCase(apiRepository = apiRepository),
+        getSalesSummariesReportUseCase = GetSalesSummariesReportUseCase(apiRepository = apiRepository),
+        getUserSalesReportUseCase = GetUserSalesReportUseCase(apiRepository = apiRepository),
+
+        pdfMakerUseCaseForCustomerPaymentReport = PdfMakerUseCaseForCustomerPaymentReport(pdfExcelRepository = pdfExcelRepository),
+        excelMakerUseCaseForCustomerPaymentReport = ExcelMakerUseCaseForCustomerPaymentReport(pdfExcelRepository=pdfExcelRepository)
     )
 }

@@ -12,14 +12,19 @@ import com.gulfappdeveloper.projectreport.domain.models.customer_payment.Custome
 import com.gulfappdeveloper.projectreport.domain.models.general.GetDataFromRemote
 import com.gulfappdeveloper.projectreport.domain.models.ledger.GetCustomerForLedgerReportResponse
 import com.gulfappdeveloper.projectreport.domain.models.ledger.LedgerDetail
+import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.UserSalesResponse
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_screens.navigation.LedgerReportScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.navigation.SalesScreens
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.CustomerLedgerTotals
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.ReArrangedCustomerLedgerDetails
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.query_screen.util.QueryCustomerLedgerReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.query_screen.util.QueryCustomerPaymentReportScreenEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.query_screen.util.QueryPosPaymentReportScreenEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.report_screen.util.PosPaymentReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.query_screen.util.QuerySalesInvoiceReportEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sale_summaries_report_screens.query_screen.util.QuerySaleSummariesReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.user_sales_report_screens.query_screen.util.QueryUserSalesReportScreenEvent
@@ -98,6 +103,26 @@ class SalesViewModel @Inject constructor(
         }
     }
 
+    private val _queryPosPaymentReportScreenEvent =
+        Channel<QueryPosPaymentReportScreenEvent>()
+    val queryPosPaymentReportScreenEvent = _queryPosPaymentReportScreenEvent.receiveAsFlow()
+
+    private fun sendQueryPosPaymentReportScreenEvent(uiEvent: UiEvent) {
+        viewModelScope.launch {
+            _queryPosPaymentReportScreenEvent.send(QueryPosPaymentReportScreenEvent(uiEvent))
+        }
+    }
+
+    private val _posPaymentReportScreenEvent =
+        Channel<PosPaymentReportScreenEvent>()
+    val posPaymentReportScreenEvent = _posPaymentReportScreenEvent.receiveAsFlow()
+
+    private fun sendPosPaymentReportScreenEvent(uiEvent: UiEvent) {
+        viewModelScope.launch {
+            _posPaymentReportScreenEvent.send(PosPaymentReportScreenEvent(uiEvent))
+        }
+    }
+
     private val _fromDateState = mutableStateOf("")
     val fromDateState: State<String> = _fromDateState
 
@@ -129,8 +154,16 @@ class SalesViewModel @Inject constructor(
     val customerPaymentReportList = mutableStateListOf<CustomerPaymentResponse>()
     val customerPaymentReportTotalList = mutableStateListOf<Double>()
 
+    val posPaymentReportList = mutableStateListOf<PosPaymentResponse>()
+    val posPaymentReportTotalList = mutableStateListOf<Double>()
+
     val accountList = mutableStateListOf<GetCustomerForLedgerReportResponse>()
-    val customerLedgerReportList = mutableStateListOf<LedgerDetail>()
+
+    val reArrangedCustomerLedgerReportList = mutableStateListOf<ReArrangedCustomerLedgerDetails>()
+    private val _customerLedgerReportTotals: MutableState<CustomerLedgerTotals?> =
+        mutableStateOf(null)
+    val customerLedgerReportTotals: State<CustomerLedgerTotals?> = _customerLedgerReportTotals
+
 
     fun getSalesInvoiceReport(fromDate: LocalDate, toDate: LocalDate) {
         _fromDateState.value = fromDate.toString()
@@ -273,14 +306,13 @@ class SalesViewModel @Inject constructor(
                 when (value) {
                     is GetDataFromRemote.Loading -> {
                         sendQueryCustomerPaymentReportScreenEvent(UiEvent.ShowProgressBar)
-
                     }
 
                     is GetDataFromRemote.Success -> {
                         //Log.d(TAG, "getCustomerPaymentReport: ${value.data}")
                         sendQueryCustomerPaymentReportScreenEvent(UiEvent.CloseProgressBar)
                         customerPaymentReportList.addAll(value.data)
-                        customerPaymentReportTotalList.addAll(calculateTotalForCustomerPaymentReport(value.data))
+                        calculateTotalForCustomerPaymentReport(value.data)
                         sendQueryCustomerPaymentReportScreenEvent(UiEvent.Navigate(SalesScreens.CustomerPaymentReportScreen.route))
 
 
@@ -297,7 +329,7 @@ class SalesViewModel @Inject constructor(
     }
 
 
-    fun getCustomerForLedger() {
+    fun getCustomerAccountList() {
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.GET_CUSTOMER_FOR_LEDGER + commonMemory.companyId + "/Customer"
 
@@ -355,9 +387,9 @@ class SalesViewModel @Inject constructor(
                     is GetDataFromRemote.Success -> {
                         _partyName.value = value.data.partyName
                         _balance.value = value.data.balance
-                        customerLedgerReportList.clear()
-                        Log.e(TAG, "getCustomerLedgerReport: ${value.data}")
-                        customerLedgerReportList.addAll(value.data.details)
+
+                        calculateCustomerLedgerTotalAndReArrangeList(data = value.data.details)
+
                         sendQueryCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQueryCustomerLedgerReportScreenEvent(
                             UiEvent.Navigate(
@@ -375,11 +407,95 @@ class SalesViewModel @Inject constructor(
         }
     }
 
+    fun calculateCustomerLedgerTotalAndReArrangeList(data: List<LedgerDetail>) {
+        reArrangedCustomerLedgerReportList.clear()
+        var sumOfDebit = 0.0
+        var sumOfCredit = 0.0
+        data.forEachIndexed { index, ledgerDetail ->
+            val reArrangedCustomerLedgerDetails = ReArrangedCustomerLedgerDetails(
+                si = index + 1,
+                voucherDate = ledgerDetail.vchrDate,
+                voucherNo = ledgerDetail.vchrNo,
+                particulars = ledgerDetail.particulars,
+                debit = if (ledgerDetail.vchrType == "Debit") ledgerDetail.amount else 0f,
+                credit = if (ledgerDetail.vchrType == "Credit") ledgerDetail.amount else 0f
+            )
+            reArrangedCustomerLedgerReportList.add(reArrangedCustomerLedgerDetails)
+            if (ledgerDetail.vchrType == "Debit") {
+                sumOfDebit += ledgerDetail.amount
+            } else if (ledgerDetail.vchrType == "Credit") {
+                sumOfCredit += ledgerDetail.amount
+            }
+        }
+        _customerLedgerReportTotals.value =
+            CustomerLedgerTotals(sumOfDebit = sumOfDebit, sumOfCredit = sumOfCredit)
+    }
+
+    fun getPosPaymentReport(fromDate: LocalDate, toDate: LocalDate) {
+        _fromDateState.value = fromDate.toString()
+        _toDateState.value = toDate.toString()
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        val url =
+            HttpRoutes.BASE_URL + HttpRoutes.POS_PAYMENT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
+        Log.d(TAG, "getPosPaymentReport: $url")
+        viewModelScope.launch(Dispatchers.IO) {
+            useCase.getPosPaymentReportUseCase(url = url).collectLatest { value ->
+                posPaymentReportList.clear()
+                when (value) {
+                    is GetDataFromRemote.Loading -> {
+                        sendQueryPosPaymentReportScreenEvent(UiEvent.ShowProgressBar)
+                    }
+
+                    is GetDataFromRemote.Success -> {
+                        Log.d(TAG, "getPosPaymentReport: ${value.data}")
+                        sendQueryPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
+                        posPaymentReportList.addAll(value.data)
+                        calculateTotalForPosPaymentReport(value.data)
+                        sendQueryPosPaymentReportScreenEvent(UiEvent.Navigate(SalesScreens.PosPaymentReportScreen.route))
+                    }
+
+                    is GetDataFromRemote.Failed -> {
+                        sendQueryPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
+                        Log.e(TAG, "getPosPaymentReport: ${value.error}")
+                        sendQueryPosPaymentReportScreenEvent(UiEvent.ShowSnackBar(value.error.message!!))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun calculateTotalForPosPaymentReport(data: List<PosPaymentResponse>) {
+        var sumOfCash = 0.0
+        var sumOfCard = 0.0
+        var sumOfOnlineAmount = 0.0
+        var sumOfReturnAmount = 0.0
+        var sumOfCredit = 0.0
+        var sumOfTotal = 0.0
+        data.forEach {
+            sumOfCash += it.cash
+            sumOfCard += it.card
+            sumOfOnlineAmount += it.onlineAmount
+            sumOfReturnAmount += it.returnAmount
+            sumOfCredit += it.credit
+            sumOfTotal += it.total
+        }
+        posPaymentReportTotalList.addAll(
+            listOf(
+                sumOfCash, sumOfCard, sumOfOnlineAmount, sumOfCredit, sumOfReturnAmount, sumOfTotal
+            )
+        )
+    }
+
+
     fun makePdfForCustomerPaymentReport(getUri: (uri: Uri) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             if (customerPaymentReportList.size > 0) {
                 useCase.pdfMakerUseCaseForCustomerPaymentReport(
                     list = customerPaymentReportList,
+                    listOfTotal = customerPaymentReportTotalList,
                     _fromDateState.value,
                     _toDateState.value,
                     getUri = getUri
@@ -399,7 +515,52 @@ class SalesViewModel @Inject constructor(
                     _toDateState.value,
                     getUri = getUri
                 ) { error, errorS ->
-                    Log.e(TAG, "getCustomerPaymentReport: $error $errorS")
+                    Log.e(TAG, "makeExcelForCustomerPaymentReport: $error $errorS")
+                }
+            }
+        }
+    }
+
+    fun makePdfForPosPaymentReport(getUri: (uri: Uri) -> Unit) {
+        if (posPaymentReportList.size > 0) {
+            sendPosPaymentReportScreenEvent(UiEvent.ShowProgressBar)
+
+            viewModelScope.launch(Dispatchers.IO) {
+
+                useCase.pdfMakerUseCaseForPosPaymentReport(
+                    list = posPaymentReportList,
+                    listOfTotal = posPaymentReportTotalList,
+                    _fromDateState.value,
+                    _toDateState.value,
+                    getUri = getUri
+                ) { error, errorS ->
+                    sendPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
+                    Log.e(TAG, "makePdfForPosPaymentReport: $error $errorS")
+                    if (error) {
+                        sendPosPaymentReportScreenEvent(
+                            UiEvent.ShowSnackBar(
+                                errorS ?: "There have some  on making pdf"
+                            )
+                        )
+                    }
+                }
+            }
+        } else {
+            sendPosPaymentReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+
+        }
+    }
+
+    fun makeExcelForPosPaymentReport(getUri: (uri: Uri) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (posPaymentReportList.size > 0) {
+                useCase.excelMakerUseCasePosPaymentReportUseCase(
+                    list = posPaymentReportList,
+                    _fromDateState.value,
+                    _toDateState.value,
+                    getUri = getUri
+                ) { error, errorS ->
+                    Log.e(TAG, "makeExcelForPosPaymentReport: $error $errorS")
                 }
             }
         }
@@ -414,13 +575,14 @@ class SalesViewModel @Inject constructor(
         }
     }
 
-    private fun calculateTotalForCustomerPaymentReport(list: List<CustomerPaymentResponse>): List<Double> {
-        var sumOfCash = 0.0
-        var sumOfCard = 0.0
-        var sumOfOnline = 0.0
-        var sumOfCredit = 0.0
-        var sumOfTotal = 0.0
-        viewModelScope.launch(Dispatchers.IO) {
+    private fun calculateTotalForCustomerPaymentReport(list: List<CustomerPaymentResponse>) {
+        viewModelScope.launch {
+            var sumOfCash = 0.0
+            var sumOfCard = 0.0
+            var sumOfOnline = 0.0
+            var sumOfCredit = 0.0
+            var sumOfTotal = 0.0
+
 
 
             list.forEach {
@@ -431,14 +593,13 @@ class SalesViewModel @Inject constructor(
                 sumOfTotal += it.total.toFloat()
 
             }
+            customerPaymentReportTotalList.addAll(
+                listOf(
+                    sumOfCash, sumOfCard, sumOfOnline, sumOfCredit, sumOfTotal
+                )
+            )
         }
-        return listOf(
-            sumOfCash,
-            sumOfCard,
-            sumOfOnline,
-            sumOfCredit,
-            sumOfTotal,
-        )
+
 
     }
 

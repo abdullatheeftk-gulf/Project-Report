@@ -9,13 +9,16 @@ import com.gulfappdeveloper.projectreport.domain.models.license.LicenseRequestBo
 import com.gulfappdeveloper.projectreport.domain.models.license.LicenseResponse
 import com.gulfappdeveloper.projectreport.domain.models.login_and_register.CompanyRegisterResponse
 import com.gulfappdeveloper.projectreport.domain.models.login_and_register.LoginResponse
+import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
+import com.gulfappdeveloper.projectreport.domain.models.purchase.supplier_ledger_report.SupplierLedgerReportResponse
+import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.UserSalesResponse
 import kotlinx.coroutines.flow.Flow
 
 interface ApiService {
-    suspend fun getWelcomeMessage(url:String):Flow<GetDataFromRemote<String>>
+    suspend fun getWelcomeMessage(url: String): Flow<GetDataFromRemote<String>>
 
     suspend fun uniLicenseActivation(
         rioLabKey: String,
@@ -23,24 +26,29 @@ interface ApiService {
         licenseRequestBody: LicenseRequestBody
     ): Flow<GetDataFromRemote<LicenseResponse>>
 
-    suspend fun getIp4Address(url: String):Flow<GetDataFromRemote<SeeIp>>
+    suspend fun getIp4Address(url: String): Flow<GetDataFromRemote<SeeIp>>
 
-    suspend fun registerCompany(url:String):Flow<GetDataFromRemote<CompanyRegisterResponse>>
+    suspend fun registerCompany(url: String): Flow<GetDataFromRemote<CompanyRegisterResponse>>
 
-    suspend fun login(url: String):Flow<GetDataFromRemote<LoginResponse>>
-
+    suspend fun login(url: String): Flow<GetDataFromRemote<LoginResponse>>
 
 
     // ledger
-    suspend fun getCustomerForLedger(url:String):Flow<GetDataFromRemote<List<GetCustomerForLedgerReportResponse>>>
-    suspend fun getCustomerLedgers(url:String):Flow<GetDataFromRemote<LedgerReportResponse>>
+    suspend fun getCustomerForLedger(url: String): Flow<GetDataFromRemote<List<GetCustomerForLedgerReportResponse>>>
+    suspend fun getCustomerLedgers(url: String): Flow<GetDataFromRemote<LedgerReportResponse>>
 
 
     // customer payment
-    suspend fun getCustomerPayment(url:String):Flow<GetDataFromRemote<List<CustomerPaymentResponse>>>
+    suspend fun getCustomerPayment(url: String): Flow<GetDataFromRemote<List<CustomerPaymentResponse>>>
 
     // Sales
-    suspend fun getSaleSummariesReport(url:String):Flow<GetDataFromRemote<List<SaleSummariesResponse>>>
-    suspend fun getSalesInvoiceReport(url:String):Flow<GetDataFromRemote<List<SalesInvoiceResponse>>>
-    suspend fun getUserSalesReport(url:String):Flow<GetDataFromRemote<List<UserSalesResponse>>>
+    suspend fun getSaleSummariesReport(url: String): Flow<GetDataFromRemote<List<SaleSummariesResponse>>>
+    suspend fun getSalesInvoiceReport(url: String): Flow<GetDataFromRemote<List<SalesInvoiceResponse>>>
+    suspend fun getUserSalesReport(url: String): Flow<GetDataFromRemote<List<UserSalesResponse>>>
+    suspend fun getPosPaymentReport(url: String): Flow<GetDataFromRemote<List<PosPaymentResponse>>>
+
+    // Purchase
+    suspend fun getPurchaseMastersReport(url: String): Flow<GetDataFromRemote<List<PurchaseMastersResponse>>>
+    suspend fun getSupplierPurchaseReport(url: String): Flow<GetDataFromRemote<List<PurchaseMastersResponse>>>
+    suspend fun getSupplierLedgerReport(url:String) :Flow<GetDataFromRemote<SupplierLedgerReportResponse>>
 }

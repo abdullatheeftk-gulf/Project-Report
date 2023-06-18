@@ -16,20 +16,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.gulfappdeveloper.projectreport.domain.services.PdfService
 import com.gulfappdeveloper.projectreport.navigation.RootNavGraph
+import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.RootViewModel
 import com.gulfappdeveloper.projectreport.ui.theme.ProjectReportTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-
+private const val TAG = "MainActivity"
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    val rootViewModel by viewModels<RootViewModel>()
 
-        val rootViewModel by viewModels<RootViewModel>()
-        
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d(TAG, "onCreate: ")
+        super.onCreate(savedInstanceState)
 
 
         val deviceId = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)+"PQ"
@@ -63,8 +67,9 @@ class MainActivity : ComponentActivity() {
             imm?.hideSoftInputFromWindow(view.windowToken, 0)
         }
     }
+
+
+
     
-    fun myAdd(list:MutableList<Int>,value:Int){
-        list.add(value)
-    }
+
 }

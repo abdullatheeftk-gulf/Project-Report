@@ -18,4 +18,7 @@ sealed class SalesScreens(val route: String) {
 
     object QueryCustomerPaymentReportScreen : SalesScreens("query_customer_payment_report_screen")
     object CustomerPaymentReportScreen : SalesScreens("customer_payment_report_screen")
+
+    object QueryPosPaymentReportScreen : SalesScreens("query_pos_payment_report_screen")
+    object PosPaymentReportScreen : SalesScreens("pos_payment_report_screen")
 }

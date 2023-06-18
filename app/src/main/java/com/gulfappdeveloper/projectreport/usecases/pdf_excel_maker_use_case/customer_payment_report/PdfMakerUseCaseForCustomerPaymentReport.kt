@@ -9,12 +9,14 @@ class PdfMakerUseCaseForCustomerPaymentReport(
 ) {
     suspend operator fun invoke(
         list: List<CustomerPaymentResponse>,
+        listOfTotal:List<Double>,
         fromDate: String,
         toDate: String,
         getUri:(uri:Uri)->Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
     ) = pdfExcelRepository.writePdfAndShareItForCustomerPaymentReport(
         list,
+        listOfTotal,
         fromDate,
         toDate,
         getUri,

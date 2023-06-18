@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_screens.LedgerReportMainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.login_screen.LoginScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.main_screen.MainScreen
+import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.PurchaseMainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.register_company_screen.RegisterCompanyScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.SalesMainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.splash_screen.SplashScreen
@@ -76,6 +77,13 @@ fun RootNavGraph(
         }*/
         composable(RootNavScreens.SalesScreens.route){
             SalesMainScreen(
+                navHostController = navHostController,
+                rootViewModel = rootViewModel,
+                hideKeyboard = hideKeyboard
+            )
+        }
+        composable(RootNavScreens.PurchaseScreens.route){
+            PurchaseMainScreen(
                 navHostController = navHostController,
                 rootViewModel = rootViewModel,
                 hideKeyboard = hideKeyboard

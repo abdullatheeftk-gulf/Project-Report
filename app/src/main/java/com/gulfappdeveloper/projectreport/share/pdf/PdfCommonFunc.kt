@@ -42,3 +42,13 @@ fun Canvas.writePeriodText(fromDate: String, toDate: String, yPosition: Float) {
     })
 
 }
+
+fun Canvas.writeCompanyName(companyName:String,yPosition: Float){
+    val xPosition = 970f
+    drawText("Company : $companyName", xPosition, yPosition, Paint().apply {
+        textSize = 10f
+        color = Color.BLACK
+        textAlign =Paint.Align.RIGHT
+    })
+
+}

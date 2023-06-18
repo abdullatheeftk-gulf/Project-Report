@@ -9,6 +9,8 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.scr
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.report_screen.CustomerLedgerReportScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.query_screen.QueryCustomerPaymentReportScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.report_screen.CustomerPaymentReportScreen
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.query_screen.QueryPosPaymentReportScreen
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.report_screen.PosPaymentReportScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sale_summaries_report_screens.query_screen.QuerySaleSummariesReportScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sale_summaries_report_screens.report_screen.SaleSummaryReportScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_home_screen.SaleHomeScreen
@@ -98,6 +100,15 @@ fun SalesNavGraph(
                 saleNavHostController = salesNavHostController,
                 salesViewModel = salesViewModel
             )
+        }
+        composable(route = SalesScreens.QueryPosPaymentReportScreen.route) {
+                QueryPosPaymentReportScreen(
+                    salesViewModel = salesViewModel,
+                    salesNavHostController = salesNavHostController
+                )
+        }
+        composable(route = SalesScreens.PosPaymentReportScreen.route) {
+                PosPaymentReportScreen(saleNavHostController = salesNavHostController, salesViewModel = salesViewModel)
         }
 
     }

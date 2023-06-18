@@ -120,7 +120,7 @@ fun QueryLedgerScreen(
     }
 
     /*val accountTypeList = listOf<String>(
-        "Customer", "Supplier", "Expense"
+        "Customer", "SupplierLedgerReportScreenEvent", "Expense"
     )*/
 
     /*var selectedAccountType by remember {
@@ -174,7 +174,7 @@ fun QueryLedgerScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (accountType=="Customer") "Customer Ledger Report" else if(accountType =="Supplier") "Supplier Ledger Report" else "Expense Report",
+                        text = if (accountType=="Customer") "Customer Ledger Report" else if(accountType =="SupplierLedgerReportScreenEvent") "SupplierLedgerReportScreenEvent Ledger Report" else "Expense Report",
                         textDecoration = TextDecoration.Underline,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.fillMaxWidth(),

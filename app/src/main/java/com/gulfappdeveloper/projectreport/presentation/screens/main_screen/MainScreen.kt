@@ -19,6 +19,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.main_screen.compo
 import com.gulfappdeveloper.projectreport.root.RootViewModel
 
 private const val TAG = "MainScreen"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
@@ -57,7 +58,7 @@ fun MainScreen(
                 item {
                     MenuItem(
                         onClickMenuItem = {
-                            navHostController.navigate(RootNavScreens.LedgerReportScreens.route+"/Supplier")
+                            navHostController.navigate(RootNavScreens.LedgerReportScreens.route+"/SupplierLedgerReportScreenEvent")
                         },
                         containerColor = Color(0xFF6ED872),
                         contentColor = Color(0xFF484545),
@@ -74,16 +75,16 @@ fun MainScreen(
                         menuText = "EXPENSE REPORT"
                     )
                 }*/
-               /* item {
-                    MenuItem(
-                        onClickMenuItem = {
-                            navHostController.navigate(RootNavScreens.CustomerPaymentReportScreens.route)
-                        },
-                        containerColor = Color(0xFF03A9F4),
-                        contentColor = Color(0xFF484545),
-                        menuText = "CUSTOMER PAYMENT REPORT"
-                    )
-                }*/
+                /* item {
+                     MenuItem(
+                         onClickMenuItem = {
+                             navHostController.navigate(RootNavScreens.CustomerPaymentReportScreens.route)
+                         },
+                         containerColor = Color(0xFF03A9F4),
+                         contentColor = Color(0xFF484545),
+                         menuText = "CUSTOMER PAYMENT REPORT"
+                     )
+                 }*/
                 item {
                     MenuItem(
                         onClickMenuItem = {
@@ -97,7 +98,7 @@ fun MainScreen(
                 item {
                     MenuItem(
                         onClickMenuItem = {
-                           // navHostController.navigate(RootNavScreens.SalesScreens.route)
+                            navHostController.navigate(RootNavScreens.PurchaseScreens.route)
                         },
                         containerColor = Color(0xFF74B8D6),
                         contentColor = Color(0xFF484545),
@@ -107,7 +108,7 @@ fun MainScreen(
                 item {
                     MenuItem(
                         onClickMenuItem = {
-                           // navHostController.navigate(RootNavScreens.SalesScreens.route)
+                            // navHostController.navigate(RootNavScreens.SalesScreens.route)
                         },
                         containerColor = Color(0xFF99E597),
                         contentColor = Color(0xFF484545),

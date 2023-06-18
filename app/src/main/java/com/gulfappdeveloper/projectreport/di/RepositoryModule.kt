@@ -10,8 +10,12 @@ import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.ledger.GetCu
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.ledger.GetCustomerLedgers
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.license.GetIP4AddressUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.license.UniLicenseActivationUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.PurchaseMastersReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.SupplierLedgerReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.SupplierPurchaseReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.register_and_login_use_cases.LoginUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.register_and_login_use_cases.RegisterCompanyUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.sales.GetPosPaymentReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.sales.GetSalesInvoiceReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.sales.GetSalesSummariesReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.sales.GetUserSalesReportUseCase
@@ -30,6 +34,8 @@ import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.user_nam
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.user_name_use_case.SaveUserNameUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.customer_payment_report.ExcelMakerUseCaseForCustomerPaymentReport
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.customer_payment_report.PdfMakerUseCaseForCustomerPaymentReport
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.pos_payment_report.ExcelMakerUseCaseForPosPaymentReport
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.pos_payment_report.PdfMakerUseCaseForPosPaymentReport
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.GetAllLocalCompanyData
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.RoomInsertDataUseCase
 import dagger.Module
@@ -93,8 +99,23 @@ object RepositoryModule {
         getSalesInvoiceReportUseCase = GetSalesInvoiceReportUseCase(apiRepository = apiRepository),
         getSalesSummariesReportUseCase = GetSalesSummariesReportUseCase(apiRepository = apiRepository),
         getUserSalesReportUseCase = GetUserSalesReportUseCase(apiRepository = apiRepository),
+        getPosPaymentReportUseCase = GetPosPaymentReportUseCase(apiRepository = apiRepository),
 
-        pdfMakerUseCaseForCustomerPaymentReport = PdfMakerUseCaseForCustomerPaymentReport(pdfExcelRepository = pdfExcelRepository),
-        excelMakerUseCaseForCustomerPaymentReport = ExcelMakerUseCaseForCustomerPaymentReport(pdfExcelRepository=pdfExcelRepository)
+        pdfMakerUseCaseForCustomerPaymentReport = PdfMakerUseCaseForCustomerPaymentReport(
+            pdfExcelRepository = pdfExcelRepository
+        ),
+        excelMakerUseCaseForCustomerPaymentReport = ExcelMakerUseCaseForCustomerPaymentReport(
+            pdfExcelRepository = pdfExcelRepository
+        ),
+
+        pdfMakerUseCaseForPosPaymentReport = PdfMakerUseCaseForPosPaymentReport(pdfExcelRepository = pdfExcelRepository),
+        excelMakerUseCasePosPaymentReportUseCase = ExcelMakerUseCaseForPosPaymentReport(
+            pdfExcelRepository = pdfExcelRepository
+        ),
+
+        purchaseMastersReportUseCase = PurchaseMastersReportUseCase(apiRepository = apiRepository),
+        supplierPurchaseReportUseCase = SupplierPurchaseReportUseCase(apiRepository = apiRepository),
+        supplierLedgerReportUseCase = SupplierLedgerReportUseCase(apiRepository = apiRepository)
+
     )
 }

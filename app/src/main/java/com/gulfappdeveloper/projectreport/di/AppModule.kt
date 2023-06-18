@@ -39,21 +39,30 @@ object AppModule {
     @Provides
     @Singleton
     fun provideRoomDatabase(@ApplicationContext context: Context) =
-        Room.databaseBuilder( context, AppRoomDatabase::class.java,"report_project_database").build()
+        Room.databaseBuilder(context, AppRoomDatabase::class.java, "report_project_database")
+            .build()
 
     @Provides
     @Singleton
-    fun provideRoomDao(db:AppRoomDatabase)=db.getLocalCompanyDataDao()
+    fun provideRoomDao(db: AppRoomDatabase) = db.getLocalCompanyDataDao()
 
     @Provides
     @Singleton
-    fun provideRoomDatabaseService(dao:LocalCompanyDataDao):RoomDatabaseService = RoomDatabaseServiceImpl(dao = dao)
+    fun provideRoomDatabaseService(dao: LocalCompanyDataDao): RoomDatabaseService =
+        RoomDatabaseServiceImpl(dao = dao)
 
     @Provides
     @Singleton
-    fun providePdfService(@ApplicationContext context: Context):PdfService = PdfServiceImpl(context = context)
+    fun providePdfService(
+        @ApplicationContext context: Context,
+        commonMemory: CommonMemory
+    ): PdfService = PdfServiceImpl(
+        context = context,
+        commonMemory = commonMemory
+    )
 
     @Provides
     @Singleton
-    fun provideExcelService(@ApplicationContext context: Context):ExcelService = ExcelServiceImpl(context = context)
+    fun provideExcelService(@ApplicationContext context: Context): ExcelService =
+        ExcelServiceImpl(context = context)
 }

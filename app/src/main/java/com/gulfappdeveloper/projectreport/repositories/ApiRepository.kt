@@ -33,19 +33,31 @@ class ApiRepository @Inject constructor(
         return apiService.getIp4Address(url = url)
     }
 
-    suspend fun registerCompany(url: String):Flow<GetDataFromRemote<CompanyRegisterResponse>>{
+    suspend fun registerCompany(url: String): Flow<GetDataFromRemote<CompanyRegisterResponse>> {
         return apiService.registerCompany(url = url)
     }
 
-    suspend fun login(url:String) = apiService.login(url = url)
+    suspend fun login(url: String) = apiService.login(url = url)
 
     suspend fun getCustomerForLedger(url: String) = apiService.getCustomerForLedger(url = url)
     suspend fun getCustomerLedgers(url: String) = apiService.getCustomerLedgers(url = url)
 
-    suspend fun getCustomerPaymentReport(url:String) = apiService.getCustomerPayment(url = url)
+    suspend fun getCustomerPaymentReport(url: String) = apiService.getCustomerPayment(url = url)
 
     suspend fun getSalesInvoiceReport(url: String) = apiService.getSalesInvoiceReport(url = url)
-    suspend fun getSaleSummariesReport(url:String) = apiService.getSaleSummariesReport(url = url)
+    suspend fun getSaleSummariesReport(url: String) = apiService.getSaleSummariesReport(url = url)
     suspend fun getUserSalesReport(url: String) = apiService.getUserSalesReport(url = url)
+    suspend fun getPosPaymentReport(url: String) = apiService.getPosPaymentReport(url = url)
+
+    // Purchase
+
+    suspend fun getPurchaseMastersReport(url: String) =
+        apiService.getPurchaseMastersReport(url = url)
+
+    suspend fun getSupplierPurchaseReport(url: String) =
+        apiService.getSupplierPurchaseReport(url = url)
+
+    suspend fun getSupplierLedgerReport(url:String)=apiService.getSupplierLedgerReport(url=url)
+
 
 }

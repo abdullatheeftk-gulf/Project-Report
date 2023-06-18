@@ -31,7 +31,7 @@ fun SaleHomeScreen(
                 salesNavHostController.navigate(SalesScreens.QueryCustomerPaymentReportScreen.route)
             }
             MenuCardItem(title = "Customer Ledger Report", subtitle = "It will give User Sales report") {
-                salesViewModel.getCustomerForLedger()
+                salesViewModel.getCustomerAccountList()
                 salesNavHostController.navigate(SalesScreens.QueryCustomerLedgerReportScreen.route)
             }
             MenuCardItem(title = "Sales Invoice Report", subtitle = "It will give sales Invoice report") {
@@ -39,6 +39,9 @@ fun SaleHomeScreen(
             }
             MenuCardItem(title = "Sale Summaries Report", subtitle = "It will give sales Summaries report") {
                 salesNavHostController.navigate(SalesScreens.QuerySaleSummariesReportScreen.route)
+            }
+            MenuCardItem(title = "Pos Payment Report", subtitle = "It will give Pos Payment report") {
+                salesNavHostController.navigate(SalesScreens.QueryPosPaymentReportScreen.route)
             }
             MenuCardItem(title = "User Sales Report", subtitle = "It will give User Sales report") {
                 salesNavHostController.navigate(SalesScreens.QueryUserSalesReport.route)

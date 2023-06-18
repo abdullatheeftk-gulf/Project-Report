@@ -29,6 +29,12 @@ object HttpRoutes {
     const val  SALES_INVOICE_REPORT = "/api/SalesInvoice/"
     const val SALE_SUMMARIES_REPORT = "/api/SaleSummaries/"
     const val USER_SALES = "/api/UserSales/"
+    const val POS_PAYMENT = "/api/PosPayment/"
+
+    // Purchase
+    const val PURCHASE_MASTERS_REPORT = "/api/PurchaseMasters/"
+    const val SUPPLIER_PURCHASE_REPORT = "/api/PurchaseMasters/"
+    const val SUPPLIER_LEDGER_REPORT = "/api/SupplierLedgers/"
 
 
 }

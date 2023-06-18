@@ -223,6 +223,7 @@ class RootViewModel @Inject constructor(
                             Json.decodeFromString<CompanyRegisterResponse>(value)
                         _companyId = companyDataResponse.id
                         commonMemory.companyId = _companyId.toShort()
+                        commonMemory.companyName = companyDataResponse.name
                         // Log.e(TAG, "readCompanyData: $_companyId")
                         sendSplashScreenEvent(UiEvent.Navigate(route = RootNavScreens.LoginScreen.route))
 

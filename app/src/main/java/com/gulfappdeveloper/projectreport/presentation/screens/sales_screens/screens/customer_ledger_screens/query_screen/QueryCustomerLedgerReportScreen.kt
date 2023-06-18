@@ -114,7 +114,7 @@ fun QueryCustomerLedgerReportScreen(
     }
 
     /*val accountTypeList = listOf<String>(
-        "Customer", "Supplier", "Expense"
+        "Customer", "SupplierLedgerReportScreenEvent", "Expense"
     )*/
 
     /*var selectedAccountType by remember {

@@ -62,7 +62,7 @@ fun LedgerReportScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (selectedAccountType == "Customer") "Customer Ledger Report" else if(selectedAccountType == "Supplier") "Expense Ledger Report" else "Expense Report",
+                        text = if (selectedAccountType == "Customer") "Customer Ledger Report" else if(selectedAccountType == "SupplierLedgerReportScreenEvent") "Expense Ledger Report" else "Expense Report",
                         textDecoration = TextDecoration.Underline,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.fillMaxWidth(),

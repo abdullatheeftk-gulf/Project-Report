@@ -1,29 +1,27 @@
-package com.gulfappdeveloper.projectreport.share.excel
+package com.gulfappdeveloper.projectreport.share.excel.sales.customer_payment_report
 
 import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
+import com.gulfappdeveloper.projectreport.share.excel.createHeading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.apache.poi.hssf.util.HSSFColor
 import org.apache.poi.ss.usermodel.BorderStyle
-import org.apache.poi.ss.usermodel.Color
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.HorizontalAlignment
 import org.apache.poi.ss.usermodel.IndexedColors
 import org.apache.poi.ss.usermodel.Sheet
 import org.apache.poi.ss.usermodel.VerticalAlignment
-import org.apache.poi.ss.usermodel.Workbook
 import org.apache.poi.ss.util.CellRangeAddress
-import org.apache.poi.xssf.usermodel.XSSFColor
 import org.apache.poi.xssf.usermodel.XSSFFont
 import org.apache.poi.xssf.usermodel.XSSFRichTextString
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
-import org.openxmlformats.schemas.drawingml.x2006.main.CTColor
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 object CustomerPaymentReportExcel {
 
@@ -34,23 +32,29 @@ object CustomerPaymentReportExcel {
         getUri: (Uri) -> Unit,
         list: List<CustomerPaymentResponse>,
         haveAnyError: (isError: Boolean, errorString: String?) -> Unit
-    ) {
-
+    ) = try {
         val wb = XSSFWorkbook()
-        val sheet = wb.createSheet("Report")
-        createHeaderOfTable(sheet = sheet, wb = wb)
+        val currentDateAndTime = SimpleDateFormat("dd-MM-yyyy hh;mm;ss a", Locale.getDefault()).format(Date())
+        val sheet = wb.createSheet(currentDateAndTime)
+        //createHeading(sheet, wb)
+        sheet.createHeading(wb = wb, headingTitle = "Customer Payment Report", noOfColumns = 9)
         createPeriodTitle(sheet, wb, fromDate, toDate)
-        createHeading(sheet, wb)
+        createHeaderOfTable(sheet = sheet, wb = wb)
+
+
 
         val sizeOfList = list.size
-
-
         list.forEachIndexed { index, customerPaymentResponse ->
-
-            createOneItemRow(customerPaymentResponse, index, sizeOfList == index + 1, sheet, wb)
+            createItemRow(
+                customerPaymentResponse = customerPaymentResponse,
+                index = index,
+                isItLastRow = sizeOfList == index + 1,
+                sheet = sheet,
+                wb = wb
+            )
         }
 
-        calculateTotal(sheet,wb,sizeOfList+2)
+        createTotalValueRow(sheet,wb,sizeOfList+2)
 
 
 
@@ -64,7 +68,7 @@ object CustomerPaymentReportExcel {
         sheet.setColumnWidth(7, 16 * 200)
         sheet.setColumnWidth(8, 16 * 200)
 
-        val file = File(context.getExternalFilesDir(null), "${Date()}_excel.xlsx")
+        val file = File(context.getExternalFilesDir(null), "CustomerPaymentReport_${Date().time}.xlsx")
 
         withContext(Dispatchers.IO) {
             val fileOutputStream = FileOutputStream(file)
@@ -85,19 +89,20 @@ object CustomerPaymentReportExcel {
         getUri(uri)
 
         haveAnyError(false, null)
-
+    }catch (e:Exception){
+        haveAnyError(true, e.message)
     }
 
-    private fun createHeading(sheet: Sheet, wb: XSSFWorkbook) {
+/*    private fun createHeading(sheet: Sheet, wb: XSSFWorkbook) {
         val headingRow = sheet.createRow(0)
-        headingRow.height = 800
+        headingRow.height = (40*20).toShort()
         headingRow.createCell(0).apply {
             setCellValue("Customer Payment Report")
             cellStyle = wb.createCellStyle().apply {
                 alignment = HorizontalAlignment.CENTER
                 verticalAlignment = VerticalAlignment.CENTER
                 val font = wb.createFont().apply {
-                    fontHeight = 420
+                    fontHeight = (21*20).toShort()
                     color = IndexedColors.BLUE.index
                     underline = XSSFFont.U_SINGLE
 
@@ -107,7 +112,7 @@ object CustomerPaymentReportExcel {
         }
         sheet.addMergedRegion(CellRangeAddress(0, 0, 0, 8))
 
-    }
+    }*/
 
     private fun createPeriodTitle(
         sheet: Sheet,
@@ -130,7 +135,6 @@ object CustomerPaymentReportExcel {
         periodRow.createCell(0).apply {
             setCellValue(richTextString)
         }
-
     }
 
     private fun createHeaderOfTable(sheet: Sheet, wb: XSSFWorkbook) {
@@ -203,7 +207,7 @@ object CustomerPaymentReportExcel {
 
     }
 
-    private fun createOneItemRow(
+    private fun createItemRow(
         customerPaymentResponse: CustomerPaymentResponse,
         index: Int,
         isItLastRow: Boolean,
@@ -273,7 +277,7 @@ object CustomerPaymentReportExcel {
 
     }
 
-    private fun calculateTotal(sheet: Sheet, wb: XSSFWorkbook, rowIndex: Int) {
+    private fun createTotalValueRow(sheet: Sheet, wb: XSSFWorkbook, rowIndex: Int) {
         val totalRow = sheet.createRow(rowIndex).apply {
             height = (25 * 20).toShort()
 

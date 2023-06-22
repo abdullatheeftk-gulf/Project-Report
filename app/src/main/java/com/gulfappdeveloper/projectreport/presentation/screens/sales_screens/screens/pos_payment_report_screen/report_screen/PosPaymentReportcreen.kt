@@ -187,7 +187,21 @@ fun PosPaymentReportScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "EXCEL", color = Color(0xFF017706)) },
                                 onClick = {
-                                    /*Todo*/
+                                    salesViewModel.makeExcelForPosPaymentReport {
+                                        val shareIntent = Intent().apply {
+                                            action = Intent.ACTION_SEND
+                                            putExtra(Intent.EXTRA_STREAM, it)
+                                            type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                                        }
+                                        context.startActivity(
+                                            Intent.createChooser(
+                                                shareIntent,
+                                                null
+                                            )
+                                        )
+                                    }
                                     expandMenu = false
                                 }
                             )

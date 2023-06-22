@@ -63,6 +63,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideExcelService(@ApplicationContext context: Context): ExcelService =
-        ExcelServiceImpl(context = context)
+    fun provideExcelService(@ApplicationContext context: Context,commonMemory: CommonMemory): ExcelService =
+        ExcelServiceImpl(context = context, commonMemory = commonMemory)
 }

@@ -1,5 +1,6 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -454,6 +455,67 @@ class PurchaseViewModel @Inject constructor(
             SupplierLedgerTotals(sumOfDebit = sumOfDebit, sumOfCredit = sumOfCredit)
 
 
+    }
+
+    fun makePdfForSupplierLedgerReport(getUri: (uri: Uri) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (reArrangedSupplierLedgerReportList.size > 0) {
+                sendSupplierLedgerReportScreenEvent(UiEvent.ShowProgressBar)
+                useCase.pdfMakerSupplierLedgerReportUseCase(
+                    list = reArrangedSupplierLedgerReportList,
+                    _supplierLedgerReportTotals.value!!,
+                    balance = _balance.value,
+                    partyName = _partyName.value,
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value,
+                    getUri = getUri,
+                    haveAnyError = { haveAnyError, error ->
+                        sendSupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError) {
+                            sendSupplierLedgerReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
+                        }
+
+                    }
+
+                )
+            } else {
+                sendSupplierLedgerReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+            }
+        }
+    }
+
+    fun makeExcelForSupplierLedgerReport(getUri: (uri: Uri) -> Unit) {
+        if (reArrangedSupplierLedgerReportList.size > 0) {
+            viewModelScope.launch(Dispatchers.IO) {
+                sendSupplierLedgerReportScreenEvent(UiEvent.ShowProgressBar)
+                useCase.excelMakerForSupplierLedgerReportUseCase(
+                    list = reArrangedSupplierLedgerReportList,
+                    balance = _balance.value,
+                    partyName = _partyName.value,
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value,
+                    getUri = getUri,
+                    haveAnyError = { haveAnyError, error ->
+                        sendSupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError) {
+                            sendSupplierLedgerReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
+                        }
+
+                    }
+
+                )
+            }
+        } else {
+            sendSupplierLedgerReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+        }
     }
 
 

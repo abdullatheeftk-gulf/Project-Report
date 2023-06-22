@@ -169,7 +169,7 @@ fun CustomerPaymentReportScreen(
                                         val shareIntent = Intent().apply {
                                             action = Intent.ACTION_SEND
                                             putExtra(Intent.EXTRA_STREAM, it)
-                                            type = "*/*"
+                                            type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
                                         }

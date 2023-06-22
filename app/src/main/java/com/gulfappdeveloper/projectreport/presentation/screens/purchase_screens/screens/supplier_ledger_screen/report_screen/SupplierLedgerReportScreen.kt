@@ -2,6 +2,7 @@ package com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -162,7 +163,7 @@ fun SupplierLedgerReportScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "PDF", color = Color.Red) },
                                 onClick = {
-                                    /*salesViewModel.makePdfForPosPaymentReport {
+                                    purchaseViewModel.makePdfForSupplierLedgerReport {
                                         val shareIntent = Intent().apply {
                                             action = Intent.ACTION_SEND
                                             putExtra(Intent.EXTRA_STREAM, it)
@@ -177,14 +178,29 @@ fun SupplierLedgerReportScreen(
                                                 null,
                                             )
                                         )
-                                    }*/
+                                    }
                                     expandMenu = false
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(text = "EXCEL", color = Color(0xFF017706)) },
                                 onClick = {
-                                    /*Todo*/
+                                    purchaseViewModel.makeExcelForSupplierLedgerReport {
+                                        val shareIntent = Intent().apply {
+                                            action = Intent.ACTION_SEND
+                                            putExtra(Intent.EXTRA_STREAM, it)
+                                            type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                                        }
+
+                                        context.startActivity(
+                                            Intent.createChooser(
+                                                shareIntent,
+                                                null,
+                                            )
+                                        )
+                                    }
                                     expandMenu = false
                                 }
                             )

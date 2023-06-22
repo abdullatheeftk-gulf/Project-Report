@@ -8,6 +8,7 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
+import com.gulfappdeveloper.projectreport.share.pdf.calculatePageCount
 import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
 import com.gulfappdeveloper.projectreport.share.pdf.writePeriodText
@@ -34,7 +35,7 @@ object PosPaymentReportPdf {
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) {
         try {
-            val totalPages = calculatePageCount(list)
+            val totalPages = calculatePageCount(list, numberOfItemsInOnePage = 27)
             var pageCount = 1
 
             val pageList = mutableListOf<PosPaymentResponse>()
@@ -179,7 +180,7 @@ object PosPaymentReportPdf {
             // dates
             yPosition += 30f
             canvas.writePeriodText(fromDate, toDate, yPosition)
-            canvas.writeCompanyName(companyName = companyName,yPosition = yPosition)
+            canvas.writeCompanyName(companyName = companyName,yPosition = yPosition, xPosition = 970f)
 
 
             // Table
@@ -642,7 +643,7 @@ object PosPaymentReportPdf {
     }
 
 
-    private fun calculatePageCount(list: List<PosPaymentResponse>): Int {
+    /*private fun calculatePageCount(list: List<PosPaymentResponse>): Int {
         try {
             val lengthOfTheList = list.size
             var fullPage = lengthOfTheList / 27
@@ -660,5 +661,5 @@ object PosPaymentReportPdf {
         } catch (e: Exception) {
             throw Exception(e.message)
         }
-    }
+    }*/
 }

@@ -20,11 +20,13 @@ import com.gulfappdeveloper.projectreport.domain.services.PdfService
 import com.gulfappdeveloper.projectreport.navigation.RootNavGraph
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.RootViewModel
+import com.gulfappdeveloper.projectreport.share.pdf.customer_ledger_report.CustomerLedgerReportPdf
 import com.gulfappdeveloper.projectreport.ui.theme.ProjectReportTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 private const val TAG = "MainActivity"
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -35,8 +37,72 @@ class MainActivity : ComponentActivity() {
         Log.d(TAG, "onCreate: ")
         super.onCreate(savedInstanceState)
 
+        var list = mutableListOf<Int>()
+        var pageNo = 1
+        val originalList = mutableListOf<Int>()
+        (1..161).forEach {
+            originalList.add(it)
+        }
 
-        val deviceId = Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)+"PQ"
+        originalList.forEachIndexed { index, i ->
+            Log.d(TAG, "start: $i")
+            list.add(index + 1)
+            if ((index + 1) == 39) {
+
+                if (originalList.size == 39) {
+                    list = list.dropLast(1).toMutableList()
+                    createPage(list = list, pageNo)
+                    list.clear()
+                    list.add(index + 1)
+                    pageNo++
+                    createPage(list = list, pageNo)
+                    list.clear()
+                } else {
+
+                    createPage(list = list, pageNo = pageNo)
+                    list.clear()
+                    pageNo++
+                }
+            }
+            if ((index - 38) % 41 == 0 && (index - 38) != 0) {
+                /*list = list.dropLast(1).toMutableList()
+                createPage(list = list, pageNo)
+                list.clear()
+                list.add(index + 1)
+                pageNo++*/
+                if (originalList.size==index+1){
+                    list = list.dropLast(1).toMutableList()
+                    createPage(list = list, pageNo)
+                    list.clear()
+                    list.add(index + 1)
+                    pageNo++
+                    createPage(list = list, pageNo)
+                    list.clear()
+                }else{
+                    createPage(list = list, pageNo = pageNo)
+                    list.clear()
+                    pageNo++
+                }
+            }
+        }
+        when (list.size) {
+            in 1..39 -> {
+                createPage(list, pageNo)
+            }
+
+            40 -> {
+                createPage(list, pageNo)
+                list.clear()
+                pageNo++
+                createPage(list, pageNo = pageNo)
+            }
+
+            else -> Unit
+        }
+
+
+        val deviceId =
+            Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID) + "PQ"
 
         setContent {
             ProjectReportTheme {
@@ -48,7 +114,7 @@ class MainActivity : ComponentActivity() {
                     val navHostController = rememberNavController()
 
                     RootNavGraph(
-                        navHostController =navHostController,
+                        navHostController = navHostController,
                         hideKeyboard = {
                             hideSoftKeyboard()
                         },
@@ -68,8 +134,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun createPage(list: List<Int>, pageNo: Int) {
+        Log.e(TAG, "createPage: $list")
+        Log.d(TAG, "createPage: $pageNo")
+    }
 
-
-    
 
 }

@@ -22,6 +22,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.nav
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.CustomerLedgerTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.ReArrangedCustomerLedgerDetails
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.query_screen.util.QueryCustomerLedgerReportScreenEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.report_screen.util.CustomerLedgerReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.query_screen.util.QueryCustomerPaymentReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.query_screen.util.QueryPosPaymentReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.report_screen.util.PosPaymentReportScreenEvent
@@ -100,6 +101,16 @@ class SalesViewModel @Inject constructor(
     private fun sendQueryCustomerLedgerReportScreenEvent(uiEvent: UiEvent) {
         viewModelScope.launch {
             _queryCustomerLedgerReportScreenEvent.send(QueryCustomerLedgerReportScreenEvent(uiEvent))
+        }
+    }
+
+    private val _customerLedgerReportScreenEvent =
+        Channel<CustomerLedgerReportScreenEvent>()
+    val customerLedgerReportScreenEvent = _customerLedgerReportScreenEvent.receiveAsFlow()
+
+    private fun sendCustomerLedgerReportScreenEvent(uiEvent: UiEvent) {
+        viewModelScope.launch {
+            _customerLedgerReportScreenEvent.send(CustomerLedgerReportScreenEvent(uiEvent))
         }
     }
 
@@ -407,7 +418,7 @@ class SalesViewModel @Inject constructor(
         }
     }
 
-    fun calculateCustomerLedgerTotalAndReArrangeList(data: List<LedgerDetail>) {
+    private fun calculateCustomerLedgerTotalAndReArrangeList(data: List<LedgerDetail>) {
         reArrangedCustomerLedgerReportList.clear()
         var sumOfDebit = 0.0
         var sumOfCredit = 0.0
@@ -554,15 +565,76 @@ class SalesViewModel @Inject constructor(
     fun makeExcelForPosPaymentReport(getUri: (uri: Uri) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             if (posPaymentReportList.size > 0) {
+                sendPosPaymentReportScreenEvent(UiEvent.ShowProgressBar)
                 useCase.excelMakerUseCasePosPaymentReportUseCase(
                     list = posPaymentReportList,
                     _fromDateState.value,
                     _toDateState.value,
                     getUri = getUri
                 ) { error, errorS ->
+                    sendPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
                     Log.e(TAG, "makeExcelForPosPaymentReport: $error $errorS")
+                    if (error){
+                        sendPosPaymentReportScreenEvent(UiEvent.ShowSnackBar(errorS ?: "There have some error"))
+                    }
                 }
             }
+        }
+    }
+
+    fun makePDFForCustomerLedgerReport(getUri: (uri: Uri) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            if (reArrangedCustomerLedgerReportList.size > 0) {
+                sendCustomerLedgerReportScreenEvent(UiEvent.ShowProgressBar)
+                useCase.pdfMakerCustomerLedgerReportUseCase(
+                    list = reArrangedCustomerLedgerReportList,
+                    customerLedgerTotals = _customerLedgerReportTotals.value!!,
+                    partyName = _partyName.value,
+                    balance = _balance.value,
+                    fromDate = _fromDateState.value,
+                    toDate = _toDateState.value,
+                    getUri = getUri,
+                    haveAnyError = { haveAnyError, error ->
+                        sendCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError) {
+                            sendCustomerLedgerReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some error"
+                                )
+                            )
+                        }
+                    }
+
+                )
+            } else {
+                sendCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+            }
+
+
+        }
+    }
+
+    fun makeExcelForCustomerLedgerReport(getUri: (uri: Uri) -> Unit){
+        if(reArrangedCustomerLedgerReportList.size>0){
+            sendCustomerLedgerReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.excelMakerCustomerLedgerReportUseCase(
+                    list = reArrangedCustomerLedgerReportList,
+                    partyName = _partyName.value,
+                    balance = _balance.value,
+                    fromDate = _fromDateState.value,
+                    toDate = _toDateState.value,
+                    getUri = getUri,
+                ){isError, errorString ->
+                    sendCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
+                    if (isError){
+                        sendCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar(errorString ?:"There have some error"))
+                    }
+                }
+            }
+        }else{
+            sendCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }
 

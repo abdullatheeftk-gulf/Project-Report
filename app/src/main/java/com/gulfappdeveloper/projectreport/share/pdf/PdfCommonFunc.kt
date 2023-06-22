@@ -20,21 +20,21 @@ fun Canvas.writePeriodText(fromDate: String, toDate: String, yPosition: Float) {
         color = Color.BLACK
     })
 
-    var textWidth = Paint().measureText("Period :-")+5
+    var textWidth = Paint().measureText("Period :-") + 5
     xPosition += textWidth
     drawText(fromDate, xPosition, yPosition, Paint().apply {
         textSize = 14f
         color = Color.argb(255, 102, 80, 164)
     })
 
-    textWidth = Paint().measureText(fromDate)+10f
+    textWidth = Paint().measureText(fromDate) + 10f
     xPosition += textWidth
     drawText(" to", xPosition, yPosition, Paint().apply {
         textSize = 14f
         color = Color.BLACK
     })
 
-    textWidth = Paint().measureText("-to")+5f
+    textWidth = Paint().measureText("-to") + 5f
     xPosition += textWidth
     drawText(toDate, xPosition, yPosition, Paint().apply {
         textSize = 14f
@@ -43,12 +43,110 @@ fun Canvas.writePeriodText(fromDate: String, toDate: String, yPosition: Float) {
 
 }
 
-fun Canvas.writeCompanyName(companyName:String,yPosition: Float){
-    val xPosition = 970f
+fun Canvas.writePeriodTextLedger(fromDate: String, toDate: String, yPosition: Float) {
+    var xPosition = 30f
+    drawText("Period", xPosition, yPosition, Paint().apply {
+        textSize = 12f
+        color = Color.BLACK
+    })
+    xPosition += 90f
+    drawText(":", xPosition, yPosition, Paint().apply {
+        textSize = 12f
+        color = Color.BLACK
+    })
+
+    var textWidth = 0f
+    xPosition += 10
+    drawText(fromDate, xPosition, yPosition, Paint().apply {
+        textSize = 12f
+        color = Color.argb(255, 102, 80, 164)
+    })
+
+    textWidth = Paint().measureText(fromDate)
+    xPosition += textWidth
+    drawText(" to", xPosition, yPosition, Paint().apply {
+        textSize = 12f
+        color = Color.BLACK
+    })
+
+    textWidth = Paint().measureText("-to")+4f
+    xPosition += textWidth
+    drawText(toDate, xPosition, yPosition, Paint().apply {
+        textSize = 12f
+        color = Color.argb(255, 102, 80, 164)
+    })
+
+}
+
+fun Canvas.writeCompanyName(companyName: String, yPosition: Float,xPosition: Float) {
+
     drawText("Company : $companyName", xPosition, yPosition, Paint().apply {
         textSize = 10f
         color = Color.BLACK
-        textAlign =Paint.Align.RIGHT
+        textAlign = Paint.Align.RIGHT
     })
 
+}
+
+fun <T> calculatePageCount(list: List<T>, numberOfItemsInOnePage: Int): Int {
+    try {
+        val lengthOfTheList = list.size
+        var fullPage = lengthOfTheList / numberOfItemsInOnePage
+        return when (lengthOfTheList % numberOfItemsInOnePage) {
+            in 0..(numberOfItemsInOnePage - 2) -> {
+                fullPage += 1
+                fullPage
+            }
+
+            else -> {
+                fullPage += 2
+                fullPage
+            }
+        }
+    } catch (e: Exception) {
+        throw Exception(e.message)
+    }
+}
+
+fun <T> calculatePageCountForLedgerReports(list: List<T>): Int {
+    try {
+        val newList = mutableListOf<Int>()
+        var pageCount = 0
+        list.forEachIndexed { index, _ ->
+            newList.add(index)
+            if ((index + 1) == 39) {
+                if (list.size == 39) {
+                    pageCount += 2
+                    newList.clear()
+                } else {
+                    pageCount++
+                    newList.clear()
+                }
+            }
+            if ((index - 38) % 41 == 0 && (index - 38) != 0) {
+                if (list.size == (index + 1)) {
+                    pageCount += 2
+                    newList.clear()
+                } else {
+                    pageCount++
+                    newList.clear()
+                }
+            }
+        }
+
+        when (newList.size) {
+            in 1..39 -> {
+                pageCount++
+            }
+
+            40 -> {
+                pageCount += 2
+            }
+
+            else -> Unit
+        }
+        return pageCount
+    } catch (e: Exception) {
+        throw Exception(e.message)
+    }
 }

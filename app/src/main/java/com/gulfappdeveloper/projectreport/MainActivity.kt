@@ -2,6 +2,7 @@ package com.gulfappdeveloper.projectreport
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Environment
 import android.provider.Settings
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
@@ -20,9 +21,10 @@ import com.gulfappdeveloper.projectreport.domain.services.PdfService
 import com.gulfappdeveloper.projectreport.navigation.RootNavGraph
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.RootViewModel
-import com.gulfappdeveloper.projectreport.share.pdf.customer_ledger_report.CustomerLedgerReportPdf
+import com.gulfappdeveloper.projectreport.share.pdf.sales.customer_ledger_report.CustomerLedgerReportPdf
 import com.gulfappdeveloper.projectreport.ui.theme.ProjectReportTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 import javax.inject.Inject
 
 private const val TAG = "MainActivity"
@@ -37,68 +39,20 @@ class MainActivity : ComponentActivity() {
         Log.d(TAG, "onCreate: ")
         super.onCreate(savedInstanceState)
 
-        var list = mutableListOf<Int>()
-        var pageNo = 1
-        val originalList = mutableListOf<Int>()
-        (1..161).forEach {
-            originalList.add(it)
+        try {
+            val path =
+                Environment.getExternalStorageDirectory().path + "/Android/data/${packageName}/files"
+            Log.e(TAG, "onCreate: $path")
+            val directory = File(path)
+            val files = directory.listFiles()
+            files?.forEach {
+                it.delete()
+            }
+        }catch (e:Exception){
+            Log.e(TAG, "onCreate: ${e.message}", )
         }
 
-        originalList.forEachIndexed { index, i ->
-            Log.d(TAG, "start: $i")
-            list.add(index + 1)
-            if ((index + 1) == 39) {
 
-                if (originalList.size == 39) {
-                    list = list.dropLast(1).toMutableList()
-                    createPage(list = list, pageNo)
-                    list.clear()
-                    list.add(index + 1)
-                    pageNo++
-                    createPage(list = list, pageNo)
-                    list.clear()
-                } else {
-
-                    createPage(list = list, pageNo = pageNo)
-                    list.clear()
-                    pageNo++
-                }
-            }
-            if ((index - 38) % 41 == 0 && (index - 38) != 0) {
-                /*list = list.dropLast(1).toMutableList()
-                createPage(list = list, pageNo)
-                list.clear()
-                list.add(index + 1)
-                pageNo++*/
-                if (originalList.size==index+1){
-                    list = list.dropLast(1).toMutableList()
-                    createPage(list = list, pageNo)
-                    list.clear()
-                    list.add(index + 1)
-                    pageNo++
-                    createPage(list = list, pageNo)
-                    list.clear()
-                }else{
-                    createPage(list = list, pageNo = pageNo)
-                    list.clear()
-                    pageNo++
-                }
-            }
-        }
-        when (list.size) {
-            in 1..39 -> {
-                createPage(list, pageNo)
-            }
-
-            40 -> {
-                createPage(list, pageNo)
-                list.clear()
-                pageNo++
-                createPage(list, pageNo = pageNo)
-            }
-
-            else -> Unit
-        }
 
 
         val deviceId =
@@ -134,10 +88,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun createPage(list: List<Int>, pageNo: Int) {
-        Log.e(TAG, "createPage: $list")
-        Log.d(TAG, "createPage: $pageNo")
-    }
 
 
 }

@@ -90,7 +90,7 @@ fun CustomerLedgerReportTable(
                     .background(if (rowCount % 2 == 0) Color(0xFFEDE6E6) else MaterialTheme.colorScheme.background)
                     .border(Dp.Hairline, Color.Black)
             ) {
-                if (columCont % 10 == 1) {
+                if (columCont % 6 == 1) {
                     Text(
                         text = content ?: "-",
                         modifier = Modifier

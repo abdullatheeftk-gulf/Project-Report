@@ -1,4 +1,4 @@
-package com.gulfappdeveloper.projectreport.share.pdf.customer_ledger_report
+package com.gulfappdeveloper.projectreport.share.pdf.sales.customer_ledger_report
 
 import android.content.Context
 import android.graphics.Canvas

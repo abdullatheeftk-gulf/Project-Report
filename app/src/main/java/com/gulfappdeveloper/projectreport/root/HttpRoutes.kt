@@ -1,7 +1,7 @@
 package com.gulfappdeveloper.projectreport.root
 
 object HttpRoutes {
-    const val BASE_URL = "http://sales.the360pos.com"
+    const val BASE_URL = "http://report.the360pos.com"
 
     const val WELCOME_MESSAGE = "/api/oem"
 
@@ -35,6 +35,13 @@ object HttpRoutes {
     const val PURCHASE_MASTERS_REPORT = "/api/PurchaseMasters/"
     const val SUPPLIER_PURCHASE_REPORT = "/api/PurchaseMasters/"
     const val SUPPLIER_LEDGER_REPORT = "/api/SupplierLedgers/"
+
+    // Expense
+    const val EXPENSE_LEDGER_REPORT = "/api/ExpenseLedgers"
+
+    // Payments
+    const val PAYMENT_REPORT = "/api/Payments"
+    const val RECEIPT_REPORT = "/api/Receipts"
 
 
 }

@@ -5,6 +5,9 @@ import com.gulfappdeveloper.projectreport.repositories.DataStoreRepository
 import com.gulfappdeveloper.projectreport.repositories.PdfExcelRepository
 import com.gulfappdeveloper.projectreport.repositories.RoomDatabaseRepository
 import com.gulfappdeveloper.projectreport.usecases.UseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.accounts.ExpenseLedgerReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.accounts.GetPaymentsReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.accounts.GetReceiptReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.customer_payment.GetCustomerPaymentUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.ledger.GetCustomerForLedgerUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.ledger.GetCustomerLedgers
@@ -36,8 +39,18 @@ import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.cust
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.customer_ledger_report.PdfMakerCustomerLedgerReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.customer_payment_report.ExcelMakerUseCaseForCustomerPaymentReport
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.customer_payment_report.PdfMakerUseCaseForCustomerPaymentReport
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.expense_lesdger_report_use_case.ExcelMakerExpenseLedgerReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.expense_lesdger_report_use_case.PdfMakerExpenseLedgerReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.payments_report.MakeExcelForPaymentReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.payments_report.MakePdfForPaymentsReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.pos_payment_report.ExcelMakerUseCaseForPosPaymentReport
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.pos_payment_report.PdfMakerUseCaseForPosPaymentReport
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.receipts_report.MakeExcelForReceiptReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.receipts_report.MakePdfForReceiptReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.sale_summaries_report.ExcelMakerSaleSummariesReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.sale_summaries_report.PdfMakerSaleSummariesReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.sales_invoice_report.ExcelMakerSalesInvoiceReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.sales_invoice_report.PdfMakerSalesInvoiceReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.supplier_ledger_report.ExcelMakerForSupplierLedgerReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.supplier_ledger_report.PdfMakerSupplierLedgerReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.GetAllLocalCompanyData
@@ -118,14 +131,41 @@ object RepositoryModule {
         ),
 
         pdfMakerCustomerLedgerReportUseCase = PdfMakerCustomerLedgerReportUseCase(pdfExcelRepository = pdfExcelRepository),
-        excelMakerCustomerLedgerReportUseCase = ExcelMakerCustomerLedgerReportUseCase(pdfExcelRepository = pdfExcelRepository),
+        excelMakerCustomerLedgerReportUseCase = ExcelMakerCustomerLedgerReportUseCase(
+            pdfExcelRepository = pdfExcelRepository
+        ),
 
         pdfMakerSupplierLedgerReportUseCase = PdfMakerSupplierLedgerReportUseCase(pdfExcelRepository = pdfExcelRepository),
-        excelMakerForSupplierLedgerReportUseCase = ExcelMakerForSupplierLedgerReportUseCase(pdfExcelRepository = pdfExcelRepository),
+        excelMakerForSupplierLedgerReportUseCase = ExcelMakerForSupplierLedgerReportUseCase(
+            pdfExcelRepository = pdfExcelRepository
+        ),
 
         purchaseMastersReportUseCase = PurchaseMastersReportUseCase(apiRepository = apiRepository),
         supplierPurchaseReportUseCase = SupplierPurchaseReportUseCase(apiRepository = apiRepository),
-        supplierLedgerReportUseCase = SupplierLedgerReportUseCase(apiRepository = apiRepository)
+        supplierLedgerReportUseCase = SupplierLedgerReportUseCase(apiRepository = apiRepository),
+
+        pdfMakerSalesInvoiceReportUseCase = PdfMakerSalesInvoiceReportUseCase(pdfExcelRepository = pdfExcelRepository),
+        excelMakerSalesInvoiceReportUseCase = ExcelMakerSalesInvoiceReportUseCase(pdfExcelRepository = pdfExcelRepository),
+
+        pdfMakerSaleSummariesReportUseCase = PdfMakerSaleSummariesReportUseCase(pdfExcelRepository = pdfExcelRepository),
+        excelMakerSaleSummariesReportUseCase = ExcelMakerSaleSummariesReportUseCase(
+            pdfExcelRepository = pdfExcelRepository
+        ),
+        expenseLedgerReportUseCase = ExpenseLedgerReportUseCase(apiRepository = apiRepository),
+        excelMakerExpenseLedgerReportUseCase = ExcelMakerExpenseLedgerReportUseCase(
+            pdfExcelRepository = pdfExcelRepository
+        ),
+        pdfMakerExpenseLedgerReportUseCase = PdfMakerExpenseLedgerReportUseCase(pdfExcelRepository = pdfExcelRepository),
+
+        getPaymentsReportUseCase = GetPaymentsReportUseCase(apiRepository = apiRepository),
+        getReceiptReportUseCase = GetReceiptReportUseCase(apiRepository = apiRepository),
+
+        makePdfForPaymentsReportUseCase = MakePdfForPaymentsReportUseCase(pdfExcelRepository = pdfExcelRepository),
+        makeExcelForPaymentReportUseCase = MakeExcelForPaymentReportUseCase(pdfExcelRepository = pdfExcelRepository),
+
+        makePdfForReceiptReportUseCase = MakePdfForReceiptReportUseCase(pdfExcelRepository = pdfExcelRepository),
+        makeExcelForReceiptReportUseCase = MakeExcelForReceiptReportUseCase(pdfExcelRepository = pdfExcelRepository)
+
 
     )
 }

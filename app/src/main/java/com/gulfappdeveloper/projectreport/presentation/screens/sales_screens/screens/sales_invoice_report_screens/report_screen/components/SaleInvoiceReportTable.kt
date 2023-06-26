@@ -81,7 +81,7 @@ fun SaleInvoiceReportTable(
                 0 -> "$rowCount"
                 1 -> rowData.date
                 2 -> rowData.invoiceNo.toString()
-                3 -> rowData.party.toString()
+                3 -> rowData.party ?: "-"
                 4 -> rowData.taxable.toString()
                 5 -> rowData.tax.toString()
                 6 -> rowData.returnTaxable.toString()

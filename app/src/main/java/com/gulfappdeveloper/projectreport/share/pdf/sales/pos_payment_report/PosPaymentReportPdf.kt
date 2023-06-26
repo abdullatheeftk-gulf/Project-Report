@@ -1,4 +1,4 @@
-package com.gulfappdeveloper.projectreport.share.pdf.pos_payment_report
+package com.gulfappdeveloper.projectreport.share.pdf.sales.pos_payment_report
 
 import android.content.Context
 import android.graphics.Canvas

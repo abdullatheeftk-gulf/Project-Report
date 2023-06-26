@@ -1,14 +1,22 @@
 package com.gulfappdeveloper.projectreport.repositories
 
 import android.net.Uri
+import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
+import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
+import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
+import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
 import com.gulfappdeveloper.projectreport.domain.services.ExcelService
 import com.gulfappdeveloper.projectreport.domain.services.PdfService
+import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ExpenseLedgerReportTotals
+import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ReArrangedExpenseLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.CustomerLedgerTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.ReArrangedCustomerLedgerDetails
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.SaleSummariesReportTotals
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.SalesInvoiceReportTotals
 import javax.inject.Inject
 
 class PdfExcelRepository @Inject constructor(
@@ -63,7 +71,6 @@ class PdfExcelRepository @Inject constructor(
     )
 
 
-
     suspend fun writePdfForCustomerLedgerReport(
         list: List<ReArrangedCustomerLedgerDetails>,
         customerLedgerTotals: CustomerLedgerTotals,
@@ -93,7 +100,7 @@ class PdfExcelRepository @Inject constructor(
         balance: Float,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
-    )=pdfService.writePdfForSupplierLedgerReport(
+    ) = pdfService.writePdfForSupplierLedgerReport(
         list = list,
         supplierLedgerTotal = supplierLedgerTotal,
         fromDate = fromDate,
@@ -155,6 +162,165 @@ class PdfExcelRepository @Inject constructor(
         haveAnyError = haveAnyError
     )
 
+
+    suspend fun writePdfForSalesInvoiceReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<SalesInvoiceResponse>,
+        salesInvoiceReportTotals: SalesInvoiceReportTotals
+    ) = pdfService.writePdfForSalesInvoiceReport(
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
+        list = list,
+        salesInvoiceReportTotals = salesInvoiceReportTotals
+    )
+
+    suspend fun writePdfForSaleSummariesReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<SaleSummariesResponse>,
+        saleSummariesReportTotals: SaleSummariesReportTotals
+    ) = pdfService.writePdfForSaleSummariesReport(
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
+        list = list,
+        saleSummariesReportTotals = saleSummariesReportTotals
+    )
+
+    suspend fun makeExcelForSalesInvoiceReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<SalesInvoiceResponse>
+    ) = excelService.makeExcelForSalesInvoiceReport(
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
+        list = list
+    )
+
+    suspend fun makeExcelForSaleSummariesReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<SaleSummariesResponse>
+    ) = excelService.makeExcelForSaleSummariesReport(
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
+        list = list
+    )
+
+    suspend fun writePdfForExpenseLedgerReport(
+        list: List<ReArrangedExpenseLedgerDetail>,
+        expenseLedgerTotal: ExpenseLedgerReportTotals,
+        fromDate: String,
+        toDate: String,
+        partyName: String,
+        balance: Float,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
+    ) = pdfService.writePdfForExpenseLedgerReport(
+        list = list,
+        expenseLedgerTotal = expenseLedgerTotal,
+        fromDate = fromDate,
+        toDate = toDate,
+        partyName = partyName,
+        balance = balance,
+        getUri = getUri,
+        haveAnyError = haveAnyError
+    )
+
+    suspend fun makeExcelForExpenseLedgerReport(
+        list: List<ReArrangedExpenseLedgerDetail>,
+        partyName: String,
+        balance: Float,
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (isError: Boolean, errorString: String?) -> Unit
+    ) = excelService.makeExcelForExpenseLedgerReport(
+        list = list,
+        partyName = partyName,
+        balance = balance,
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError
+    )
+
+    suspend fun writePdfForPaymentsReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<PaymentResponse>,
+        paymentReportListTotal: Double
+    ) = pdfService.writePdfForPaymentsReport(
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
+        list = list,
+        paymentReportListTotal = paymentReportListTotal
+    )
+
+    suspend fun writePdfForReceiptsReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<ReceiptResponse>,
+        receiptReportListTotal: Double
+    ) = pdfService.writePdfForReceiptsReport(
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
+        list = list,
+        receiptReportListTotal = receiptReportListTotal
+    )
+
+    suspend fun makeExcelForPaymentsReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<PaymentResponse>
+    ) = excelService.makeExcelForPaymentsReport(
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
+        list = list
+    )
+
+
+    suspend fun makeExcelForReceiptsReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<ReceiptResponse>
+    ) = excelService.makeExcelForReceiptsReport(
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
+        list = list
+    )
 
 
 }

@@ -1,5 +1,8 @@
 package com.gulfappdeveloper.projectreport.domain.services
 
+import com.gulfappdeveloper.projectreport.domain.models.accounts.ExpenseLedgerReportResponse
+import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
+import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.general.GetDataFromRemote
 import com.gulfappdeveloper.projectreport.domain.models.ip4.SeeIp
@@ -51,4 +54,9 @@ interface ApiService {
     suspend fun getPurchaseMastersReport(url: String): Flow<GetDataFromRemote<List<PurchaseMastersResponse>>>
     suspend fun getSupplierPurchaseReport(url: String): Flow<GetDataFromRemote<List<PurchaseMastersResponse>>>
     suspend fun getSupplierLedgerReport(url:String) :Flow<GetDataFromRemote<SupplierLedgerReportResponse>>
+
+    // Accounts
+    suspend fun getExpenseLedgerReport(url: String,dateFrom:String,dateTo:String,expenseId:Int,companyId:Int):Flow<GetDataFromRemote<ExpenseLedgerReportResponse>>
+    suspend fun getPaymentsReport(url: String,dateFrom:String,dateTo:String,companyId:Int):Flow<GetDataFromRemote<List<PaymentResponse>>>
+    suspend fun getReceiptReport(url: String,dateFrom:String,dateTo:String,companyId:Int):Flow<GetDataFromRemote<List<ReceiptResponse>>>
 }

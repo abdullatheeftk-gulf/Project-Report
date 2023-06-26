@@ -57,7 +57,39 @@ class ApiRepository @Inject constructor(
     suspend fun getSupplierPurchaseReport(url: String) =
         apiService.getSupplierPurchaseReport(url = url)
 
-    suspend fun getSupplierLedgerReport(url:String)=apiService.getSupplierLedgerReport(url=url)
+    suspend fun getSupplierLedgerReport(url: String) = apiService.getSupplierLedgerReport(url = url)
+
+    suspend fun getExpenseLedgerReport(
+        url: String,
+        dateFrom: String,
+        dateTo: String,
+        expenseId: Int,
+        companyId: Int
+    ) = apiService.getExpenseLedgerReport(
+        url = url,
+        dateFrom = dateFrom,
+        dateTo = dateTo,
+        expenseId = expenseId,
+        companyId = companyId
+    )
+
+    suspend fun getPaymentsReport(
+        url: String, dateFrom: String, dateTo: String, companyId: Int
+    ) = apiService.getPaymentsReport(
+        url = url,
+        dateFrom = dateFrom,
+        dateTo = dateTo,
+        companyId = companyId
+    )
+
+    suspend fun getReceiptReport(
+        url: String, dateFrom: String, dateTo: String, companyId: Int
+    ) = apiService.getReceiptReport(
+        url = url,
+        dateFrom = dateFrom,
+        dateTo = dateTo,
+        companyId = companyId
+    )
 
 
 }

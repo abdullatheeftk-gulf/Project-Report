@@ -108,7 +108,7 @@ fun MainScreen(
                 item {
                     MenuItem(
                         onClickMenuItem = {
-                            // navHostController.navigate(RootNavScreens.SalesScreens.route)
+                             navHostController.navigate(RootNavScreens.AccountScreens.route)
                         },
                         containerColor = Color(0xFF99E597),
                         contentColor = Color(0xFF484545),

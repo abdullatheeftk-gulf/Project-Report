@@ -1,4 +1,4 @@
-package com.gulfappdeveloper.projectreport.share.pdf.customer_payment_report
+package com.gulfappdeveloper.projectreport.share.pdf.sales.sales_invoice_report
 
 import android.content.Context
 import android.graphics.Canvas
@@ -6,9 +6,12 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
-import android.util.Log
 import androidx.core.content.FileProvider
-import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
+import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
+import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.SalesInvoiceReportTotals
+import com.gulfappdeveloper.projectreport.share.pdf.calculatePageCount
+import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
 import com.gulfappdeveloper.projectreport.share.pdf.writePeriodText
 import kotlinx.coroutines.Dispatchers
@@ -16,36 +19,43 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
-object CustomerPaymentReportPdf {
+object SalesInvoiceReportPdf {
+
     suspend fun makePdf(
+        companyName:String,
         pdfDocument: PdfDocument,
         context: Context,
-        list: List<CustomerPaymentResponse>,
-        listOfTotal: List<Double>,
+        list: List<SalesInvoiceResponse>,
+        salesInvoiceReportTotals: SalesInvoiceReportTotals,
         fromDate: String,
         toDate: String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) {
         try {
-            val totalPages = calculatePageCount(list)
+            val totalPages = calculatePageCount(list, numberOfItemsInOnePage = 27)
             var pageCount = 1
-            val pageList = mutableListOf<CustomerPaymentResponse>()
-            list.forEachIndexed { index, customerPaymentResponse ->
-                pageList.add(customerPaymentResponse)
+
+            val pageList = mutableListOf<SalesInvoiceResponse>()
+
+            list.forEachIndexed { index, salesInvoiceResponse ->
+                pageList.add(salesInvoiceResponse)
                 if ((index + 1) % 27 == 0) {
 
                     createPage(
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
-                        listOfTotal = listOfTotal,
+                        salesInvoiceReportTotals = salesInvoiceReportTotals,
                         fromDate = fromDate,
                         toDate = toDate,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
+                        companyName = companyName
                     )
                     pageCount++
                     pageList.clear()
@@ -58,25 +68,28 @@ object CustomerPaymentReportPdf {
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
-                        listOfTotal = listOfTotal,
+                        salesInvoiceReportTotals = salesInvoiceReportTotals,
                         fromDate = fromDate,
                         toDate = toDate,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
+                        companyName = companyName
                     )
 
                     pageList.clear()
                 }
+
                 26 -> {
                     createPage(
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
-                        listOfTotal = listOfTotal,
+                        salesInvoiceReportTotals = salesInvoiceReportTotals,
                         fromDate = fromDate,
                         toDate = toDate,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
+                        companyName = companyName
                     )
                     pageList.clear()
                     pageCount++
@@ -84,31 +97,32 @@ object CustomerPaymentReportPdf {
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
-                        listOfTotal = listOfTotal,
+                        salesInvoiceReportTotals = salesInvoiceReportTotals,
                         fromDate = fromDate,
                         toDate = toDate,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
+                        companyName = companyName
                     )
                 }
+
                 else -> {
                     pageList.clear()
                     createPage(
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
-                        listOfTotal = listOfTotal,
+                        salesInvoiceReportTotals = salesInvoiceReportTotals,
                         fromDate = fromDate,
                         toDate = toDate,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
+                        companyName = companyName
                     )
                 }
             }
-
-
             val file =
-                File(context.getExternalFilesDir(null), "CustomerPaymentReport_${Date()}.pdf")
+                File(context.getExternalFilesDir(null), "SalesInvoiceReport_${Date()}.pdf")
             try {
                 withContext(Dispatchers.IO) {
                     pdfDocument.writeTo(FileOutputStream(file))
@@ -129,45 +143,27 @@ object CustomerPaymentReportPdf {
         } catch (e: java.lang.Exception) {
             haveAnyError(true, e.message)
         }
-
     }
 
-
-    private fun calculatePageCount(list: List<CustomerPaymentResponse>): Int {
-        try {
-            val lengthOfTheList = list.size
-            var fullPage = lengthOfTheList / 27
-            return when (lengthOfTheList % 27) {
-                in 0..25 -> {
-                    fullPage += 1
-                    fullPage
-                }
-
-                else -> {
-                    fullPage += 2
-                    fullPage
-                }
-            }
-        } catch (e: Exception) {
-            throw Exception(e.message)
-        }
-    }
 
     private fun createPage(
+        companyName:String,
         pageNo: Int,
         pdfDocument: PdfDocument,
-        list: List<CustomerPaymentResponse>,
-        listOfTotal:List<Double>,
+        list: List<SalesInvoiceResponse>,
+        salesInvoiceReportTotals: SalesInvoiceReportTotals,
         fromDate: String,
         toDate: String,
         totalPages: Int,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
     ) {
         try {
-            val isItLastPage = pageNo == totalPages
-            val paint = Paint()
+            val isItLastPage: Boolean = pageNo == totalPages
 
-            val pageInfo = PdfDocument.PageInfo.Builder(1000, 707, pageNo)
+
+            val pageInfo = PdfDocument
+                .PageInfo
+                .Builder(1000, 707, pageNo)
                 .create()
 
             val page = pdfDocument.startPage(pageInfo)
@@ -178,7 +174,7 @@ object CustomerPaymentReportPdf {
             var yPosition = 50f
             val xPositionHeading = pageInfo.pageWidth / 2f
             canvas.writeHeading(
-                headingTitle = "Customer Payment Report",
+                headingTitle = "Sales Invoice Report",
                 xPosition = xPositionHeading,
                 yPosition = yPosition
             )
@@ -186,6 +182,7 @@ object CustomerPaymentReportPdf {
             // dates
             yPosition += 30f
             canvas.writePeriodText(fromDate, toDate, yPosition)
+            canvas.writeCompanyName(companyName = companyName,yPosition = yPosition, xPosition = 970f)
 
 
             // Table
@@ -193,80 +190,141 @@ object CustomerPaymentReportPdf {
             // Header
             var xPosition = 30f
             yPosition += 8f
-            paint.color = Color.argb(255, 210, 210, 210)
-            paint.style = Paint.Style.FILL
+            //val paint = Paint()
 
-            canvas.drawRect(xPosition, yPosition, 970f, yPosition + 25, paint)
 
-            paint.flags = Paint.ANTI_ALIAS_FLAG
-            paint.style = Paint.Style.STROKE
-            paint.color = Color.BLACK
+            // Drawing header rectangle
+            canvas.drawRect(xPosition, yPosition, 970f, yPosition + 25, Paint().apply {
+                color = Color.argb(255, 210, 210, 210)
+                style = Paint.Style.FILL
+            })
+            canvas.drawRect(xPosition, yPosition, 970f, yPosition + 25, Paint().apply {
+                style = Paint.Style.STROKE
+                color = Color.BLACK
+            })
 
-            canvas.drawRect(xPosition, yPosition, 970f, yPosition + 25, paint)
 
-            paint.color = Color.argb(255, 90, 90, 90)
-            paint.strokeWidth = 0.4f
-
-            xPosition += 30
-            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
-            xPosition += 110
-            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
-            xPosition += 90
-            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
-            xPosition += 260
-            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
-            xPosition += 90
-            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
-            xPosition += 90
-            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
-            xPosition += 90
-            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
-            xPosition += 90
-            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
-
+            // header items
+            // Si
             xPosition = 45f
-            yPosition += 16.5f
+            canvas.drawText("SI", xPosition, yPosition + 16.5f, Paint().apply {
+                textAlign = Paint.Align.CENTER
+                textSize = 12f
+            })
 
-            val paintText = Paint()
-            paintText.textSize = 12f
-            paintText.color = Color.BLACK
-            paintText.textAlign = Paint.Align.CENTER
+            xPosition += 15f
+            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
+                color = Color.argb(255, 90, 90, 90)
+                strokeWidth = 0.4f
+            })
+
+            // Date
+            xPosition += 60f
+            canvas.drawText("Date", xPosition, yPosition + 16.5f, Paint().apply {
+                textAlign = Paint.Align.CENTER
+                textSize = 12f
+            })
+
+            xPosition += 60f
+            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
+                color = Color.argb(255, 90, 90, 90)
+                strokeWidth = 0.4f
+            })
 
 
-            canvas.drawText("SI", xPosition, yPosition, paintText)
+            // Invoice No
+            xPosition += 30f
+            canvas.drawText("Rcpt No", xPosition, yPosition + 16.5f, Paint().apply {
+                textAlign = Paint.Align.CENTER
+                textSize = 12f
+            })
 
-            paintText.textAlign = Paint.Align.CENTER
-            xPosition = 115f
-            canvas.drawText("Date", xPosition, yPosition, paintText)
+            xPosition += 30f
+            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
+                color = Color.argb(255, 90, 90, 90)
+                strokeWidth = 0.4f
+            })
 
-            paintText.textAlign = Paint.Align.CENTER
-            xPosition += 100
-            canvas.drawText("Rec.no", xPosition, yPosition, paintText)
+            // Account
+            xPosition += 100f
+            canvas.drawText("Account", xPosition, yPosition + 16.5f, Paint().apply {
+                textAlign = Paint.Align.CENTER
+                textSize = 12f
+            })
 
-            xPosition += 175
-            canvas.drawText("Party", xPosition, yPosition, paintText)
+            xPosition += 100f
+            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
+                color = Color.argb(255, 90, 90, 90)
+                strokeWidth = 0.4f
+            })
 
-            xPosition += 175
-            canvas.drawText("Cash", xPosition, yPosition, paintText)
+            // Taxable
+            xPosition += 52.5f
+            canvas.drawText("Taxable", xPosition, yPosition + 16.5f, Paint().apply {
+                textAlign = Paint.Align.CENTER
+                textSize = 12f
+            })
 
-            xPosition += 90
-            canvas.drawText("Card", xPosition, yPosition, paintText)
+            xPosition += 52.5f
+            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
+                color = Color.argb(255, 90, 90, 90)
+                strokeWidth = 0.4f
+            })
 
-            xPosition += 90
-            canvas.drawText("Online", xPosition, yPosition, paintText)
+            // Card
+            xPosition += 52.5f
+            canvas.drawText("Tax", xPosition, yPosition + 16.5f, Paint().apply {
+                textAlign = Paint.Align.CENTER
+                textSize = 12f
+            })
 
-            xPosition += 90
-            canvas.drawText("Credit", xPosition, yPosition, paintText)
+            xPosition += 52.5f
+            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
+                color = Color.argb(255, 90, 90, 90)
+                strokeWidth = 0.4f
+            })
 
-            xPosition += 90
-            canvas.drawText("Total", xPosition, yPosition, paintText)
+            // Return
+            xPosition += 52.5f
+            canvas.drawText("Return", xPosition, yPosition + 16.5f, Paint().apply {
+                textAlign = Paint.Align.CENTER
+                textSize = 12f
+            })
+
+            xPosition += 52.5f
+            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
+                color = Color.argb(255, 90, 90, 90)
+                strokeWidth = 0.4f
+            })
+
+            // Tax on return
+            xPosition += 52.5f
+            canvas.drawText("Tax on return", xPosition, yPosition + 16.5f, Paint().apply {
+                textAlign = Paint.Align.CENTER
+                textSize = 12f
+            })
+
+            xPosition += 52.5f
+            canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
+                color = Color.argb(255, 90, 90, 90)
+                strokeWidth = 0.4f
+            })
+
+
+
+            // Total
+            xPosition += 52.5f
+            canvas.drawText("Net", xPosition, yPosition + 16.5f, Paint().apply {
+                textAlign = Paint.Align.CENTER
+                textSize = 12f
+            })
+
 
             // Table items
-            xPosition = 30f
-            yPosition += 9.5f
+            yPosition += 25f
 
 
-            list.forEachIndexed { index, customerPaymentResponse ->
+            list.forEachIndexed { index, salesInvoiceResponse ->
                 xPosition = 30f
                 val paintTable = Paint()
                 if (index % 2 == 0) {
@@ -294,13 +352,13 @@ object CustomerPaymentReportPdf {
                     textAlign = Paint.Align.CENTER
                     textSize = 10f
                 })
-                xPosition += 15
+                xPosition += 15f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
                 //Date
-                xPosition += 55
+                xPosition += 60f
                 canvas.drawText(
-                    customerPaymentResponse.date,
+                    salesInvoiceResponse.date,
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -308,27 +366,27 @@ object CustomerPaymentReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 55
+                xPosition += 60f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
 
-                // Rec. No
-                xPosition += 45
+                // Inv. No
+                xPosition += 30
                 canvas.drawText(
-                    customerPaymentResponse.receiptNo.toString(),
+                    salesInvoiceResponse.invoiceNo.toString(),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
                         textAlign = Paint.Align.CENTER
                         textSize = 10f
                     })
-                xPosition += 45
+                xPosition += 30
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
-                // Party
-                xPosition += 130
+                // Account
+                xPosition += 100
                 canvas.drawText(
-                    customerPaymentResponse.party,
+                    salesInvoiceResponse.party ?: "-",
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -336,13 +394,14 @@ object CustomerPaymentReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 130
+                xPosition += 100
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
-                //cash
-                xPosition += 45
+                // Taxable
+                xPosition += 52.5f
                 canvas.drawText(
-                    customerPaymentResponse.cash,
+                    // posPaymentResponse.cash.toString(),
+                    String.format("%.2f",salesInvoiceResponse.taxable),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -350,13 +409,13 @@ object CustomerPaymentReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 45
+                xPosition += 52.5f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
                 // Card
-                xPosition += 45
+                xPosition += 52.5f
                 canvas.drawText(
-                    customerPaymentResponse.card,
+                    String.format("%.2f",salesInvoiceResponse.tax),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -364,14 +423,14 @@ object CustomerPaymentReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 45
+                xPosition += 52.5f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
 
-                // online
-                xPosition += 45
+                // return
+                xPosition += 52.5f
                 canvas.drawText(
-                    customerPaymentResponse.onlineAmount,
+                    String.format("%.2f",salesInvoiceResponse.returnTaxable),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -379,25 +438,26 @@ object CustomerPaymentReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 45
+                xPosition += 52.5f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
-                // credit
-                xPosition += 45
+                // Tax on return
+                xPosition += 52.5f
                 canvas.drawText(
-                    customerPaymentResponse.credit,
+                    String.format("%.2f",salesInvoiceResponse.taxOnReturn),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
                         textAlign = Paint.Align.CENTER
                         textSize = 10f
                     })
-                xPosition += 45
+                xPosition += 52.5f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
-                xPosition += 45
+
+                xPosition += 52.5f
                 canvas.drawText(
-                    customerPaymentResponse.total,
+                    String.format("%.2f",salesInvoiceResponse.net),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -412,16 +472,34 @@ object CustomerPaymentReportPdf {
             }
 
             if (isItLastPage) {
-                writeTotalValueRow(yPosition, canvas, listOfTotal = listOfTotal)
+                writeTotalValueRow(
+                    yPosition,
+                    canvas,
+                    salesInvoiceReportTotals = salesInvoiceReportTotals
+                )
             }
 
+            val date = SimpleDateFormat("dd-MM-yyyy, hh:mm:ss a", Locale.getDefault()).format(Date())
+            canvas.drawText(date, 30f, 680f, Paint().apply {
+                color = Color.BLACK
+                textSize = 8f
+                textAlign = Paint.Align.LEFT
+                textSkewX = -0.25f
+            })
 
-            canvas.drawText("page $pageNo off $totalPages", 925f, 680f, Paint().apply {
+            canvas.drawText("Unipospro",pageInfo.pageWidth/2f,680f, Paint().apply {
                 color = Color.BLACK
                 textSize = 8f
                 textAlign = Paint.Align.CENTER
+            })
+
+            canvas.drawText("page $pageNo of $totalPages", 970f, 680f, Paint().apply {
+                color = Color.BLACK
+                textSize = 8f
+                textAlign = Paint.Align.RIGHT
                 textSkewX = -0.25f
             })
+
 
 
             pdfDocument.finishPage(page)
@@ -430,12 +508,12 @@ object CustomerPaymentReportPdf {
         }
     }
 
-    private fun writeTotalValueRow(yPosition: Float, canvas: Canvas, listOfTotal:List<Double>) {
+    private fun writeTotalValueRow(yPosition: Float, canvas: Canvas, salesInvoiceReportTotals: SalesInvoiceReportTotals) {
         canvas.drawRect(30f, yPosition, 970f, yPosition + 25f, Paint().apply {
             style = Paint.Style.STROKE
         })
 
-        var xPosition = 520f
+        var xPosition = 440f
 
         canvas.drawText(
             "TOTAL:- ",
@@ -450,10 +528,9 @@ object CustomerPaymentReportPdf {
             color = Color.argb(255, 90, 90, 90)
             strokeWidth = 0.4f
         })
-
-        xPosition += 45
+        xPosition += 52.5f
         canvas.drawText(
-            String.format("%.2f",listOfTotal[0]),
+            String.format("%.2f", salesInvoiceReportTotals.sumOfTaxable),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -461,15 +538,15 @@ object CustomerPaymentReportPdf {
                 textSize = 12f
                 strokeWidth = 1f
             })
-        xPosition += 45
+        xPosition += 52.5f
         canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
             color = Color.argb(255, 90, 90, 90)
             strokeWidth = 0.4f
         })
 
-        xPosition += 45
+        xPosition += 52.5f
         canvas.drawText(
-            String.format("%.2f",listOfTotal[1]),
+            String.format("%.2f", salesInvoiceReportTotals.sumOfTax),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -477,15 +554,15 @@ object CustomerPaymentReportPdf {
                 textSize = 12f
                 strokeWidth = 1f
             })
-        xPosition += 45
+        xPosition += 52.5f
         canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
             color = Color.argb(255, 90, 90, 90)
             strokeWidth = 0.4f
         })
 
-        xPosition += 45
+        xPosition += 52.5f
         canvas.drawText(
-            String.format("%.2f",listOfTotal[2]),
+            String.format("%.2f", salesInvoiceReportTotals.sumOfReturn),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -493,15 +570,15 @@ object CustomerPaymentReportPdf {
                 textSize = 12f
                 strokeWidth = 1f
             })
-        xPosition += 45
+        xPosition += 52.5f
         canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
             color = Color.argb(255, 90, 90, 90)
             strokeWidth = 0.4f
         })
 
-        xPosition += 45
+        xPosition += 52.5f
         canvas.drawText(
-            String.format("%.2f",listOfTotal[3]),
+            String.format("%.2f", salesInvoiceReportTotals.sumOfTaxOnReturn),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -509,15 +586,16 @@ object CustomerPaymentReportPdf {
                 textSize = 12f
                 strokeWidth = 1f
             })
-        xPosition += 45
+        xPosition += 52.5f
         canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
             color = Color.argb(255, 90, 90, 90)
             strokeWidth = 0.4f
         })
 
-        xPosition += 45
+
+        xPosition += 52.5f
         canvas.drawText(
-            String.format("%.2f",listOfTotal[4]),
+            String.format("%.2f", salesInvoiceReportTotals.sumOfNet),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -525,14 +603,8 @@ object CustomerPaymentReportPdf {
                 textSize = 12f
                 strokeWidth = 1f
             })
-        /*xPosition+=45
-        canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
-            color = Color.argb(255, 90, 90, 90)
-            strokeWidth = 0.4f
-        })*/
     }
 
-    private fun checkSpaceForWritingTotalAmount(yPosition: Float): Boolean {
-        return yPosition + 25 <= 654
-    }
+
+
 }

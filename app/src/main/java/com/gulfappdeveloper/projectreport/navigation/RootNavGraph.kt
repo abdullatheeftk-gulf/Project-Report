@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.AccountMainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_screens.LedgerReportMainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.login_screen.LoginScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.main_screen.MainScreen
@@ -75,19 +76,22 @@ fun RootNavGraph(
                 rootViewModel = rootViewModel
             )
         }*/
-        composable(RootNavScreens.SalesScreens.route){
+        composable(RootNavScreens.SalesScreens.route) {
             SalesMainScreen(
                 navHostController = navHostController,
                 rootViewModel = rootViewModel,
                 hideKeyboard = hideKeyboard
             )
         }
-        composable(RootNavScreens.PurchaseScreens.route){
+        composable(RootNavScreens.PurchaseScreens.route) {
             PurchaseMainScreen(
                 navHostController = navHostController,
                 rootViewModel = rootViewModel,
                 hideKeyboard = hideKeyboard
             )
+        }
+        composable(RootNavScreens.AccountScreens.route) {
+            AccountMainScreen(navHostController = navHostController)
         }
 
     }

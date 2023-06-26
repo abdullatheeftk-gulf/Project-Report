@@ -63,13 +63,14 @@ object CustomerLedgerReportExcel {
             list.forEachIndexed { index, reArrangedCustomerLedgerDetails ->
                 createItemRow(
                     reArrangedCustomerLedgerDetails = reArrangedCustomerLedgerDetails,
-                    index = index, isItLastRow = sizeOfList == index + 1,
+                    index = index,
+                    isItLastRow = sizeOfList == index + 1,
                     sheet = sheet,
                     wb = wb
                 )
             }
 
-            createTotalValueRow(sheet, wb, sizeOfList + 4)
+            createTotalValueRow(sheet, wb, sizeOfList + 5)
 
 
             sheet.setColumnWidth(0, 5 * 200)

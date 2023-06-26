@@ -8,15 +8,9 @@ import kotlinx.serialization.Serializable
 data class SaleSummariesResponse(
     val returnTax: Float,
     val date: String,
-
     val taxable: Float,
-
     val tax: Float,
-
-
     val returnTaxable: Float,
-
-
 
     val net: Float
 )

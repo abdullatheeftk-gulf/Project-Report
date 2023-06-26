@@ -1,6 +1,9 @@
 package com.gulfappdeveloper.projectreport.data.api
 
 import android.util.Log
+import com.gulfappdeveloper.projectreport.domain.models.accounts.ExpenseLedgerReportResponse
+import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
+import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.general.Error
 import com.gulfappdeveloper.projectreport.domain.models.general.GetDataFromRemote
@@ -27,11 +30,16 @@ import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
+import io.ktor.client.statement.request
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.http.vary
 import io.ktor.serialization.JsonConvertException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.buildJsonObject
 import java.net.ConnectException
 
 private const val TAG = "ApiServiceImpl"
@@ -935,8 +943,10 @@ class ApiServiceImpl(
             emit(GetDataFromRemote.Loading)
             try {
                 val httpResponse = client.get(urlString = url)
-                val result = httpResponse.bodyAsText()
-                Log.e(TAG, "getSaleSummariesReport: $result")
+                //val result = httpResponse.bodyAsText()
+                /*//Log.e(TAG, "getSaleSummariesReport: $result")
+                val list:List<SaleSummariesResponse> = Json.decodeFromString(result)
+                Log.w(TAG, "getSaleSummariesReport: $list", )*/
                 when (val statusCode = httpResponse.status.value) {
                     in 200..299 -> {
                         emit(
@@ -1369,7 +1379,7 @@ class ApiServiceImpl(
         }
     }
 
-    override suspend fun getPurchaseMastersReport(url: String): Flow<GetDataFromRemote<List<PurchaseMastersResponse>>>{
+    override suspend fun getPurchaseMastersReport(url: String): Flow<GetDataFromRemote<List<PurchaseMastersResponse>>> {
         return flow {
             emit(GetDataFromRemote.Loading)
             try {
@@ -1479,7 +1489,7 @@ class ApiServiceImpl(
         }
     }
 
-    override suspend fun getSupplierPurchaseReport(url: String): Flow<GetDataFromRemote<List<PurchaseMastersResponse>>>{
+    override suspend fun getSupplierPurchaseReport(url: String): Flow<GetDataFromRemote<List<PurchaseMastersResponse>>> {
         return flow {
             emit(GetDataFromRemote.Loading)
             try {
@@ -1678,6 +1688,365 @@ class ApiServiceImpl(
                 )
             } catch (e: JsonConvertException) {
                 Log.e(TAG, "getSalesInvoiceReport: ${e.cause}")
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 603,
+                            message = "Json convert Exception $e"
+                        )
+                    )
+                )
+            } catch (e: Exception) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 604,
+                            message = "Other Exception $e"
+                        )
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun getExpenseLedgerReport(
+        url: String,
+        dateFrom: String,
+        dateTo: String,
+        expenseId: Int,
+        companyId: Int
+    ): Flow<GetDataFromRemote<ExpenseLedgerReportResponse>> {
+        return flow {
+            emit(GetDataFromRemote.Loading)
+            try {
+                val httpResponse = client.get(urlString = url){
+                    url{
+                        parameters.append(name="dateFrom", value = dateFrom)
+                        parameters.append(name="dateTo", value = dateTo)
+                        parameters.append(name = "expenseId", value = expenseId.toString())
+                        parameters.append(name = "companyId",value = companyId.toString())
+                    }
+                }
+
+                when (val statusCode = httpResponse.status.value) {
+                    in 200..299 -> {
+                        emit(
+                            GetDataFromRemote.Success(httpResponse.body())
+                        )
+                    }
+
+                    in 300..399 -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+
+                    in 400..499 -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+
+                    in 500..599 -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+
+                    else -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+                }
+
+            } catch (e: ConnectTimeoutException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 600,
+                            message = "ConnectTimeoutException Server Down"
+                        )
+                    )
+                )
+
+            } catch (e: NoTransformationFoundException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 601,
+                            message = "NoTransformationFoundException Server ok. Other problem"
+                        )
+                    )
+                )
+            } catch (e: ConnectException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 602,
+                            message = "No internet in Mobile"
+                        )
+                    )
+                )
+            } catch (e: JsonConvertException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 603,
+                            message = "Json convert Exception $e"
+                        )
+                    )
+                )
+            } catch (e: Exception) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 604,
+                            message = "Other Exception $e"
+                        )
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun getPaymentsReport(
+        url: String,
+        dateFrom: String,
+        dateTo: String,
+        companyId: Int
+    ): Flow<GetDataFromRemote<List<PaymentResponse>>> {
+        return flow {
+            emit(GetDataFromRemote.Loading)
+            try {
+                val httpResponse = client.get(urlString = url){
+                    url{
+                        parameters.append(name="dateFrom", value = dateFrom)
+                        parameters.append(name="dateTo", value = dateTo)
+                        parameters.append(name = "companyId",value = companyId.toString())
+                    }
+                }
+
+                when (val statusCode = httpResponse.status.value) {
+                    in 200..299 -> {
+                        emit(
+                            GetDataFromRemote.Success(httpResponse.body())
+                        )
+                    }
+
+                    in 300..399 -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+
+                    in 400..499 -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+
+                    in 500..599 -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+
+                    else -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+                }
+
+            } catch (e: ConnectTimeoutException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 600,
+                            message = "ConnectTimeoutException Server Down"
+                        )
+                    )
+                )
+
+            } catch (e: NoTransformationFoundException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 601,
+                            message = "NoTransformationFoundException Server ok. Other problem"
+                        )
+                    )
+                )
+            } catch (e: ConnectException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 602,
+                            message = "No internet in Mobile"
+                        )
+                    )
+                )
+            } catch (e: JsonConvertException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 603,
+                            message = "Json convert Exception $e"
+                        )
+                    )
+                )
+            } catch (e: Exception) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 604,
+                            message = "Other Exception $e"
+                        )
+                    )
+                )
+            }
+        }
+    }
+
+    override suspend fun getReceiptReport(
+        url: String,
+        dateFrom: String,
+        dateTo: String,
+        companyId: Int
+    ): Flow<GetDataFromRemote<List<ReceiptResponse>>> {
+        return flow {
+            emit(GetDataFromRemote.Loading)
+            try {
+                val httpResponse = client.get(urlString = url){
+                    url{
+                        parameters.append(name="dateFrom", value = dateFrom)
+                        parameters.append(name="dateTo", value = dateTo)
+                        parameters.append(name = "companyId",value = companyId.toString())
+                    }
+                }
+
+                when (val statusCode = httpResponse.status.value) {
+                    in 200..299 -> {
+                        emit(
+                            GetDataFromRemote.Success(httpResponse.body())
+                        )
+                    }
+
+                    in 300..399 -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+
+                    in 400..499 -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+
+                    in 500..599 -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+
+                    else -> {
+                        emit(
+                            GetDataFromRemote.Failed(
+                                error = Error(
+                                    code = statusCode,
+                                    message = httpResponse.status.description
+                                )
+                            )
+                        )
+                    }
+                }
+
+            } catch (e: ConnectTimeoutException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 600,
+                            message = "ConnectTimeoutException Server Down"
+                        )
+                    )
+                )
+
+            } catch (e: NoTransformationFoundException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 601,
+                            message = "NoTransformationFoundException Server ok. Other problem"
+                        )
+                    )
+                )
+            } catch (e: ConnectException) {
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 602,
+                            message = "No internet in Mobile"
+                        )
+                    )
+                )
+            } catch (e: JsonConvertException) {
                 emit(
                     GetDataFromRemote.Failed(
                         error = Error(

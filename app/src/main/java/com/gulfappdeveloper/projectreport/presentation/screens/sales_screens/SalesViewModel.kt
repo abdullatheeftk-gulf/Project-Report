@@ -21,6 +21,8 @@ import com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_scr
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.navigation.SalesScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.CustomerLedgerTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.ReArrangedCustomerLedgerDetails
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.SaleSummariesReportTotals
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.SalesInvoiceReportTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.query_screen.util.QueryCustomerLedgerReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.report_screen.util.CustomerLedgerReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.query_screen.util.QueryCustomerPaymentReportScreenEvent
@@ -28,6 +30,8 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.scr
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.report_screen.util.PosPaymentReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.query_screen.util.QuerySalesInvoiceReportEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sale_summaries_report_screens.query_screen.util.QuerySaleSummariesReportScreenEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sale_summaries_report_screens.report_screen.util.SaleSummariesReportScreenEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.report_screen.util.SalesInvoiceReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.user_sales_report_screens.query_screen.util.QueryUserSalesReportScreenEvent
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
@@ -58,6 +62,15 @@ class SalesViewModel @Inject constructor(
         }
     }
 
+    private val _salesInvoiceReportScreenEvent = Channel<SalesInvoiceReportScreenEvent>()
+    val salesInvoiceReportScreenEvent = _salesInvoiceReportScreenEvent.receiveAsFlow()
+
+    private fun sendSalesInvoiceReportScreenEvent(uiEvent: UiEvent) {
+        viewModelScope.launch {
+            _salesInvoiceReportScreenEvent.send(SalesInvoiceReportScreenEvent(uiEvent))
+        }
+    }
+
 
     private val _querySaleSummariesReportScreenEvent =
         Channel<QuerySaleSummariesReportScreenEvent>()
@@ -66,6 +79,16 @@ class SalesViewModel @Inject constructor(
     private fun sendQuerySaleSummariesReportScreenEvent(uiEvent: UiEvent) {
         viewModelScope.launch {
             _querySaleSummariesReportScreenEvent.send(QuerySaleSummariesReportScreenEvent(uiEvent))
+        }
+    }
+
+    private val _saleSummariesReportScreenEvent =
+        Channel<SaleSummariesReportScreenEvent>()
+    val saleSummariesReportScreenEvent = _saleSummariesReportScreenEvent.receiveAsFlow()
+
+    private fun sendSaleSummariesReportScreenEvent(uiEvent: UiEvent) {
+        viewModelScope.launch {
+            _saleSummariesReportScreenEvent.send(SaleSummariesReportScreenEvent(uiEvent))
         }
     }
 
@@ -159,7 +182,16 @@ class SalesViewModel @Inject constructor(
 
 
     val salesInvoiceReportList = mutableStateListOf<SalesInvoiceResponse>()
+    private val _salesInvoiceReportTotal: MutableState<SalesInvoiceReportTotals?> =
+        mutableStateOf(null)
+    val salesInvoiceTotal: State<SalesInvoiceReportTotals?> = _salesInvoiceReportTotal
+
     val saleSummariesReportList = mutableStateListOf<SaleSummariesResponse>()
+    private val _saleSummariesReportTotal: MutableState<SaleSummariesReportTotals?> =
+        mutableStateOf(null)
+    val saleSummariesReportTotal: State<SaleSummariesReportTotals?> = _saleSummariesReportTotal
+
+
     val userSalesReportList = mutableStateListOf<UserSalesResponse>()
 
     val customerPaymentReportList = mutableStateListOf<CustomerPaymentResponse>()
@@ -198,6 +230,7 @@ class SalesViewModel @Inject constructor(
                     is GetDataFromRemote.Success -> {
                         sendQuerySalesInvoiceReportEvent(UiEvent.CloseProgressBar)
                         salesInvoiceReportList.addAll(value.data)
+                        calculateTotalsForSalesInvoiceReport()
                         Log.d(TAG, "getSalesInvoiceReport: ${value.data}")
                         sendQuerySalesInvoiceReportEvent(UiEvent.Navigate(SalesScreens.SalesInvoiceReportScreen.route))
                     }
@@ -214,6 +247,78 @@ class SalesViewModel @Inject constructor(
                 }
 
             }
+        }
+    }
+
+    private fun calculateTotalsForSalesInvoiceReport() {
+        var sumOfTaxable = 0.0
+        var sumOfTax = 0.0
+        var sumOfReturn = 0.0
+        var sumOfTaxReturn = 0.0
+        var sumOfNet = 0.0
+
+        salesInvoiceReportList.forEach {
+            sumOfTaxable += it.taxable
+            sumOfTax += it.tax
+            sumOfReturn += it.returnTaxable
+            sumOfTaxReturn += it.taxOnReturn
+            sumOfNet += it.net
+
+        }
+        _salesInvoiceReportTotal.value = SalesInvoiceReportTotals(
+            sumOfTaxable = sumOfTaxable,
+            sumOfTax = sumOfTax,
+            sumOfReturn = sumOfReturn,
+            sumOfTaxOnReturn = sumOfTaxReturn,
+            sumOfNet = sumOfNet
+        )
+
+    }
+
+    fun pdfMakerForSaleInvoiceReport(getUri: (uri: Uri) -> Unit){
+        if (salesInvoiceReportList.size>0){
+            sendSalesInvoiceReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch (Dispatchers.IO){
+                useCase.pdfMakerSalesInvoiceReportUseCase(
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value,
+                    getUri = getUri,
+                    list = salesInvoiceReportList,
+                    salesInvoiceReportTotals = _salesInvoiceReportTotal.value!!,
+                    haveAnyError = {haveAnyError: Boolean, error: String? ->
+                        sendSalesInvoiceReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError){
+                            sendSalesInvoiceReportScreenEvent(UiEvent.ShowSnackBar(error ?:""))
+                        }
+                    }
+                )
+            }
+
+
+        }else{
+            sendSalesInvoiceReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+        }
+    }
+
+    fun excelMakerForSalesInvoiceReport(getUri: (uri: Uri) -> Unit){
+        if (salesInvoiceReportList.size>0){
+            sendSalesInvoiceReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch (Dispatchers.IO){
+                useCase.excelMakerSalesInvoiceReportUseCase(
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value,
+                    getUri = getUri,
+                    list = salesInvoiceReportList,
+                    haveAnyError = {haveAnyError: Boolean, error: String? ->
+                        sendSalesInvoiceReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError){
+                            sendSalesInvoiceReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        }
+                    }
+                )
+            }
+        }else{
+            sendSalesInvoiceReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }
 
@@ -240,6 +345,7 @@ class SalesViewModel @Inject constructor(
                     is GetDataFromRemote.Success -> {
                         sendQuerySaleSummariesReportScreenEvent(UiEvent.CloseProgressBar)
                         saleSummariesReportList.addAll(value.data)
+                        calculateSaleSummariesReportTotals()
                         sendQuerySaleSummariesReportScreenEvent(UiEvent.Navigate(route = SalesScreens.SaleSummariesReportScreen.route))
                         Log.e(TAG, "getSaleSummariesReport: ${value.data}")
                     }
@@ -248,7 +354,7 @@ class SalesViewModel @Inject constructor(
                         sendQuerySaleSummariesReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQuerySaleSummariesReportScreenEvent(
                             UiEvent.ShowSnackBar(
-                                value.error.message ?: ""
+                                value.error.message ?: "There have some problem"
                             )
                         )
                         Log.e(TAG, "getSaleSummariesReport: ${value.error}")
@@ -256,6 +362,79 @@ class SalesViewModel @Inject constructor(
                 }
 
             }
+        }
+    }
+
+    private fun calculateSaleSummariesReportTotals() {
+        var sumOfTaxable: Double = 0.0
+        var sumOfTax: Double = 0.0
+        var sumOfReturnTaxable: Double = 0.0
+        var sumOfReturnTax: Double = 0.0
+        var sumOfNet: Double = 0.0
+
+        saleSummariesReportList.forEach {
+            sumOfTaxable += it.taxable
+            sumOfTax += it.tax
+            sumOfReturnTaxable += it.returnTaxable
+            sumOfReturnTax += it.returnTax
+            sumOfNet += it.net
+        }
+        _saleSummariesReportTotal.value = SaleSummariesReportTotals(
+            sumOfTaxable = sumOfTaxable,
+            sumOfTax = sumOfTax,
+            sumOfReturnTaxable = sumOfReturnTaxable,
+            sumOfReturnTax = sumOfReturnTax,
+            sumOfNet = sumOfNet
+        )
+
+    }
+
+    fun makePdfSaleSummariesReport(getUri: (uri: Uri) -> Unit){
+        if (saleSummariesReportList.size>0){
+            sendSaleSummariesReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.pdfMakerSaleSummariesReportUseCase(
+                    fromDate = _fromDateState.value,
+                    toDate = _toDateState.value,
+                    list = saleSummariesReportList,
+                    saleSummariesReportTotals = _saleSummariesReportTotal.value!!,
+                    getUri = getUri,
+                    haveAnyError = {haveAnyError, error ->
+                        sendSaleSummariesReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError){
+                            sendSaleSummariesReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        }
+
+                    }
+                )
+            }
+
+        }else{
+            sendSaleSummariesReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+        }
+    }
+
+    fun excelMakerSaleSummariesReport(getUri: (uri: Uri) -> Unit){
+        if (saleSummariesReportList.size>0){
+            sendSaleSummariesReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.excelMakerSaleSummariesReportUseCase(
+                    fromDate = _fromDateState.value,
+                    toDate = _toDateState.value,
+                    list = saleSummariesReportList,
+                    getUri = getUri,
+                    haveAnyError = {haveAnyError, error ->
+                        sendSaleSummariesReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError){
+                            sendSaleSummariesReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        }
+
+                    }
+                )
+            }
+
+        }else{
+            sendSaleSummariesReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }
 
@@ -574,8 +753,12 @@ class SalesViewModel @Inject constructor(
                 ) { error, errorS ->
                     sendPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
                     Log.e(TAG, "makeExcelForPosPaymentReport: $error $errorS")
-                    if (error){
-                        sendPosPaymentReportScreenEvent(UiEvent.ShowSnackBar(errorS ?: "There have some error"))
+                    if (error) {
+                        sendPosPaymentReportScreenEvent(
+                            UiEvent.ShowSnackBar(
+                                errorS ?: "There have some error"
+                            )
+                        )
                     }
                 }
             }
@@ -615,8 +798,8 @@ class SalesViewModel @Inject constructor(
         }
     }
 
-    fun makeExcelForCustomerLedgerReport(getUri: (uri: Uri) -> Unit){
-        if(reArrangedCustomerLedgerReportList.size>0){
+    fun makeExcelForCustomerLedgerReport(getUri: (uri: Uri) -> Unit) {
+        if (reArrangedCustomerLedgerReportList.size > 0) {
             sendCustomerLedgerReportScreenEvent(UiEvent.ShowProgressBar)
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.excelMakerCustomerLedgerReportUseCase(
@@ -626,14 +809,18 @@ class SalesViewModel @Inject constructor(
                     fromDate = _fromDateState.value,
                     toDate = _toDateState.value,
                     getUri = getUri,
-                ){isError, errorString ->
+                ) { isError, errorString ->
                     sendCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
-                    if (isError){
-                        sendCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar(errorString ?:"There have some error"))
+                    if (isError) {
+                        sendCustomerLedgerReportScreenEvent(
+                            UiEvent.ShowSnackBar(
+                                errorString ?: "There have some error"
+                            )
+                        )
                     }
                 }
             }
-        }else{
+        } else {
             sendCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }

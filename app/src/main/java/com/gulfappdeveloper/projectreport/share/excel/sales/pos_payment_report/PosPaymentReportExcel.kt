@@ -63,7 +63,7 @@ object PosPaymentReportExcel {
                 )
             }
 
-            createTotalValueRow(sheet, wb, sizeOfList + 2)
+            createTotalValueRow(sheet, wb, sizeOfList + 3)
 
 
 

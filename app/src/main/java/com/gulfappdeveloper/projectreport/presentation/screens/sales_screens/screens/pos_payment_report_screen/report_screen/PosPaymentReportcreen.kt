@@ -106,11 +106,7 @@ fun PosPaymentReportScreen(
 
         }
     }
-    if (showProgressBar){
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-    }
+
 
     Scaffold(
         snackbarHost = {
@@ -256,6 +252,12 @@ fun PosPaymentReportScreen(
                 posPaymentReportList = posPaymentReportList,
                 posPaymentReportListTotalList = posPaymentReportTotalList
             )
+        }
+    }
+
+    if (showProgressBar){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
         }
     }
 

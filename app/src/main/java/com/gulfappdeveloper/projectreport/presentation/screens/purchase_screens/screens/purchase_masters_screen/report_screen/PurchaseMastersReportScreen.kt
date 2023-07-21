@@ -160,7 +160,7 @@ fun PurchaseMastersReportScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "PDF", color = Color.Red) },
                                 onClick = {
-                                    /*salesViewModel.makePdfForPosPaymentReport {
+                                    purchaseViewModel.makePdfForPurchaseMastersReport {
                                         val shareIntent = Intent().apply {
                                             action = Intent.ACTION_SEND
                                             putExtra(Intent.EXTRA_STREAM, it)
@@ -175,14 +175,29 @@ fun PurchaseMastersReportScreen(
                                                 null,
                                             )
                                         )
-                                    }*/
+                                    }
                                     expandMenu = false
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(text = "EXCEL", color = Color(0xFF017706)) },
                                 onClick = {
-                                    /*Todo*/
+                                    purchaseViewModel.makeExcelForPurchaseMasterReport {
+                                        val shareIntent = Intent().apply {
+                                            action = Intent.ACTION_SEND
+                                            putExtra(Intent.EXTRA_STREAM, it)
+                                            type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                                        }
+
+                                        context.startActivity(
+                                            Intent.createChooser(
+                                                shareIntent,
+                                                null,
+                                            )
+                                        )
+                                    }
                                     expandMenu = false
                                 }
                             )

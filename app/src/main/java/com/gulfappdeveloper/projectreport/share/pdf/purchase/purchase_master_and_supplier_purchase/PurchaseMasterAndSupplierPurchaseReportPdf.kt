@@ -1,4 +1,4 @@
-package com.gulfappdeveloper.projectreport.share.pdf.sales.pos_payment_report
+package com.gulfappdeveloper.projectreport.share.pdf.purchase.purchase_master_and_supplier_purchase
 
 import android.content.Context
 import android.graphics.Canvas
@@ -6,21 +6,15 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
-import android.util.Log
 import androidx.core.content.FileProvider
+import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
+import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterSelection
+import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterTotals
 import com.gulfappdeveloper.projectreport.share.pdf.calculatePageCount
 import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
 import com.gulfappdeveloper.projectreport.share.pdf.writePeriodText
-import com.itextpdf.kernel.pdf.CompressionConstants
-import com.itextpdf.kernel.pdf.EncryptionConstants
-import com.itextpdf.kernel.pdf.EncryptionProperties
-import com.itextpdf.kernel.pdf.PdfReader
-import com.itextpdf.kernel.pdf.PdfWriter
-import com.itextpdf.kernel.pdf.WriterProperties
-import com.itextpdf.layout.Document
-
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -30,15 +24,15 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private const val TAG = "PosPaymentReportPdf"
-object PosPaymentReportPdf {
+object PurchaseMasterAndSupplierPurchaseReportPdf {
 
     suspend fun makePdf(
-        companyName:String,
+        companyName: String,
         pdfDocument: PdfDocument,
         context: Context,
-        list: List<PosPaymentResponse>,
-        listOfTotal: List<Double>,
+        list: List<PurchaseMastersResponse>,
+        purchaseMasterTotals: PurchaseMasterTotals,
+        purchaseMasterSelection: PurchaseMasterSelection,
         fromDate: String,
         toDate: String,
         getUri: (uri: Uri) -> Unit,
@@ -48,17 +42,18 @@ object PosPaymentReportPdf {
             val totalPages = calculatePageCount(list, numberOfItemsInOnePage = 27)
             var pageCount = 1
 
-            val pageList = mutableListOf<PosPaymentResponse>()
+            val pageList = mutableListOf<PurchaseMastersResponse>()
 
-            list.forEachIndexed { index, customerPaymentResponse ->
-                pageList.add(customerPaymentResponse)
+            list.forEachIndexed { index, purchaseMastersResponse ->
+                pageList.add(purchaseMastersResponse)
                 if ((index + 1) % 27 == 0) {
 
                     createPage(
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
-                        listOfTotal = listOfTotal,
+                        purchaseMasterTotals = purchaseMasterTotals,
+                        purchaseMasterSelection = purchaseMasterSelection,
                         fromDate = fromDate,
                         toDate = toDate,
                         totalPages = totalPages,
@@ -76,7 +71,8 @@ object PosPaymentReportPdf {
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
-                        listOfTotal = listOfTotal,
+                        purchaseMasterTotals = purchaseMasterTotals,
+                        purchaseMasterSelection = purchaseMasterSelection,
                         fromDate = fromDate,
                         toDate = toDate,
                         totalPages = totalPages,
@@ -92,7 +88,8 @@ object PosPaymentReportPdf {
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
-                        listOfTotal = listOfTotal,
+                        purchaseMasterTotals = purchaseMasterTotals,
+                        purchaseMasterSelection = purchaseMasterSelection,
                         fromDate = fromDate,
                         toDate = toDate,
                         totalPages = totalPages,
@@ -105,7 +102,8 @@ object PosPaymentReportPdf {
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
-                        listOfTotal = listOfTotal,
+                        purchaseMasterTotals = purchaseMasterTotals,
+                        purchaseMasterSelection = purchaseMasterSelection,
                         fromDate = fromDate,
                         toDate = toDate,
                         totalPages = totalPages,
@@ -120,7 +118,8 @@ object PosPaymentReportPdf {
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
-                        listOfTotal = listOfTotal,
+                        purchaseMasterTotals = purchaseMasterTotals,
+                        purchaseMasterSelection = purchaseMasterSelection,
                         fromDate = fromDate,
                         toDate = toDate,
                         totalPages = totalPages,
@@ -129,8 +128,9 @@ object PosPaymentReportPdf {
                     )
                 }
             }
+            val fileName = if (purchaseMasterSelection == PurchaseMasterSelection.PURCHASE_MASTER) "PurchaseMastersReport" else "SupplierPurchaseReport"
             val file =
-                File(context.getExternalFilesDir(null), "PosPaymentReport_${Date()}.pdf")
+                File(context.getExternalFilesDir(null), "${fileName}_${Date()}.pdf")
             try {
                 withContext(Dispatchers.IO) {
                     pdfDocument.writeTo(FileOutputStream(file))
@@ -138,29 +138,8 @@ object PosPaymentReportPdf {
             } catch (e: IOException) {
                 haveAnyError(true, e.message)
             }
-
-           /* val outPutFile =
-                File(context.getExternalFilesDir(null), "modPosPaymentReport_${Date()}.pdf")
-            val inputFile = File(file.path)
-            withContext(Dispatchers.IO) {
-
-
-
-                val reader = PdfReader(inputFile.absolutePath)
-                val fos = FileOutputStream(outPutFile)
-                val pdfWriter = PdfWriter(
-                    fos,WriterProperties().setStandardEncryption("12345678".toByteArray(),"789456123".toByteArray(),EncryptionConstants.ALLOW_PRINTING,EncryptionConstants.STANDARD_ENCRYPTION_128)
-                )
-
-                val pdfDoc = com.itextpdf.kernel.pdf.PdfDocument(reader, pdfWriter)
-                pdfWriter.compressionLevel = CompressionConstants.BEST_COMPRESSION
-
-                pdfDoc.close()
-                fos.close()
-
-            }*/
-
             pdfDocument.close()
+
 
             val uri = FileProvider.getUriForFile(context, context.packageName, file)
 
@@ -168,21 +147,20 @@ object PosPaymentReportPdf {
 
             haveAnyError(false, null)
         } catch (e: Exception) {
-            Log.e(TAG, "makePdf: ${e.message}", )
             haveAnyError(true, e.message)
         } catch (e: java.lang.Exception) {
-            Log.d(TAG, "makePdf: ${e.message}", )
             haveAnyError(true, e.message)
         }
     }
 
 
     private fun createPage(
-        companyName:String,
+        companyName: String,
         pageNo: Int,
         pdfDocument: PdfDocument,
-        list: List<PosPaymentResponse>,
-        listOfTotal: List<Double>,
+        list: List<PurchaseMastersResponse>,
+        purchaseMasterTotals: PurchaseMasterTotals,
+        purchaseMasterSelection: PurchaseMasterSelection,
         fromDate: String,
         toDate: String,
         totalPages: Int,
@@ -205,7 +183,7 @@ object PosPaymentReportPdf {
             var yPosition = 50f
             val xPositionHeading = pageInfo.pageWidth / 2f
             canvas.writeHeading(
-                headingTitle = "Pos Payment Report",
+                headingTitle = if (purchaseMasterSelection == PurchaseMasterSelection.PURCHASE_MASTER) "Purchase Masters Report" else "Supplier Purchase Report",
                 xPosition = xPositionHeading,
                 yPosition = yPosition
             )
@@ -213,7 +191,11 @@ object PosPaymentReportPdf {
             // dates
             yPosition += 30f
             canvas.writePeriodText(fromDate, toDate, yPosition)
-            canvas.writeCompanyName(companyName = companyName,yPosition = yPosition, xPosition = 970f)
+            canvas.writeCompanyName(
+                companyName = companyName,
+                yPosition = yPosition,
+                xPosition = 970f
+            )
 
 
             // Table
@@ -276,9 +258,9 @@ object PosPaymentReportPdf {
                 strokeWidth = 0.4f
             })
 
-            // Party
+            // Supplier
             xPosition += 130f
-            canvas.drawText("Party", xPosition, yPosition + 16.5f, Paint().apply {
+            canvas.drawText("Supplier", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
@@ -289,9 +271,9 @@ object PosPaymentReportPdf {
                 strokeWidth = 0.4f
             })
 
-            // Cash
+            // Taxable
             xPosition += 40f
-            canvas.drawText("Cash", xPosition, yPosition + 16.5f, Paint().apply {
+            canvas.drawText("Taxable", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
@@ -302,9 +284,9 @@ object PosPaymentReportPdf {
                 strokeWidth = 0.4f
             })
 
-            // Card
+            // Tax
             xPosition += 40f
-            canvas.drawText("Card", xPosition, yPosition + 16.5f, Paint().apply {
+            canvas.drawText("Tax", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
@@ -315,9 +297,9 @@ object PosPaymentReportPdf {
                 strokeWidth = 0.4f
             })
 
-            // Online
+            // Net
             xPosition += 40f
-            canvas.drawText("Online", xPosition, yPosition + 16.5f, Paint().apply {
+            canvas.drawText("Net", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
@@ -328,9 +310,9 @@ object PosPaymentReportPdf {
                 strokeWidth = 0.4f
             })
 
-            // Credit
+            // Payment
             xPosition += 40f
-            canvas.drawText("Credit", xPosition, yPosition + 16.5f, Paint().apply {
+            canvas.drawText("Payment", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
@@ -354,9 +336,9 @@ object PosPaymentReportPdf {
                 strokeWidth = 0.4f
             })
 
-            // Total
+            // Balance Amt
             xPosition += 45f
-            canvas.drawText("Total", xPosition, yPosition + 16.5f, Paint().apply {
+            canvas.drawText("Balance Amt", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
@@ -367,7 +349,7 @@ object PosPaymentReportPdf {
             yPosition += 25f
 
 
-            list.forEachIndexed { index, posPaymentResponse ->
+            list.forEachIndexed { index, purchaseMasterResponse ->
                 xPosition = 30f
                 val paintTable = Paint()
                 if (index % 2 == 0) {
@@ -401,7 +383,7 @@ object PosPaymentReportPdf {
                 //Date
                 xPosition += 57.5f
                 canvas.drawText(
-                    posPaymentResponse.date,
+                    purchaseMasterResponse.invoiceDate,
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -413,10 +395,10 @@ object PosPaymentReportPdf {
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
 
-                // Rec. No
+                // Inv. No
                 xPosition += 25
                 canvas.drawText(
-                    posPaymentResponse.invoiceNo.toString(),
+                    purchaseMasterResponse.invoiceNo.toString(),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -429,7 +411,7 @@ object PosPaymentReportPdf {
                 // Party
                 xPosition += 130
                 canvas.drawText(
-                    posPaymentResponse.party ?: "-",
+                    purchaseMasterResponse.supplier ?: "-",
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -440,11 +422,10 @@ object PosPaymentReportPdf {
                 xPosition += 130
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
-                //cash
+                //Taxable
                 xPosition += 40
                 canvas.drawText(
-                   // posPaymentResponse.cash.toString(),
-                    String.format("%.2f",posPaymentResponse.cash),
+                    String.format("%.2f", purchaseMasterResponse.taxable),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -455,10 +436,10 @@ object PosPaymentReportPdf {
                 xPosition += 40
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
-                // Card
+                // Tax
                 xPosition += 40
                 canvas.drawText(
-                    String.format("%.2f",posPaymentResponse.card),
+                    String.format("%.2f", purchaseMasterResponse.tax),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -470,10 +451,10 @@ object PosPaymentReportPdf {
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
 
-                // online
+                // net
                 xPosition += 40
                 canvas.drawText(
-                    String.format("%.2f",posPaymentResponse.onlineAmount),
+                    String.format("%.2f", purchaseMasterResponse.net),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -484,10 +465,10 @@ object PosPaymentReportPdf {
                 xPosition += 40
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
-                // credit
+                // payment
                 xPosition += 40
                 canvas.drawText(
-                    String.format("%.2f",posPaymentResponse.credit),
+                    String.format("%.2f", purchaseMasterResponse.payment),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -500,7 +481,7 @@ object PosPaymentReportPdf {
                 // Return Amount
                 xPosition += 40
                 canvas.drawText(
-                    String.format("%.2f",posPaymentResponse.returnAmount),
+                    String.format("%.2f", purchaseMasterResponse.returnAmount),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -512,7 +493,7 @@ object PosPaymentReportPdf {
 
                 xPosition += 45
                 canvas.drawText(
-                    String.format("%.2f",posPaymentResponse.total),
+                    String.format("%.2f", purchaseMasterResponse.balanceAmount),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -530,11 +511,12 @@ object PosPaymentReportPdf {
                 writeTotalValueRow(
                     yPosition,
                     canvas,
-                    listOfTotal = listOfTotal
+                    purchaseMasterTotals = purchaseMasterTotals
                 )
             }
 
-            val date = SimpleDateFormat("dd-MM-yyyy, hh:mm:ss a", Locale.getDefault()).format(Date())
+            val date =
+                SimpleDateFormat("dd-MM-yyyy, hh:mm:ss a", Locale.getDefault()).format(Date())
             canvas.drawText(date, 30f, 680f, Paint().apply {
                 color = Color.BLACK
                 textSize = 8f
@@ -542,7 +524,7 @@ object PosPaymentReportPdf {
                 textSkewX = -0.25f
             })
 
-            canvas.drawText("Unipospro",pageInfo.pageWidth/2f,680f,Paint().apply {
+            canvas.drawText("Unipospro", pageInfo.pageWidth / 2f, 680f, Paint().apply {
                 color = Color.BLACK
                 textSize = 8f
                 textAlign = Paint.Align.CENTER
@@ -563,7 +545,7 @@ object PosPaymentReportPdf {
         }
     }
 
-    private fun writeTotalValueRow(yPosition: Float, canvas: Canvas, listOfTotal: List<Double>) {
+    private fun writeTotalValueRow(yPosition: Float, canvas: Canvas, purchaseMasterTotals: PurchaseMasterTotals) {
         canvas.drawRect(30f, yPosition, 970f, yPosition + 25f, Paint().apply {
             style = Paint.Style.STROKE
         })
@@ -585,7 +567,7 @@ object PosPaymentReportPdf {
         })
         xPosition += 40
         canvas.drawText(
-            String.format("%.2f", listOfTotal[0]),
+            String.format("%.2f", purchaseMasterTotals.sumOfTaxable),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -601,7 +583,7 @@ object PosPaymentReportPdf {
 
         xPosition += 40
         canvas.drawText(
-            String.format("%.2f", listOfTotal[1]),
+            String.format("%.2f", purchaseMasterTotals.sumOfTax),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -617,7 +599,7 @@ object PosPaymentReportPdf {
 
         xPosition += 40
         canvas.drawText(
-            String.format("%.2f", listOfTotal[2]),
+            String.format("%.2f", purchaseMasterTotals.sumOfNet),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -633,7 +615,7 @@ object PosPaymentReportPdf {
 
         xPosition += 40
         canvas.drawText(
-            String.format("%.2f", listOfTotal[3]),
+            String.format("%.2f", purchaseMasterTotals.sumOfPayment),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -649,7 +631,7 @@ object PosPaymentReportPdf {
 
         xPosition += 40
         canvas.drawText(
-            String.format("%.2f", listOfTotal[4]),
+            String.format("%.2f", purchaseMasterTotals.sumOfReturnAmount),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -665,7 +647,7 @@ object PosPaymentReportPdf {
 
         xPosition += 45
         canvas.drawText(
-            String.format("%.2f", listOfTotal[5]),
+            String.format("%.2f", purchaseMasterTotals.sumOfBalanceAmount),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {

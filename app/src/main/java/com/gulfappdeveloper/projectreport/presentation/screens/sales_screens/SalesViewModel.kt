@@ -33,6 +33,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.scr
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sale_summaries_report_screens.report_screen.util.SaleSummariesReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.report_screen.util.SalesInvoiceReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.user_sales_report_screens.query_screen.util.QueryUserSalesReportScreenEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.user_sales_report_screens.report_screen.util.UserSalesReportScreenEvent
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
 import com.gulfappdeveloper.projectreport.usecases.UseCase
@@ -99,6 +100,16 @@ class SalesViewModel @Inject constructor(
     private fun sendQueryUserSalesReportScreenEvent(uiEvent: UiEvent) {
         viewModelScope.launch {
             _queryUserSalesReportScreenEvent.send(QueryUserSalesReportScreenEvent(uiEvent))
+        }
+    }
+
+    private val _userSalesReportScreenEvent =
+        Channel<UserSalesReportScreenEvent>()
+    val userSalesReportScreenEvent = _userSalesReportScreenEvent.receiveAsFlow()
+
+    private fun sendUserSalesReportScreenEvent(uiEvent: UiEvent) {
+        viewModelScope.launch {
+            _userSalesReportScreenEvent.send(UserSalesReportScreenEvent(uiEvent))
         }
     }
 
@@ -275,49 +286,53 @@ class SalesViewModel @Inject constructor(
 
     }
 
-    fun pdfMakerForSaleInvoiceReport(getUri: (uri: Uri) -> Unit){
-        if (salesInvoiceReportList.size>0){
+    fun pdfMakerForSaleInvoiceReport(getUri: (uri: Uri) -> Unit) {
+        if (salesInvoiceReportList.size > 0) {
             sendSalesInvoiceReportScreenEvent(UiEvent.ShowProgressBar)
-            viewModelScope.launch (Dispatchers.IO){
+            viewModelScope.launch(Dispatchers.IO) {
                 useCase.pdfMakerSalesInvoiceReportUseCase(
                     fromDate = fromDateState.value,
                     toDate = toDateState.value,
                     getUri = getUri,
                     list = salesInvoiceReportList,
                     salesInvoiceReportTotals = _salesInvoiceReportTotal.value!!,
-                    haveAnyError = {haveAnyError: Boolean, error: String? ->
+                    haveAnyError = { haveAnyError: Boolean, error: String? ->
                         sendSalesInvoiceReportScreenEvent(UiEvent.CloseProgressBar)
-                        if (haveAnyError){
-                            sendSalesInvoiceReportScreenEvent(UiEvent.ShowSnackBar(error ?:""))
+                        if (haveAnyError) {
+                            sendSalesInvoiceReportScreenEvent(UiEvent.ShowSnackBar(error ?: ""))
                         }
                     }
                 )
             }
 
 
-        }else{
+        } else {
             sendSalesInvoiceReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }
 
-    fun excelMakerForSalesInvoiceReport(getUri: (uri: Uri) -> Unit){
-        if (salesInvoiceReportList.size>0){
+    fun excelMakerForSalesInvoiceReport(getUri: (uri: Uri) -> Unit) {
+        if (salesInvoiceReportList.size > 0) {
             sendSalesInvoiceReportScreenEvent(UiEvent.ShowProgressBar)
-            viewModelScope.launch (Dispatchers.IO){
+            viewModelScope.launch(Dispatchers.IO) {
                 useCase.excelMakerSalesInvoiceReportUseCase(
                     fromDate = fromDateState.value,
                     toDate = toDateState.value,
                     getUri = getUri,
                     list = salesInvoiceReportList,
-                    haveAnyError = {haveAnyError: Boolean, error: String? ->
+                    haveAnyError = { haveAnyError: Boolean, error: String? ->
                         sendSalesInvoiceReportScreenEvent(UiEvent.CloseProgressBar)
-                        if (haveAnyError){
-                            sendSalesInvoiceReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        if (haveAnyError) {
+                            sendSalesInvoiceReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
                         }
                     }
                 )
             }
-        }else{
+        } else {
             sendSalesInvoiceReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }
@@ -389,8 +404,8 @@ class SalesViewModel @Inject constructor(
 
     }
 
-    fun makePdfSaleSummariesReport(getUri: (uri: Uri) -> Unit){
-        if (saleSummariesReportList.size>0){
+    fun makePdfSaleSummariesReport(getUri: (uri: Uri) -> Unit) {
+        if (saleSummariesReportList.size > 0) {
             sendSaleSummariesReportScreenEvent(UiEvent.ShowProgressBar)
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.pdfMakerSaleSummariesReportUseCase(
@@ -399,23 +414,27 @@ class SalesViewModel @Inject constructor(
                     list = saleSummariesReportList,
                     saleSummariesReportTotals = _saleSummariesReportTotal.value!!,
                     getUri = getUri,
-                    haveAnyError = {haveAnyError, error ->
+                    haveAnyError = { haveAnyError, error ->
                         sendSaleSummariesReportScreenEvent(UiEvent.CloseProgressBar)
-                        if (haveAnyError){
-                            sendSaleSummariesReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        if (haveAnyError) {
+                            sendSaleSummariesReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
                         }
 
                     }
                 )
             }
 
-        }else{
+        } else {
             sendSaleSummariesReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }
 
-    fun excelMakerSaleSummariesReport(getUri: (uri: Uri) -> Unit){
-        if (saleSummariesReportList.size>0){
+    fun excelMakerSaleSummariesReport(getUri: (uri: Uri) -> Unit) {
+        if (saleSummariesReportList.size > 0) {
             sendSaleSummariesReportScreenEvent(UiEvent.ShowProgressBar)
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.excelMakerSaleSummariesReportUseCase(
@@ -423,17 +442,21 @@ class SalesViewModel @Inject constructor(
                     toDate = _toDateState.value,
                     list = saleSummariesReportList,
                     getUri = getUri,
-                    haveAnyError = {haveAnyError, error ->
+                    haveAnyError = { haveAnyError, error ->
                         sendSaleSummariesReportScreenEvent(UiEvent.CloseProgressBar)
-                        if (haveAnyError){
-                            sendSaleSummariesReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        if (haveAnyError) {
+                            sendSaleSummariesReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
                         }
 
                     }
                 )
             }
 
-        }else{
+        } else {
             sendSaleSummariesReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }
@@ -860,6 +883,58 @@ class SalesViewModel @Inject constructor(
         }
 
 
+    }
+
+    fun makePdfForUserSalesReportByItext(getUri: (uri: Uri) -> Unit) {
+        if (userSalesReportList.size > 0) {
+            sendUserSalesReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.makePdfByItextForUserSalesReport(
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value, getUri, list = userSalesReportList,
+                    haveAnyError = { haveAnyError, error ->
+                        sendUserSalesReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError) {
+                            sendUserSalesReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
+
+                        }
+                    }
+                )
+            }
+        } else {
+            sendUserSalesReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+
+        }
+    }
+
+    fun makeExcelForUserSalesReport(getUri: (uri: Uri) -> Unit) {
+        if (userSalesReportList.size > 0) {
+            sendUserSalesReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.makeExcelForUserSalesReportUseCase(
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value, getUri, list = userSalesReportList,
+                    haveAnyError = { haveAnyError, error ->
+                        sendUserSalesReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError) {
+                            sendUserSalesReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
+
+                        }
+                    }
+                )
+            }
+        } else {
+            sendUserSalesReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+
+        }
     }
 
 

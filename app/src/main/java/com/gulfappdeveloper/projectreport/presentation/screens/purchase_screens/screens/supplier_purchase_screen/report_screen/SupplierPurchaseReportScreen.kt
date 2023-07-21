@@ -2,6 +2,7 @@ package com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -53,6 +54,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.
 import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = "SupplierPurchaseReportS"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupplierPurchaseReportScreen(
@@ -104,7 +106,7 @@ fun SupplierPurchaseReportScreen(
 
         }
     }
-    if (showProgressBar){
+    if (showProgressBar) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
@@ -138,7 +140,10 @@ fun SupplierPurchaseReportScreen(
                     }
                 },
                 actions = {
-                    ScreenOrientationActionForSupplierPurchase(context = context, purchaseViewModel = purchaseViewModel)
+                    ScreenOrientationActionForSupplierPurchase(
+                        context = context,
+                        purchaseViewModel = purchaseViewModel
+                    )
                     Box(
                         modifier = Modifier
                             //.fillMaxWidth()
@@ -160,7 +165,7 @@ fun SupplierPurchaseReportScreen(
                             DropdownMenuItem(
                                 text = { Text(text = "PDF", color = Color.Red) },
                                 onClick = {
-                                    /*salesViewModel.makePdfForPosPaymentReport {
+                                    purchaseViewModel.makePdfForSupplierPurchaseReport {
                                         val shareIntent = Intent().apply {
                                             action = Intent.ACTION_SEND
                                             putExtra(Intent.EXTRA_STREAM, it)
@@ -175,14 +180,30 @@ fun SupplierPurchaseReportScreen(
                                                 null,
                                             )
                                         )
-                                    }*/
+                                    }
                                     expandMenu = false
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(text = "EXCEL", color = Color(0xFF017706)) },
                                 onClick = {
-                                    /*Todo*/
+                                    purchaseViewModel.makeExcelForSupplierPurchaseReport {
+                                        val shareIntent = Intent().apply {
+                                            action = Intent.ACTION_SEND
+                                            putExtra(Intent.EXTRA_STREAM, it)
+                                            type =
+                                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                                        }
+
+                                        context.startActivity(
+                                            Intent.createChooser(
+                                                shareIntent,
+                                                null,
+                                            )
+                                        )
+                                    }
                                     expandMenu = false
                                 }
                             )

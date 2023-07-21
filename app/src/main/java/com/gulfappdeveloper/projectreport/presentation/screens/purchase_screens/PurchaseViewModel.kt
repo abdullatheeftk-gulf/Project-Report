@@ -14,6 +14,7 @@ import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMasters
 import com.gulfappdeveloper.projectreport.domain.models.purchase.supplier_ledger_report.Detail
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.navigation.PurchaseScreens
+import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterSelection
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
@@ -221,14 +222,13 @@ class PurchaseViewModel @Inject constructor(
     }
 
     private fun calculatePurchaseMastersReportTotals(data: List<PurchaseMastersResponse>) {
-        var sumOfTaxable = 0.0
-        var sumOfTax = 0.0
-        var sumOfNet = 0.0
-        var sumOfPayment = 0.0
-        var sumOfReturnAmt = 0.0
-        var sumOfBalanceAmt = 0.0
-
         viewModelScope.launch(Dispatchers.IO) {
+            var sumOfTaxable = 0.0
+            var sumOfTax = 0.0
+            var sumOfNet = 0.0
+            var sumOfPayment = 0.0
+            var sumOfReturnAmt = 0.0
+            var sumOfBalanceAmt = 0.0
             data.forEach {
                 sumOfTaxable += it.taxable
                 sumOfTax += it.tax
@@ -237,18 +237,16 @@ class PurchaseViewModel @Inject constructor(
                 sumOfReturnAmt += it.returnAmount
                 sumOfBalanceAmt += it.balanceAmount
             }
+            _purchaseMastersReportTotal.value =
+                PurchaseMasterTotals(
+                    sumOfTaxable = sumOfTaxable,
+                    sumOfTax = sumOfTax,
+                    sumOfNet = sumOfNet,
+                    sumOfPayment = sumOfPayment,
+                    sumOfReturnAmount = sumOfReturnAmt,
+                    sumOfBalanceAmount = sumOfBalanceAmt
+                )
         }
-
-        _purchaseMastersReportTotal.value =
-            PurchaseMasterTotals(
-                sumOfTaxable = sumOfTaxable,
-                sumOfTax = sumOfTax,
-                sumOfNet = sumOfNet,
-                sumOfPayment = sumOfPayment,
-                sumOfReturnAmount = sumOfReturnAmt,
-                sumOfBalanceAmount = sumOfBalanceAmt
-            )
-
 
     }
 
@@ -300,14 +298,15 @@ class PurchaseViewModel @Inject constructor(
     }
 
     private fun calculateSupplierPurchaseReportTotals(data: List<PurchaseMastersResponse>) {
-        var sumOfTaxable = 0.0
-        var sumOfTax = 0.0
-        var sumOfNet = 0.0
-        var sumOfPayment = 0.0
-        var sumOfReturnAmt = 0.0
-        var sumOfBalanceAmt = 0.0
+
 
         viewModelScope.launch(Dispatchers.IO) {
+            var sumOfTaxable = 0.0
+            var sumOfTax = 0.0
+            var sumOfNet = 0.0
+            var sumOfPayment = 0.0
+            var sumOfReturnAmt = 0.0
+            var sumOfBalanceAmt = 0.0
             data.forEach {
                 sumOfTaxable += it.taxable
                 sumOfTax += it.tax
@@ -316,17 +315,18 @@ class PurchaseViewModel @Inject constructor(
                 sumOfReturnAmt += it.returnAmount
                 sumOfBalanceAmt += it.balanceAmount
             }
+            _supplierPurchaseReportTotal.value =
+                PurchaseMasterTotals(
+                    sumOfTaxable = sumOfTaxable,
+                    sumOfTax = sumOfTax,
+                    sumOfNet = sumOfNet,
+                    sumOfPayment = sumOfPayment,
+                    sumOfReturnAmount = sumOfReturnAmt,
+                    sumOfBalanceAmount = sumOfBalanceAmt
+                )
         }
 
-        _supplierPurchaseReportTotal.value =
-            PurchaseMasterTotals(
-                sumOfTaxable = sumOfTaxable,
-                sumOfTax = sumOfTax,
-                sumOfNet = sumOfNet,
-                sumOfPayment = sumOfPayment,
-                sumOfReturnAmount = sumOfReturnAmt,
-                sumOfBalanceAmount = sumOfBalanceAmt
-            )
+
 
 
     }
@@ -528,6 +528,104 @@ class PurchaseViewModel @Inject constructor(
         }
     }
 
+    fun makePdfForPurchaseMastersReport(getUri: (uri: Uri) -> Unit) {
+        if (purchaseMastersReportList.size>0){
+            sendPurchaseMastersReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.pdfMakerPurchaseMastersReportUseCase(
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value,
+                    getUri = getUri,
+                    list = purchaseMastersReportList,
+                    purchaseMastersReportListTotals = _purchaseMastersReportTotal.value!!,
+                    purchaseMasterSelection = PurchaseMasterSelection.PURCHASE_MASTER,
+                    haveAnyError = {haveAnyError, error ->
+                        sendPurchaseMastersReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError){
+                            sendPurchaseMastersReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        }
+                    }
+                )
+            }
+
+        }else{
+            sendPurchaseMastersReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+        }
+
+    }
+
+    fun makeExcelForPurchaseMasterReport(getUri: (uri: Uri) -> Unit) {
+        if (purchaseMastersReportList.size>0){
+            sendPurchaseMastersReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.excelMakerPurchaseMastersReportUseCase(
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value,
+                    getUri = getUri,
+                    purchaseMasterSelection = PurchaseMasterSelection.PURCHASE_MASTER,
+                    list = purchaseMastersReportList,
+                    haveAnyError = {haveAnyError, error ->
+                        sendPurchaseMastersReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError){
+                            sendPurchaseMastersReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        }
+                    }
+                )
+            }
+
+        }else{
+            sendPurchaseMastersReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+        }
+    }
+
+    fun makePdfForSupplierPurchaseReport(getUri: (uri: Uri) -> Unit) {
+        if (supplierPurchaseReportList.size>0){
+            sendSupplierPurchaseReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.pdfMakerPurchaseMastersReportUseCase(
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value,
+                    getUri = getUri,
+                    list = supplierPurchaseReportList,
+                    purchaseMastersReportListTotals = _supplierPurchaseReportTotal.value!!,
+                    purchaseMasterSelection = PurchaseMasterSelection.SUPPLIER_PURCHASE,
+                    haveAnyError = {haveAnyError, error ->
+                        sendSupplierPurchaseReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError){
+                            sendSupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        }
+                    }
+                )
+            }
+
+        }else{
+            sendSupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+        }
+    }
+
+    fun makeExcelForSupplierPurchaseReport(getUri: (uri: Uri) -> Unit) {
+        if (supplierPurchaseReportList.size>0){
+            sendSupplierPurchaseReportScreenEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.excelMakerPurchaseMastersReportUseCase(
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value,
+                    getUri = getUri,
+                    list = supplierPurchaseReportList,
+                    purchaseMasterSelection = PurchaseMasterSelection.SUPPLIER_PURCHASE,
+                    haveAnyError = {haveAnyError, error ->
+                        sendSupplierPurchaseReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError){
+                            sendSupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        }
+                    }
+                )
+            }
+
+        }else{
+            sendSupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+        }
+    }
 
 
 }

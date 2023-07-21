@@ -5,21 +5,28 @@ import android.net.Uri
 import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
+import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
+import com.gulfappdeveloper.projectreport.domain.models.sales.UserSalesResponse
 import com.gulfappdeveloper.projectreport.domain.services.ExcelService
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ReArrangedExpenseLedgerDetail
+import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterSelection
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.ReArrangedCustomerLedgerDetails
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.share.excel.account.expense_ledger_report.ExpenseLedgerReportExcel
+import com.gulfappdeveloper.projectreport.share.excel.account.payements_report.PaymentsReportExcel
+import com.gulfappdeveloper.projectreport.share.excel.account.receipts_report.ReceiptsReportExcel
+import com.gulfappdeveloper.projectreport.share.excel.purchase.purchase_masters_and_supplier_purchase.PurchaseMasterReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.purchase.supplier_ledger_report.SupplierLedgerReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.sales.customer_ledger_report.CustomerLedgerReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.sales.customer_payment_report.CustomerPaymentReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.sales.pos_payment_report.PosPaymentReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.sales.sale_summaries_report.SaleSummariesReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.sales.sales_invoice_report.SaleInvoiceReportExcel
+import com.gulfappdeveloper.projectreport.share.excel.sales.user_sales_report.UserSalesReportExcel
 
 class ExcelServiceImpl(
     private val context: Context,
@@ -172,7 +179,15 @@ class ExcelServiceImpl(
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PaymentResponse>
     ) {
-        TODO("Not yet implemented")
+        PaymentsReportExcel.writeExcelSheet(
+            companyName = commonMemory.companyName,
+            context = context,
+            fromDate = fromDate,
+            toDate = toDate,
+            getUri = getUri,
+            list = list,
+            haveAnyError = haveAnyError
+        )
     }
 
     override suspend fun makeExcelForReceiptsReport(
@@ -182,6 +197,52 @@ class ExcelServiceImpl(
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<ReceiptResponse>
     ) {
-        TODO("Not yet implemented")
+        ReceiptsReportExcel.writeExcelSheet(
+            companyName = commonMemory.companyName,
+            context = context,
+            fromDate = fromDate,
+            toDate = toDate,
+            getUri = getUri,
+            list = list,
+            haveAnyError = haveAnyError
+        )
+    }
+
+    override suspend fun makeExcelForPurchaseMastersReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<PurchaseMastersResponse>,
+        purchaseMasterSelection: PurchaseMasterSelection
+    ) {
+        PurchaseMasterReportExcel.writeExcelSheet(
+            companyName = commonMemory.companyName,
+            context = context,
+            fromDate = fromDate,
+            toDate = toDate,
+            getUri = getUri,
+            purchaseMastersSelection = purchaseMasterSelection,
+            list = list,
+            haveAnyError = haveAnyError
+        )
+    }
+
+    override suspend fun makeExcelForUserSalesReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<UserSalesResponse>
+    ) {
+        UserSalesReportExcel.writeExcelSheet(
+            companyName = commonMemory.companyName,
+            context = context,
+            fromDate = fromDate,
+            toDate = toDate,
+            getUri = getUri,
+            list = list,
+            haveAnyError = haveAnyError
+        )
     }
 }

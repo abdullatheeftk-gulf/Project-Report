@@ -44,11 +44,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toFile
 import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.SalesViewModel
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.report_screen.components.SaleInvoiceReportTable
+import com.itextpdf.kernel.pdf.PdfReader
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -123,4 +123,7 @@ dependencies {
 
     // To use the Animator APIs
     implementation "androidx.core:core-animation:1.0.0-beta01"
+
+    // iText
+    implementation 'com.itextpdf.android:itext7-core-android:7.2.3'
 }

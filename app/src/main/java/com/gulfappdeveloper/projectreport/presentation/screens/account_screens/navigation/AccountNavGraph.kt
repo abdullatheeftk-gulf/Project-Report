@@ -16,14 +16,15 @@ import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.s
 @Composable
 fun AccountNavGraph(
     accountNavHostController: NavHostController,
-    accountViewModel: AccountViewModel
+    accountViewModel: AccountViewModel,
+    navHostController: NavHostController
 ) {
     NavHost(
         navController = accountNavHostController,
         startDestination = AccountScreens.HomeScreen.route
     ) {
         composable(route = AccountScreens.HomeScreen.route) {
-            AccountHomeScreen(accountNavHostController = accountNavHostController, accountViewModel)
+            AccountHomeScreen(accountNavHostController = accountNavHostController, accountViewModel,navHostController)
         }
         composable(route = AccountScreens.QueryExpenseLedgerScreen.route) {
             QueryExpenseLEdgerScreen(

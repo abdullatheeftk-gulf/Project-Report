@@ -26,6 +26,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sal
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.query_screen.util.QueryCustomerLedgerReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.report_screen.util.CustomerLedgerReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.query_screen.util.QueryCustomerPaymentReportScreenEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.report_screen.CustomerPaymentReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.query_screen.util.QueryPosPaymentReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.report_screen.util.PosPaymentReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.query_screen.util.QuerySalesInvoiceReportEvent
@@ -36,6 +37,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.scr
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.user_sales_report_screens.report_screen.util.UserSalesReportScreenEvent
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
+import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -122,6 +124,21 @@ class SalesViewModel @Inject constructor(
         viewModelScope.launch {
             _queryCustomerPaymentReportScreenEvent.send(
                 QueryCustomerPaymentReportScreenEvent(
+                    uiEvent
+                )
+            )
+        }
+    }
+
+    private val _customerPaymentReportScreenEvent =
+        Channel<CustomerPaymentReportScreenEvent>()
+    val customerPaymentReportScreenEvent =
+        _customerPaymentReportScreenEvent.receiveAsFlow()
+
+    private fun sendCustomerPaymentReportScreenEvent(uiEvent: UiEvent) {
+        viewModelScope.launch {
+            _customerPaymentReportScreenEvent.send(
+                CustomerPaymentReportScreenEvent(
                     uiEvent
                 )
             )
@@ -220,8 +237,8 @@ class SalesViewModel @Inject constructor(
 
 
     fun getSalesInvoiceReport(fromDate: LocalDate, toDate: LocalDate) {
-        _fromDateState.value = fromDate.toString()
-        _toDateState.value = toDate.toString()
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
 
@@ -339,8 +356,8 @@ class SalesViewModel @Inject constructor(
 
 
     fun getSaleSummariesReport(fromDate: LocalDate, toDate: LocalDate) {
-        _fromDateState.value = fromDate.toString()
-        _toDateState.value = toDate.toString()
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
 
@@ -462,8 +479,8 @@ class SalesViewModel @Inject constructor(
     }
 
     fun getUserSalesReport(fromDate: LocalDate, toDate: LocalDate) {
-        _fromDateState.value = fromDate.toString()
-        _toDateState.value = toDate.toString()
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
 
@@ -504,8 +521,8 @@ class SalesViewModel @Inject constructor(
 
 
     fun getCustomerPaymentReport(fromDate: LocalDate, toDate: LocalDate) {
-        _fromDateState.value = fromDate.toString()
-        _toDateState.value = toDate.toString()
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
 
@@ -582,10 +599,10 @@ class SalesViewModel @Inject constructor(
         }
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
-        _fromDateState.value = "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}"
+        _fromDateState.value = fromDate.localDateToStringConverter()
 
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
-        _toDateState.value = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}"
+        _toDateState.value = toDate.localDateToStringConverter()
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.LEDGER_REPORT + fromDateString + "/$toDateString" + "/${_selectedAccount.value?.accountId}" + "/${commonMemory.companyId}"
@@ -645,8 +662,8 @@ class SalesViewModel @Inject constructor(
     }
 
     fun getPosPaymentReport(fromDate: LocalDate, toDate: LocalDate) {
-        _fromDateState.value = fromDate.toString()
-        _toDateState.value = toDate.toString()
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
 
@@ -704,32 +721,62 @@ class SalesViewModel @Inject constructor(
 
 
     fun makePdfForCustomerPaymentReport(getUri: (uri: Uri) -> Unit) {
+        sendCustomerPaymentReportScreenEvent(UiEvent.ShowProgressBar)
         viewModelScope.launch(Dispatchers.IO) {
             if (customerPaymentReportList.size > 0) {
-                useCase.pdfMakerUseCaseForCustomerPaymentReport(
-                    list = customerPaymentReportList,
-                    listOfTotal = customerPaymentReportTotalList,
-                    _fromDateState.value,
-                    _toDateState.value,
-                    getUri = getUri
-                ) { error, errorS ->
-                    Log.e(TAG, "getCustomerPaymentReport: $error $errorS")
+                try {
+                    useCase.pdfMakerUseCaseForCustomerPaymentReport(
+                        list = customerPaymentReportList,
+                        listOfTotal = customerPaymentReportTotalList,
+                        _fromDateState.value,
+                        _toDateState.value,
+                        getUri = getUri
+                    ) { error, errorS ->
+                        sendCustomerPaymentReportScreenEvent(UiEvent.CloseProgressBar)
+                        if (error) {
+                            sendCustomerPaymentReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    errorS ?: "There have some error when making Pdf sheet"
+                                )
+                            )
+                        }
+                    }
+                } catch (e: Exception) {
+                    sendCustomerPaymentReportScreenEvent(
+                        UiEvent.ShowSnackBar(
+                            e.message ?: "There have some error"
+                        )
+                    )
                 }
+            }else{
+                sendCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar("Empty List"))
             }
         }
     }
 
     fun makeExcelForCustomerPaymentReport(getUri: (uri: Uri) -> Unit) {
+        sendCustomerPaymentReportScreenEvent(UiEvent.ShowProgressBar)
         viewModelScope.launch(Dispatchers.IO) {
             if (customerPaymentReportList.size > 0) {
-                useCase.excelMakerUseCaseForCustomerPaymentReport(
-                    list = customerPaymentReportList,
-                    _fromDateState.value,
-                    _toDateState.value,
-                    getUri = getUri
-                ) { error, errorS ->
-                    Log.e(TAG, "makeExcelForCustomerPaymentReport: $error $errorS")
+                try {
+                    useCase.excelMakerUseCaseForCustomerPaymentReport(
+                        list = customerPaymentReportList,
+                        _fromDateState.value,
+                        _toDateState.value,
+                        getUri = getUri
+                    ) { error, errorS ->
+                        sendCustomerPaymentReportScreenEvent(UiEvent.CloseProgressBar)
+                        Log.e(TAG, "makeExcelForCustomerPaymentReport: $error $errorS")
+                        if (error){
+                            sendCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar(errorS?:"There have some problem when making Excel sheet"))
+                        }
+                    }
+                }catch (e:Exception){
+                    sendCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar(e.message?:"There have some problem"))
                 }
+
+            }else{
+                sendCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar("Empty List"))
             }
         }
     }

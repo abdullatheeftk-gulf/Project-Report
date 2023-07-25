@@ -35,6 +35,7 @@ object HttpRoutes {
     const val PURCHASE_MASTERS_REPORT = "/api/PurchaseMasters/"
     const val SUPPLIER_PURCHASE_REPORT = "/api/PurchaseMasters/"
     const val SUPPLIER_LEDGER_REPORT = "/api/SupplierLedgers/"
+    const val PURCHASE_SUMMARY_REPORT = "/api/PurchaseMasters/PurchaseSummary"
 
     // Expense
     const val EXPENSE_LEDGER_REPORT = "/api/ExpenseLedgers"

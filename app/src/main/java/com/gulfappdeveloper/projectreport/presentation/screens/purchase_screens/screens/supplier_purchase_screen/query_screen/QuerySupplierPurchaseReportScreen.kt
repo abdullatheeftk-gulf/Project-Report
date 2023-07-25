@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -53,6 +54,7 @@ import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.PurchaseViewModel
+import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -159,14 +161,12 @@ fun QuerySupplierPurchaseReportScreen(
     },
         modifier = Modifier.alpha(if (showProgressBar) 0.5f else 1.0f),
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Supplier Purchase Report",
                         textDecoration = TextDecoration.Underline,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
                     )
                 },
                 navigationIcon = {
@@ -186,10 +186,9 @@ fun QuerySupplierPurchaseReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = it.calculateTopPadding()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(70.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -292,7 +291,7 @@ fun QuerySupplierPurchaseReportScreen(
                         .weight(2f)
                 ) {
                     TextField(
-                        value = selectedFromDate.toString(),
+                        value = selectedFromDate.localDateToStringConverter(),
                         onValueChange = {
 
                         },
@@ -334,7 +333,7 @@ fun QuerySupplierPurchaseReportScreen(
                         .weight(2f)
                 ) {
                     TextField(
-                        value = selectedToDate.toString(),
+                        value = selectedToDate.localDateToStringConverter(),
                         onValueChange = {
 
                         },

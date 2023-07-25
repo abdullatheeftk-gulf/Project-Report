@@ -28,6 +28,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
+import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -164,10 +165,10 @@ class AccountViewModel
         }
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
-        _fromDateState.value = "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}"
+        _fromDateState.value = fromDate.localDateToStringConverter()
 
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
-        _toDateState.value = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}"
+        _toDateState.value = toDate.localDateToStringConverter()
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.EXPENSE_LEDGER_REPORT
@@ -374,10 +375,10 @@ class AccountViewModel
         paymentsReportList.clear()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
-        _fromDateState.value = "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}"
+        _fromDateState.value = fromDate.localDateToStringConverter()
 
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
-        _toDateState.value = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}"
+        _toDateState.value = toDate.localDateToStringConverter()
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.PAYMENT_REPORT
@@ -476,10 +477,10 @@ class AccountViewModel
         receiptsReportList.clear()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
-        _fromDateState.value = "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}"
+        _fromDateState.value = fromDate.localDateToStringConverter()
 
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
-        _toDateState.value = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}"
+        _toDateState.value = toDate.localDateToStringConverter()
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.RECEIPT_REPORT

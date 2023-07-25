@@ -9,6 +9,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
+import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
 import com.gulfappdeveloper.projectreport.share.pdf.writePeriodText
 import kotlinx.coroutines.Dispatchers
@@ -16,10 +18,13 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 object CustomerPaymentReportPdf {
     suspend fun makePdf(
+        companyName: String,
         pdfDocument: PdfDocument,
         context: Context,
         list: List<CustomerPaymentResponse>,
@@ -38,6 +43,7 @@ object CustomerPaymentReportPdf {
                 if ((index + 1) % 27 == 0) {
 
                     createPage(
+                        companyName = companyName,
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
@@ -55,6 +61,7 @@ object CustomerPaymentReportPdf {
             when (pageList.size) {
                 in 1..25 -> {
                     createPage(
+                        companyName = companyName,
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
@@ -69,6 +76,7 @@ object CustomerPaymentReportPdf {
                 }
                 26 -> {
                     createPage(
+                        companyName = companyName,
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
@@ -81,6 +89,7 @@ object CustomerPaymentReportPdf {
                     pageList.clear()
                     pageCount++
                     createPage(
+                        companyName = companyName,
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
@@ -94,6 +103,7 @@ object CustomerPaymentReportPdf {
                 else -> {
                     pageList.clear()
                     createPage(
+                        companyName = companyName,
                         pageNo = pageCount,
                         pdfDocument = pdfDocument,
                         list = pageList,
@@ -154,6 +164,7 @@ object CustomerPaymentReportPdf {
     }
 
     private fun createPage(
+        companyName: String,
         pageNo: Int,
         pdfDocument: PdfDocument,
         list: List<CustomerPaymentResponse>,
@@ -186,6 +197,11 @@ object CustomerPaymentReportPdf {
             // dates
             yPosition += 30f
             canvas.writePeriodText(fromDate, toDate, yPosition)
+            canvas.writeCompanyName(
+                companyName = companyName,
+                yPosition = yPosition,
+                xPosition = 970f
+            )
 
 
             // Table
@@ -209,9 +225,9 @@ object CustomerPaymentReportPdf {
 
             xPosition += 30
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
-            xPosition += 110
+            xPosition += 130
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
-            xPosition += 90
+            xPosition += 70
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
             xPosition += 260
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, paint)
@@ -236,7 +252,7 @@ object CustomerPaymentReportPdf {
             canvas.drawText("SI", xPosition, yPosition, paintText)
 
             paintText.textAlign = Paint.Align.CENTER
-            xPosition = 115f
+            xPosition +=80
             canvas.drawText("Date", xPosition, yPosition, paintText)
 
             paintText.textAlign = Paint.Align.CENTER
@@ -298,9 +314,9 @@ object CustomerPaymentReportPdf {
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
                 //Date
-                xPosition += 55
+                xPosition += 65
                 canvas.drawText(
-                    customerPaymentResponse.date,
+                    customerPaymentResponse.date.stringToDateStringConverter(),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -308,12 +324,12 @@ object CustomerPaymentReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 55
+                xPosition += 65
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
 
                 // Rec. No
-                xPosition += 45
+                xPosition += 35
                 canvas.drawText(
                     customerPaymentResponse.receiptNo.toString(),
                     xPosition,
@@ -322,7 +338,7 @@ object CustomerPaymentReportPdf {
                         textAlign = Paint.Align.CENTER
                         textSize = 10f
                     })
-                xPosition += 45
+                xPosition += 35
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
                 // Party
@@ -414,6 +430,20 @@ object CustomerPaymentReportPdf {
             if (isItLastPage) {
                 writeTotalValueRow(yPosition, canvas, listOfTotal = listOfTotal)
             }
+
+            val date = SimpleDateFormat("dd-MM-yyyy, hh:mm:ss a", Locale.getDefault()).format(Date())
+            canvas.drawText(date, 30f, 680f, Paint().apply {
+                color = Color.BLACK
+                textSize = 8f
+                textAlign = Paint.Align.LEFT
+                textSkewX = -0.25f
+            })
+
+            canvas.drawText("Unipospro",pageInfo.pageWidth/2f,680f,Paint().apply {
+                color = Color.BLACK
+                textSize = 8f
+                textAlign = Paint.Align.CENTER
+            })
 
 
             canvas.drawText("page $pageNo off $totalPages", 925f, 680f, Paint().apply {

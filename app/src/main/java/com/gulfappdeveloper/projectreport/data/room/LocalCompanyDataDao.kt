@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface LocalCompanyDataDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertCompanyData(localCompanyData: LocalCompanyData)
 
     @Query("SELECT * FROM LocalCompanyData")

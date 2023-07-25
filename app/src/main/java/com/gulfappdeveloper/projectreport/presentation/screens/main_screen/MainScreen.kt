@@ -20,7 +20,6 @@ import com.gulfappdeveloper.projectreport.root.RootViewModel
 
 private const val TAG = "MainScreen"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     navHostController: NavHostController,
@@ -118,7 +117,7 @@ fun MainScreen(
                 item {
                     MenuItem(
                         onClickMenuItem = {
-
+                            navHostController.navigate(RootNavScreens.SettingsScreen.route)
                         },
                         containerColor = Color(0xFFFFEB3B),
                         contentColor = Color(0xFF484545),

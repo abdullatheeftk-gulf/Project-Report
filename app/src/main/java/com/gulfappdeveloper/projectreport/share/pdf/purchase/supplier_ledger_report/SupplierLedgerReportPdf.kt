@@ -12,6 +12,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.CustomerLedgerTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.ReArrangedCustomerLedgerDetails
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.pdf.calculatePageCountForLedgerReports
 import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
@@ -380,7 +381,7 @@ object SupplierLedgerReportPdf {
                 //Date
                 xPosition += 80f
                 canvas.drawText(
-                    customerLedgerReport.voucherDate,
+                    customerLedgerReport.voucherDate.stringToDateStringConverter(),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {

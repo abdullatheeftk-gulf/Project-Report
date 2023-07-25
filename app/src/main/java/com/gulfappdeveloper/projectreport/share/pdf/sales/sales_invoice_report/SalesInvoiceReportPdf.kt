@@ -10,6 +10,7 @@ import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.SalesInvoiceReportTotals
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.pdf.calculatePageCount
 import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
@@ -246,65 +247,65 @@ object SalesInvoiceReportPdf {
             })
 
             // Account
-            xPosition += 100f
+            xPosition += 120f
             canvas.drawText("Account", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
 
-            xPosition += 100f
+            xPosition += 120f
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
                 color = Color.argb(255, 90, 90, 90)
                 strokeWidth = 0.4f
             })
 
             // Taxable
-            xPosition += 52.5f
+            xPosition += 45f
             canvas.drawText("Taxable", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
 
-            xPosition += 52.5f
+            xPosition += 45f
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
                 color = Color.argb(255, 90, 90, 90)
                 strokeWidth = 0.4f
             })
 
-            // Card
-            xPosition += 52.5f
+            // Tax
+            xPosition += 45f
             canvas.drawText("Tax", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
 
-            xPosition += 52.5f
+            xPosition += 45f
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
                 color = Color.argb(255, 90, 90, 90)
                 strokeWidth = 0.4f
             })
 
             // Return
-            xPosition += 52.5f
+            xPosition += 45f
             canvas.drawText("Return", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
 
-            xPosition += 52.5f
+            xPosition += 45f
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
                 color = Color.argb(255, 90, 90, 90)
                 strokeWidth = 0.4f
             })
 
             // Tax on return
-            xPosition += 52.5f
+            xPosition += 50f
             canvas.drawText("Tax on return", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
 
-            xPosition += 52.5f
+            xPosition += 50f
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
                 color = Color.argb(255, 90, 90, 90)
                 strokeWidth = 0.4f
@@ -358,7 +359,7 @@ object SalesInvoiceReportPdf {
                 //Date
                 xPosition += 60f
                 canvas.drawText(
-                    salesInvoiceResponse.date,
+                    salesInvoiceResponse.date.stringToDateStringConverter(),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -384,7 +385,7 @@ object SalesInvoiceReportPdf {
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
                 // Account
-                xPosition += 100
+                xPosition += 120
                 canvas.drawText(
                     salesInvoiceResponse.party ?: "-",
                     xPosition,
@@ -394,11 +395,11 @@ object SalesInvoiceReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 100
+                xPosition += 120
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
                 // Taxable
-                xPosition += 52.5f
+                xPosition += 45f
                 canvas.drawText(
                     // posPaymentResponse.cash.toString(),
                     String.format("%.2f",salesInvoiceResponse.taxable),
@@ -409,11 +410,11 @@ object SalesInvoiceReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 52.5f
+                xPosition += 45f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
-                // Card
-                xPosition += 52.5f
+                // Tax
+                xPosition += 45f
                 canvas.drawText(
                     String.format("%.2f",salesInvoiceResponse.tax),
                     xPosition,
@@ -423,12 +424,12 @@ object SalesInvoiceReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 52.5f
+                xPosition += 45f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
 
                 // return
-                xPosition += 52.5f
+                xPosition += 45f
                 canvas.drawText(
                     String.format("%.2f",salesInvoiceResponse.returnTaxable),
                     xPosition,
@@ -438,11 +439,11 @@ object SalesInvoiceReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 52.5f
+                xPosition += 45f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
                 // Tax on return
-                xPosition += 52.5f
+                xPosition += 50f
                 canvas.drawText(
                     String.format("%.2f",salesInvoiceResponse.taxOnReturn),
                     xPosition,
@@ -513,7 +514,7 @@ object SalesInvoiceReportPdf {
             style = Paint.Style.STROKE
         })
 
-        var xPosition = 440f
+        var xPosition = 480f
 
         canvas.drawText(
             "TOTAL:- ",
@@ -528,7 +529,7 @@ object SalesInvoiceReportPdf {
             color = Color.argb(255, 90, 90, 90)
             strokeWidth = 0.4f
         })
-        xPosition += 52.5f
+        xPosition += 45f
         canvas.drawText(
             String.format("%.2f", salesInvoiceReportTotals.sumOfTaxable),
             xPosition,
@@ -538,13 +539,13 @@ object SalesInvoiceReportPdf {
                 textSize = 12f
                 strokeWidth = 1f
             })
-        xPosition += 52.5f
+        xPosition += 45f
         canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
             color = Color.argb(255, 90, 90, 90)
             strokeWidth = 0.4f
         })
 
-        xPosition += 52.5f
+        xPosition += 45f
         canvas.drawText(
             String.format("%.2f", salesInvoiceReportTotals.sumOfTax),
             xPosition,
@@ -554,13 +555,13 @@ object SalesInvoiceReportPdf {
                 textSize = 12f
                 strokeWidth = 1f
             })
-        xPosition += 52.5f
+        xPosition += 45f
         canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
             color = Color.argb(255, 90, 90, 90)
             strokeWidth = 0.4f
         })
 
-        xPosition += 52.5f
+        xPosition += 45f
         canvas.drawText(
             String.format("%.2f", salesInvoiceReportTotals.sumOfReturn),
             xPosition,
@@ -570,13 +571,13 @@ object SalesInvoiceReportPdf {
                 textSize = 12f
                 strokeWidth = 1f
             })
-        xPosition += 52.5f
+        xPosition += 45f
         canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
             color = Color.argb(255, 90, 90, 90)
             strokeWidth = 0.4f
         })
 
-        xPosition += 52.5f
+        xPosition += 50f
         canvas.drawText(
             String.format("%.2f", salesInvoiceReportTotals.sumOfTaxOnReturn),
             xPosition,
@@ -586,7 +587,7 @@ object SalesInvoiceReportPdf {
                 textSize = 12f
                 strokeWidth = 1f
             })
-        xPosition += 52.5f
+        xPosition += 50f
         canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
             color = Color.argb(255, 90, 90, 90)
             strokeWidth = 0.4f

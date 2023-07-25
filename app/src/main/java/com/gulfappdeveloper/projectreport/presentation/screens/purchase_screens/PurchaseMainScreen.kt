@@ -18,6 +18,7 @@ fun PurchaseMainScreen(
     val purchaseNavHostControl = rememberNavController()
     PurchaseNavGraph(
         purchaseViewModel = purchaseViewModel,
-        purchaseNavHostController = purchaseNavHostControl
+        purchaseNavHostController = purchaseNavHostControl,
+        navHostController = navHostController
     )
 }

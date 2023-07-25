@@ -9,6 +9,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.pdf.calculatePageCount
 import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
@@ -250,13 +251,13 @@ object PosPaymentReportPdf {
             })
 
             // Date
-            xPosition += 57.5f
+            xPosition += 65f
             canvas.drawText("Date", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
 
-            xPosition += 57.5f
+            xPosition += 65f
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
                 color = Color.argb(255, 90, 90, 90)
                 strokeWidth = 0.4f
@@ -277,13 +278,13 @@ object PosPaymentReportPdf {
             })
 
             // Party
-            xPosition += 130f
+            xPosition += 122.5f
             canvas.drawText("Party", xPosition, yPosition + 16.5f, Paint().apply {
                 textAlign = Paint.Align.CENTER
                 textSize = 12f
             })
 
-            xPosition += 130f
+            xPosition += 122.5f
             canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 25, Paint().apply {
                 color = Color.argb(255, 90, 90, 90)
                 strokeWidth = 0.4f
@@ -399,9 +400,9 @@ object PosPaymentReportPdf {
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
                 //Date
-                xPosition += 57.5f
+                xPosition += 65f
                 canvas.drawText(
-                    posPaymentResponse.date,
+                    posPaymentResponse.date.stringToDateStringConverter(),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {
@@ -409,7 +410,7 @@ object PosPaymentReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 57.5f
+                xPosition += 65f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
 
@@ -427,7 +428,7 @@ object PosPaymentReportPdf {
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
                 // Party
-                xPosition += 130
+                xPosition += 122.5f
                 canvas.drawText(
                     posPaymentResponse.party ?: "-",
                     xPosition,
@@ -437,7 +438,7 @@ object PosPaymentReportPdf {
                         textSize = 10f
                     })
 
-                xPosition += 130
+                xPosition += 122.5f
                 canvas.drawLine(xPosition, yPosition, xPosition, yPosition + 20, paintTable)
 
                 //cash

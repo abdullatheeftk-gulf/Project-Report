@@ -10,6 +10,7 @@ import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.ledger.GetCu
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.license.GetIP4AddressUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.license.UniLicenseActivationUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.PurchaseMastersReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.PurchaseSummaryReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.SupplierLedgerReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.SupplierPurchaseReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.register_and_login_use_cases.LoginUseCase
@@ -43,6 +44,8 @@ import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.pos_
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.pos_payment_report.PdfMakerUseCaseForPosPaymentReport
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.purchase_master_report.ExcelMakerPurchaseMastersReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.purchase_master_report.PdfMakerPurchaseMastersReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.purchase_summary_report.PurchaseSummaryReportExcelUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.purchase_summary_report.PurchaseSummaryReportPdfUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.receipts_report.MakeExcelForReceiptReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.receipts_report.MakePdfForReceiptReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.sale_summaries_report.ExcelMakerSaleSummariesReportUseCase
@@ -52,7 +55,7 @@ import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.sale
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.supplier_ledger_report.ExcelMakerForSupplierLedgerReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.supplier_ledger_report.PdfMakerSupplierLedgerReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.user_sales_report.MakePdfByItextForUserSalesReport
-import com.gulfappdeveloper.projectreport.usecases.room_use_case.GetAllLocalCompanyData
+import com.gulfappdeveloper.projectreport.usecases.room_use_case.GetAllLocalCompanyDataUseCase
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.RoomInsertDataUseCase
 
 data class UseCase(
@@ -94,7 +97,7 @@ data class UseCase(
 
     // Room
     val roomInsertDataUseCase: RoomInsertDataUseCase,
-    val getAllLocalCompanyData: GetAllLocalCompanyData,
+    val getAllLocalCompanyDataUseCase: GetAllLocalCompanyDataUseCase,
 
     // ledger
     val getCustomerForLedgerUseCase: GetCustomerForLedgerUseCase,
@@ -124,6 +127,7 @@ data class UseCase(
     val purchaseMastersReportUseCase: PurchaseMastersReportUseCase,
     val supplierPurchaseReportUseCase: SupplierPurchaseReportUseCase,
     val supplierLedgerReportUseCase: SupplierLedgerReportUseCase,
+    val purchaseSummaryReportUseCase: PurchaseSummaryReportUseCase,
 
     val pdfMakerSalesInvoiceReportUseCase: PdfMakerSalesInvoiceReportUseCase,
     val excelMakerSalesInvoiceReportUseCase: ExcelMakerSalesInvoiceReportUseCase,
@@ -131,6 +135,8 @@ data class UseCase(
     val pdfMakerSaleSummariesReportUseCase: PdfMakerSaleSummariesReportUseCase,
     val excelMakerSaleSummariesReportUseCase: ExcelMakerSaleSummariesReportUseCase,
 
+    val purchaseSummaryReportExcelUseCase: PurchaseSummaryReportExcelUseCase,
+    val purchaseSummaryReportPdfUseCase: PurchaseSummaryReportPdfUseCase,
     // Expense ledger
 
     val expenseLedgerReportUseCase: ExpenseLedgerReportUseCase,

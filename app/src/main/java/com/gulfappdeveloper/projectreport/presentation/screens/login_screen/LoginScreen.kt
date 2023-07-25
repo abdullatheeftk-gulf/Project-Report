@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.login_screen.components.LoginErrorMessageAlertDialog
 import com.gulfappdeveloper.projectreport.root.RootViewModel
 import kotlinx.coroutines.flow.collectLatest
 
@@ -54,9 +55,7 @@ fun LoginScreen(
     hideKeyboard: () -> Unit,
     rootViewModel: RootViewModel
 ) {
-    /*var userName by remember {
-        mutableStateOf("")
-    }*/
+
 
     var password by remember {
         mutableStateOf("")
@@ -80,6 +79,10 @@ fun LoginScreen(
 
     var errorMessage by remember {
         mutableStateOf("")
+    }
+
+    var alertDialogMessage:String? by remember {
+        mutableStateOf(null)
     }
 
     val userNameState by rootViewModel.userNameState
@@ -111,13 +114,20 @@ fun LoginScreen(
                 }
 
                 is UiEvent.ShowAlertDialog -> {
-
+                    alertDialogMessage = value.uiEvent.message
                 }
 
                 else -> Unit
             }
         }
     }
+
+    alertDialogMessage?.let {
+        LoginErrorMessageAlertDialog(message = it) {
+            alertDialogMessage = null
+        }
+    }
+
 
     Scaffold(
         snackbarHost = {
@@ -171,7 +181,7 @@ fun LoginScreen(
                     )
                 },
                 label = {
-                    Text(text = "UserName")
+                    Text(text = "User Name")
                 },
                 supportingText = {
                     if (showErrorMessage) {

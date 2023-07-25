@@ -12,11 +12,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
 import eu.wewox.lazytable.lazyTableDimensions
@@ -78,7 +80,7 @@ fun PosPaymentReportTable(
             val rowData = posPaymentReportList[rowCount - 1]
             val content = when (columCont) {
                 0 -> "$rowCount"
-                1 -> rowData.date
+                1 -> rowData.date.stringToDateStringConverter()
                 2 -> rowData.invoiceNo.toString()
                 3 -> rowData.party
                 4 -> rowData.cash.toString()
@@ -105,7 +107,7 @@ fun PosPaymentReportTable(
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2,
                         fontSize = 14.sp,
-                        //color = if ()
+                        textAlign = TextAlign.Center
                     )
                 } else {
                     Text(

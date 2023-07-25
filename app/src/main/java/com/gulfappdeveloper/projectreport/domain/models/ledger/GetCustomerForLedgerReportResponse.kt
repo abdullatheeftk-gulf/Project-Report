@@ -11,5 +11,6 @@ data class GetCustomerForLedgerReportResponse(
     val id: Int,
     val name: String,
     val phone: String,
-    val place: String
+    val place: String,
+    val taxId:String?
 )

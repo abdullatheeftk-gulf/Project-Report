@@ -36,7 +36,8 @@ fun SalesNavGraph(
         composable(route = SalesScreens.SalesHomeScreen.route) {
             SaleHomeScreen(
                 salesNavHostController = salesNavHostController,
-                salesViewModel = salesViewModel
+                salesViewModel = salesViewModel,
+                navHostController = navHostController
             )
         }
         composable(route = SalesScreens.QuerySalesInvoiceReportScreen.route) {

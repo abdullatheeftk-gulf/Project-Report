@@ -15,6 +15,7 @@ import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.ledger.GetCu
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.license.GetIP4AddressUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.license.UniLicenseActivationUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.PurchaseMastersReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.PurchaseSummaryReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.SupplierLedgerReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.purchase.SupplierPurchaseReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.register_and_login_use_cases.LoginUseCase
@@ -48,6 +49,8 @@ import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.pos_
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.pos_payment_report.PdfMakerUseCaseForPosPaymentReport
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.purchase_master_report.ExcelMakerPurchaseMastersReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.purchase_master_report.PdfMakerPurchaseMastersReportUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.purchase_summary_report.PurchaseSummaryReportExcelUseCase
+import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.purchase_summary_report.PurchaseSummaryReportPdfUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.receipts_report.MakeExcelForReceiptReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.receipts_report.MakePdfForReceiptReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.sale_summaries_report.ExcelMakerSaleSummariesReportUseCase
@@ -57,7 +60,7 @@ import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.sale
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.supplier_ledger_report.ExcelMakerForSupplierLedgerReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.supplier_ledger_report.PdfMakerSupplierLedgerReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.pdf_excel_maker_use_case.user_sales_report.MakePdfByItextForUserSalesReport
-import com.gulfappdeveloper.projectreport.usecases.room_use_case.GetAllLocalCompanyData
+import com.gulfappdeveloper.projectreport.usecases.room_use_case.GetAllLocalCompanyDataUseCase
 import com.gulfappdeveloper.projectreport.usecases.room_use_case.RoomInsertDataUseCase
 import dagger.Module
 import dagger.Provides
@@ -107,7 +110,7 @@ object RepositoryModule {
 
         // Room
         roomInsertDataUseCase = RoomInsertDataUseCase(roomDatabaseRepository = roomDatabaseRepository),
-        getAllLocalCompanyData = GetAllLocalCompanyData(roomDatabaseRepository = roomDatabaseRepository),
+        getAllLocalCompanyDataUseCase = GetAllLocalCompanyDataUseCase(roomDatabaseRepository = roomDatabaseRepository),
 
         // Ledger
         getCustomerForLedgerUseCase = GetCustomerForLedgerUseCase(apiRepository = apiRepository),
@@ -147,6 +150,8 @@ object RepositoryModule {
         purchaseMastersReportUseCase = PurchaseMastersReportUseCase(apiRepository = apiRepository),
         supplierPurchaseReportUseCase = SupplierPurchaseReportUseCase(apiRepository = apiRepository),
         supplierLedgerReportUseCase = SupplierLedgerReportUseCase(apiRepository = apiRepository),
+        purchaseSummaryReportUseCase = PurchaseSummaryReportUseCase(apiRepository = apiRepository),
+
 
         pdfMakerSalesInvoiceReportUseCase = PdfMakerSalesInvoiceReportUseCase(pdfExcelRepository = pdfExcelRepository),
         excelMakerSalesInvoiceReportUseCase = ExcelMakerSalesInvoiceReportUseCase(pdfExcelRepository = pdfExcelRepository),
@@ -178,8 +183,11 @@ object RepositoryModule {
         ),
 
         makePdfByItextForUserSalesReport = MakePdfByItextForUserSalesReport(pdfExcelRepository = pdfExcelRepository),
-        makeExcelForUserSalesReportUseCase = MakeExcelForUserSalesReportUseCase(pdfExcelRepository = pdfExcelRepository)
+        makeExcelForUserSalesReportUseCase = MakeExcelForUserSalesReportUseCase(pdfExcelRepository = pdfExcelRepository),
+
+        purchaseSummaryReportExcelUseCase = PurchaseSummaryReportExcelUseCase(pdfExcelRepository = pdfExcelRepository),
+        purchaseSummaryReportPdfUseCase = PurchaseSummaryReportPdfUseCase(pdfExcelRepository = pdfExcelRepository)
 
 
-    )
+        )
 }

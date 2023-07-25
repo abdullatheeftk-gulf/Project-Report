@@ -8,6 +8,7 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.pdf.calculatePageCount
 import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
@@ -307,7 +308,7 @@ object PdfReceiptsReport {
                 //Date
                 xPosition += 70f
                 canvas.drawText(
-                    receiptResponse.date,
+                    receiptResponse.date.stringToDateStringConverter(),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {

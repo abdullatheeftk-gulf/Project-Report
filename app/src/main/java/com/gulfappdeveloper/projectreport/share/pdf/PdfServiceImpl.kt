@@ -7,6 +7,7 @@ import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
+import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseSummaryResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
@@ -16,6 +17,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.a
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ReArrangedExpenseLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterSelection
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterTotals
+import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseSummaryTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.CustomerLedgerTotals
@@ -27,6 +29,7 @@ import com.gulfappdeveloper.projectreport.share.pdf.account.expense_ledger_repor
 import com.gulfappdeveloper.projectreport.share.pdf.account.payments_report.PdfPaymentsReport
 import com.gulfappdeveloper.projectreport.share.pdf.account.recceipt_report.PdfReceiptsReport
 import com.gulfappdeveloper.projectreport.share.pdf.purchase.purchase_master_and_supplier_purchase.PurchaseMasterAndSupplierPurchaseReportPdf
+import com.gulfappdeveloper.projectreport.share.pdf.purchase.purchase_summary_report.PurchaseSummaryReportPdf
 import com.gulfappdeveloper.projectreport.share.pdf.sales.customer_ledger_report.CustomerLedgerReportPdf
 import com.gulfappdeveloper.projectreport.share.pdf.sales.customer_payment_report.CustomerPaymentReportPdf
 import com.gulfappdeveloper.projectreport.share.pdf.sales.pos_payment_report.PosPaymentReportPdf
@@ -55,14 +58,15 @@ class PdfServiceImpl(
     ) {
         val pdfDocument = PdfDocument()
         CustomerPaymentReportPdf.makePdf(
-            pdfDocument,
-            context,
-            list,
-            listOfTotal,
-            fromDate,
-            toDate,
-            getUri,
-            haveAnyError
+            companyName = commonMemory.companyName,
+            pdfDocument = pdfDocument,
+            context = context,
+            list = list,
+            listOfTotal = listOfTotal,
+            fromDate = fromDate,
+            toDate = toDate,
+            getUri = getUri,
+            haveAnyError = haveAnyError
         )
     }
 
@@ -294,6 +298,27 @@ class PdfServiceImpl(
             pdfDocument = PdfDocument(),
             context = context,
             list = list,
+            fromDate = fromDate,
+            toDate = toDate,
+            getUri = getUri,
+            haveAnyError = haveAnyError
+        )
+    }
+
+    override suspend fun writePdfForPurchaseSummaryReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<PurchaseSummaryResponse>,
+        purchaseSummaryTotals: PurchaseSummaryTotals
+    ) {
+        PurchaseSummaryReportPdf.makePdf(
+            companyName = commonMemory.companyName,
+            pdfDocument = PdfDocument(),
+            context = context,
+            list = list,
+            purchaseSummaryTotals = purchaseSummaryTotals,
             fromDate = fromDate,
             toDate = toDate,
             getUri = getUri,

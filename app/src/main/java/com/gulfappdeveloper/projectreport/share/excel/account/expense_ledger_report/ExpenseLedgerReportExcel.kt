@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ReArrangedExpenseLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.excel.createHeading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -268,7 +269,7 @@ object ExpenseLedgerReportExcel {
             }
             // Date
             headerRow.createCell(1).apply {
-                setCellValue(reArrangedExpenseLedgerDetails.voucherDate.toString())
+                setCellValue(reArrangedExpenseLedgerDetails.voucherDate.stringToDateStringConverter())
                 cellStyle = generalHeaderCellStyle
             }
             // invoice No

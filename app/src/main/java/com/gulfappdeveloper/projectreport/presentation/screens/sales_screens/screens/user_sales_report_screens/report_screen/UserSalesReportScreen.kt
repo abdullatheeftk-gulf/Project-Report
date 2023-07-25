@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -105,13 +106,12 @@ fun UserSalesReportScreen(
         },
         modifier = Modifier.alpha(if (showProgressBar) 0.5f else 1.0f),
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "User Sales Report",
+                        text = "User Sales Report ",
                         textDecoration = TextDecoration.Underline,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
                 },
@@ -200,10 +200,9 @@ fun UserSalesReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(4.dp),
+                .padding(start = 4.dp,end=4.dp, top = it.calculateTopPadding(), bottom = it.calculateBottomPadding()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(70.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
 
                 Text(text = "Report from ")

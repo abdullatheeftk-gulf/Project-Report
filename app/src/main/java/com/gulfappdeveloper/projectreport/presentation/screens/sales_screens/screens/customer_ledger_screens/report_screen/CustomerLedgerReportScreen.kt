@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -112,13 +113,12 @@ fun CustomerLedgerReportScreen(
     },
         modifier = Modifier.alpha(if (showProgressBar) 0.5f else 1f),
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Customer Ledger Report",
+                        text = "Customer Ledger Report ",
                         textDecoration = TextDecoration.Underline,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
                 },
@@ -210,12 +210,10 @@ fun CustomerLedgerReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(top = it.calculateTopPadding(), bottom = it.calculateBottomPadding(), start = 4.dp, end = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-
-            Spacer(modifier = Modifier.height(60.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

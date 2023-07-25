@@ -1,0 +1,5 @@
+package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.report_screen
+
+import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
+
+data class CustomerPaymentReportScreenEvent(val uiEvent: UiEvent)

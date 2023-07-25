@@ -12,5 +12,5 @@ data class PurchaseMastersResponse(
     val payment: Float,
     val returnAmount: Float,
     val balanceAmount: Float,
-    val supplier: String
+    val supplier: String?
 )

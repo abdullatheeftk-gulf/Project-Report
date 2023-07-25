@@ -1,5 +1,6 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.report_screen.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -14,15 +15,22 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
 import eu.wewox.lazytable.lazyTableDimensions
 import eu.wewox.lazytable.lazyTablePinConfiguration
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 private const val TAG = "NewTable"
 
@@ -80,9 +88,11 @@ fun CustomerPaymentReportTable(
 
 
             val rowData = customerPaymentReportList[rowCount - 1]
+
+            
             val content = when (columCont) {
                 0 -> "$rowCount"
-                1 -> rowData.date
+                1 -> rowData.date.stringToDateStringConverter()
                 2 -> rowData.receiptNo.toString()
                 3 -> rowData.party
                 4 -> rowData.cash
@@ -108,6 +118,7 @@ fun CustomerPaymentReportTable(
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2,
                         fontSize = 14.sp,
+                        textAlign = TextAlign.Center
                         //color = if ()
                     )
                 } else {
@@ -262,7 +273,7 @@ fun CustomerPaymentReportTable(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .background(Color(0xFFFFFFFF))
-                        .border(Dp.Hairline, Color.Black)
+                            .border(Dp.Hairline, Color.Black)
                     ) {
                         Text(
                             text = String.format("%.2f",customerPaymentReportTotalList[0]),
@@ -277,7 +288,7 @@ fun CustomerPaymentReportTable(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .background(Color(0xFFFFFFFF))
-                        .border(Dp.Hairline, Color.Black)
+                            .border(Dp.Hairline, Color.Black)
                     ) {
                         Text(
                             text = String.format("%.2f",customerPaymentReportTotalList[1]),
@@ -292,7 +303,7 @@ fun CustomerPaymentReportTable(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .background(Color(0xFFFFFFFF))
-                        .border(Dp.Hairline, Color.Black)
+                            .border(Dp.Hairline, Color.Black)
                     ) {
                         Text(
                             text = String.format("%.2f",customerPaymentReportTotalList[2]),
@@ -307,7 +318,7 @@ fun CustomerPaymentReportTable(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .background(Color(0xFFFFFFFF))
-                        .border(Dp.Hairline, Color.Black)
+                            .border(Dp.Hairline, Color.Black)
                     ) {
                         Text(
                             text = String.format("%.2f",customerPaymentReportTotalList[3]),
@@ -322,7 +333,7 @@ fun CustomerPaymentReportTable(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .background(Color(0xFFFFFFFF))
-                        .border(Dp.Hairline, Color.Black)
+                            .border(Dp.Hairline, Color.Black)
                     ) {
                         Text(
                             text = String.format("%.2f",customerPaymentReportTotalList[4]),

@@ -8,4 +8,6 @@ sealed class PurchaseScreens(val route:String){
     object SupplierPurchaseReportScreen:PurchaseScreens("supplier_purchase_report_screen")
     object QuerySupplierLedgerReportScreen:PurchaseScreens("query_supplier_ledger_report_screen")
     object SupplierLedgerReportScreen:PurchaseScreens("supplier_ledger_report_screen")
+    object QueryPurchaseSummaryReportScreen:PurchaseScreens("query_purchase_report_screen")
+    object PurchaseSummaryReportScreen:PurchaseScreens("purchase_summary_report_screen")
 }

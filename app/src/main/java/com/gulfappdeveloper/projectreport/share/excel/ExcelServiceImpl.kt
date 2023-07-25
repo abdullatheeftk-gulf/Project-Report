@@ -6,6 +6,7 @@ import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
+import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseSummaryResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
@@ -20,6 +21,7 @@ import com.gulfappdeveloper.projectreport.share.excel.account.expense_ledger_rep
 import com.gulfappdeveloper.projectreport.share.excel.account.payements_report.PaymentsReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.account.receipts_report.ReceiptsReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.purchase.purchase_masters_and_supplier_purchase.PurchaseMasterReportExcel
+import com.gulfappdeveloper.projectreport.share.excel.purchase.purchase_summary_report.PurchaseSummaryReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.purchase.supplier_ledger_report.SupplierLedgerReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.sales.customer_ledger_report.CustomerLedgerReportExcel
 import com.gulfappdeveloper.projectreport.share.excel.sales.customer_payment_report.CustomerPaymentReportExcel
@@ -236,6 +238,24 @@ class ExcelServiceImpl(
         list: List<UserSalesResponse>
     ) {
         UserSalesReportExcel.writeExcelSheet(
+            companyName = commonMemory.companyName,
+            context = context,
+            fromDate = fromDate,
+            toDate = toDate,
+            getUri = getUri,
+            list = list,
+            haveAnyError = haveAnyError
+        )
+    }
+
+    override suspend fun makeExcelForPurchaseSummaryReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<PurchaseSummaryResponse>
+    ) {
+        PurchaseSummaryReportExcel.writeExcelSheet(
             companyName = commonMemory.companyName,
             context = context,
             fromDate = fromDate,

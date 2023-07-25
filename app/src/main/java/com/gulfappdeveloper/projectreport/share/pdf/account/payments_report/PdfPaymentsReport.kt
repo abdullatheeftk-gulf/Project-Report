@@ -10,6 +10,7 @@ import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.SaleSummariesReportTotals
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.pdf.calculatePageCount
 import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
@@ -309,7 +310,7 @@ object PdfPaymentsReport {
                 //Date
                 xPosition += 70f
                 canvas.drawText(
-                    paymentResponse.date,
+                    paymentResponse.date.stringToDateStringConverter(),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {

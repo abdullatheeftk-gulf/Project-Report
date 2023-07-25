@@ -13,6 +13,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.main_screen.MainS
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.PurchaseMainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.register_company_screen.RegisterCompanyScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.SalesMainScreen
+import com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.SettingsMainScreen
 import com.gulfappdeveloper.projectreport.presentation.screens.splash_screen.SplashScreen
 import com.gulfappdeveloper.projectreport.root.RootViewModel
 
@@ -92,6 +93,13 @@ fun RootNavGraph(
         }
         composable(RootNavScreens.AccountScreens.route) {
             AccountMainScreen(navHostController = navHostController)
+        }
+        composable(route = RootNavScreens.SettingsScreen.route){
+            SettingsMainScreen(
+                navHostController = navHostController,
+                rootViewModel =rootViewModel ,
+                hideKeyboard = hideKeyboard
+            )
         }
 
     }

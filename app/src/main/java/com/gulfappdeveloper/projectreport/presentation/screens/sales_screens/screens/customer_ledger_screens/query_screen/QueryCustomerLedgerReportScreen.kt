@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -50,6 +51,7 @@ import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.SalesViewModel
+import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
 import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -169,13 +171,12 @@ fun QueryCustomerLedgerReportScreen(
         },
         modifier = Modifier.alpha(if (showProgressBar) 0.5f else 1.0f),
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Customer Ledger Report",
                         textDecoration = TextDecoration.Underline,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
                 },
@@ -197,15 +198,11 @@ fun QueryCustomerLedgerReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(all = 16.dp),
+                .padding(horizontal = 16.dp, vertical = it.calculateTopPadding()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
 
         ) {
-            Spacer(modifier = Modifier.height(60.dp))
-
-
-            Spacer(modifier = Modifier.height(20.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -316,10 +313,11 @@ fun QueryCustomerLedgerReportScreen(
                         .weight(2f)
                 ) {
                     TextField(
-                        value = selectedFromDate.toString(),
+                        value = selectedFromDate.localDateToStringConverter(),
                         onValueChange = {
 
                         },
+                        readOnly = true,
                         trailingIcon = {
                             IconButton(
                                 onClick = {
@@ -359,10 +357,11 @@ fun QueryCustomerLedgerReportScreen(
                         .weight(2f)
                 ) {
                     TextField(
-                        value = selectedToDate.toString(),
+                        value = selectedToDate.localDateToStringConverter(),
                         onValueChange = {
 
                         },
+                        readOnly = true,
                         trailingIcon = {
                             IconButton(
                                 onClick = {

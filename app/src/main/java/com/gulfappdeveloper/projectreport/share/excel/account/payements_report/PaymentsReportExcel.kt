@@ -6,6 +6,7 @@ import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.excel.createHeading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -229,7 +230,7 @@ object PaymentsReportExcel {
         }
         // Date
         headerRow.createCell(1).apply {
-            setCellValue(paymentResponse.date)
+            setCellValue(paymentResponse.date.stringToDateStringConverter())
             cellStyle = generalHeaderCellStyle
         }
 

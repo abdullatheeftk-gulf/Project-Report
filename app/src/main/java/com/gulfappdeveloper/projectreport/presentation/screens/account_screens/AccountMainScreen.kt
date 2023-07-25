@@ -13,6 +13,10 @@ fun AccountMainScreen(
 ) {
     val accountNavHostController = rememberNavController()
 
-    AccountNavGraph(accountNavHostController = accountNavHostController, accountViewModel = accountViewModel)
+    AccountNavGraph(
+        accountNavHostController = accountNavHostController,
+        accountViewModel = accountViewModel,
+        navHostController = navHostController
+    )
 
 }

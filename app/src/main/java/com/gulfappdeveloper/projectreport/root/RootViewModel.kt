@@ -23,9 +23,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.text.SimpleDateFormat
@@ -401,21 +398,27 @@ class RootViewModel @Inject constructor(
                 when (value) {
                     is GetDataFromRemote.Loading -> {
                         sendLoginScreenEvent(UiEvent.ShowProgressBar)
-                        Log.w(TAG, "login: ")
+                        //Log.w(TAG, "login: ")
                     }
 
                     is GetDataFromRemote.Success -> {
                         sendLoginScreenEvent(UiEvent.CloseProgressBar)
-                        sendLoginScreenEvent(UiEvent.Navigate(RootNavScreens.MainScreen.route))
-                        commonMemory.userId = value.data.userId.toShort()
-                        Log.d(TAG, "login: ${value.data}")
-                        saveUserNameInDataStore(userName = userName)
+                        val loginResponse = value.data
+                        if (loginResponse.status) {
+                            sendLoginScreenEvent(UiEvent.Navigate(RootNavScreens.MainScreen.route))
+                            commonMemory.userId = value.data.userId?.toShort()!!
+                            Log.d(TAG, "login: ${value.data}")
+                            saveUserNameInDataStore(userName = userName)
+                        }else{
+                            Log.i(TAG, "login: ${loginResponse.message}")
+                            sendLoginScreenEvent(UiEvent.ShowAlertDialog(loginResponse.message))
+                        }
                     }
 
                     is GetDataFromRemote.Failed -> {
                         sendLoginScreenEvent(UiEvent.CloseProgressBar)
                         sendLoginScreenEvent(UiEvent.Navigate("Error"))
-                        Log.e(TAG, "login: ${value.error.code}")
+                        Log.e(TAG, "login: ${value.error.code}, ${value.error.message}",)
                     }
 
                 }

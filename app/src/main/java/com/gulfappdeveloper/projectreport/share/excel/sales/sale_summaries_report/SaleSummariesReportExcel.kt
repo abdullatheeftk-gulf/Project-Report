@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.excel.createHeading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -236,7 +237,7 @@ object SaleSummariesReportExcel {
         }
         // Date
         headerRow.createCell(1).apply {
-            setCellValue(saleSummariesResponse.date)
+            setCellValue(saleSummariesResponse.date.stringToDateStringConverter())
             cellStyle = generalHeaderCellStyle
         }
 

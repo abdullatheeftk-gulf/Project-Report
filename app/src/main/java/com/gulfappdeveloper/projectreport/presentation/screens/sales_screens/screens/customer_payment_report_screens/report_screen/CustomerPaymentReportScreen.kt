@@ -18,6 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +32,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,10 +49,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
+import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 //import com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.CustomerPaymentScreenViewModel
 //import com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.screens.customer_payment_report_screen.components.CustomerPaymentReportTable
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.SalesViewModel
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.report_screen.components.CustomerPaymentReportTable
+import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = "CustomerPaymentReportSc"
 
@@ -74,10 +79,29 @@ fun CustomerPaymentReportScreen(
         mutableStateOf(false)
     }
 
+    var showProgressBar by remember {
+        mutableStateOf(false)
+    }
 
-    /*LaunchedEffect(key1 = true) {
 
-    }*/
+    LaunchedEffect(key1 = true) {
+        salesViewModel.customerPaymentReportScreenEvent.collectLatest {value ->
+        when(value.uiEvent){
+            is UiEvent.ShowProgressBar->{
+                showProgressBar = true
+            }
+            is UiEvent.CloseProgressBar->{
+                showProgressBar = false
+
+            }
+            is UiEvent.ShowSnackBar->{
+                snackBarHostState.showSnackbar(value.uiEvent.message)
+            }
+            else->Unit
+        }
+
+        }
+    }
 
 
     val context = LocalContext.current
@@ -92,24 +116,31 @@ fun CustomerPaymentReportScreen(
 
 
     Scaffold(
+        modifier = Modifier.alpha(if (showProgressBar) 0.5f else 1f),
         snackbarHost = {
             SnackbarHost(hostState = snackBarHostState)
         },
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = "Customer Payment Report",
-                        textDecoration = TextDecoration.Underline,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
+                    Row() {
+                        Text(
+                            text = "Customer Payment Report",
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(text = "   ")
+                    }
+                    
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
+                    IconButton(
+                        onClick = {
                         salesNavHostController.popBackStack()
-                    }) {
+                    },
+                        enabled = !showProgressBar
+                    ) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = null,
@@ -193,10 +224,14 @@ fun CustomerPaymentReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(4.dp),
+                .padding(
+                    start = 4.dp,
+                    end = 4.dp,
+                    top = it.calculateTopPadding(),
+                    bottom = it.calculateBottomPadding()
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(70.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
 
                 Text(text = "Report from ")
@@ -236,6 +271,11 @@ fun CustomerPaymentReportScreen(
         }
 
     }
+    if (showProgressBar){
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            CircularProgressIndicator()
+        }
+    }
 
 }
 
@@ -263,7 +303,7 @@ fun ScreenOrientationActionForCustomerPayment(
                 id = R.drawable.baseline_screen_rotation_24
             ),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
+            tint = Color(0xFFEF8484)
         )
     }
 }

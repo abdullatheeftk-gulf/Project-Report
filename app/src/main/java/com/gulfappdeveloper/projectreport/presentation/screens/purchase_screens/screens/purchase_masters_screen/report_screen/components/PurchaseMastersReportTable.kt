@@ -12,12 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterTotals
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
 import eu.wewox.lazytable.lazyTableDimensions
@@ -80,7 +82,7 @@ fun PurchaseMastersReportTable(
             val rowData = purchaseMastersReportList[rowCount - 1]
             val content = when (columCont) {
                 0 -> "$rowCount"
-                1 -> rowData.invoiceDate
+                1 -> rowData.invoiceDate.stringToDateStringConverter()
                 2 -> rowData.invoiceNo.toString()
                 3 -> rowData.supplier
                 4 -> rowData.taxable.toString()
@@ -107,11 +109,12 @@ fun PurchaseMastersReportTable(
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2,
                         fontSize = 14.sp,
+                        textAlign = TextAlign.Center
                         //color = if ()
                     )
                 } else {
                     Text(
-                        text = content,
+                        text = content ?: "-",
                         modifier = Modifier
                             .wrapContentSize()
                             .padding(horizontal = 4.dp),

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -20,6 +21,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.a
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ReArrangedExpenseLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
 import eu.wewox.lazytable.lazyTableDimensions
@@ -78,7 +80,7 @@ fun ExpenseLedgerReportTable(
             val rowData = expenseLedgerDetailsList[rowCount - 1]
             val content = when (columCont) {
                 0 -> "$rowCount"
-                1 -> rowData.voucherDate
+                1 -> rowData.voucherDate.stringToDateStringConverter()
                 2 -> rowData.voucherNo.toString()
                 3 -> rowData.particulars
                 4 -> rowData.debit.toString()
@@ -101,6 +103,7 @@ fun ExpenseLedgerReportTable(
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2,
                         fontSize = 14.sp,
+                        textAlign = TextAlign.Center
                         //color = if ()
                     )
                 } else {

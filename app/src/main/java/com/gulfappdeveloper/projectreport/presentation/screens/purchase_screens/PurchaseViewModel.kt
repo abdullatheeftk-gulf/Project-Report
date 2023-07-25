@@ -11,21 +11,26 @@ import androidx.lifecycle.viewModelScope
 import com.gulfappdeveloper.projectreport.domain.models.general.GetDataFromRemote
 import com.gulfappdeveloper.projectreport.domain.models.ledger.GetCustomerForLedgerReportResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
+import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseSummaryResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.supplier_ledger_report.Detail
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.navigation.PurchaseScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterSelection
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterTotals
+import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseSummaryTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.screens.purchase_masters_screen.query_screen.util.QueryPurchaseMastersReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.screens.purchase_masters_screen.report_screen.util.PurchaseMastersReportScreenEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.screens.purchase_summary_screens.query_screen.util.QueryPurchaseSummaryReportScreenUiEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.screens.purchase_summary_screens.report_screen.util.PurchaseSummaryReportScreenUiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.screens.supplier_ledger_screen.query_screen.util.QuerySupplierLedgerReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.screens.supplier_ledger_screen.report_screen.util.SupplierLedgerReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.screens.supplier_purchase_screen.query_screen.util.QuerySupplierPurchaseReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.screens.supplier_purchase_screen.report_screen.util.SupplierPurchaseReportScreenEvent
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
+import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -134,6 +139,36 @@ class PurchaseViewModel @Inject constructor(
         }
     }
 
+    private val _queryPurchaseSummaryReportScreenEvent =
+        Channel<QueryPurchaseSummaryReportScreenUiEvent>()
+    val queryPurchaseSummaryReportScreenEvent =
+        _queryPurchaseSummaryReportScreenEvent.receiveAsFlow()
+
+    private fun sendQueryPurchaseSummaryReportScreenUiEvent(uiEvent: UiEvent) {
+        viewModelScope.launch {
+            _queryPurchaseSummaryReportScreenEvent.send(
+                QueryPurchaseSummaryReportScreenUiEvent(
+                    uiEvent
+                )
+            )
+        }
+    }
+
+    private val _purchaseSummaryReportScreenEvent =
+        Channel<PurchaseSummaryReportScreenUiEvent>()
+    val purchaseSummaryReportScreenEvent =
+        _purchaseSummaryReportScreenEvent.receiveAsFlow()
+
+    private fun sendPurchaseSummaryReportScreenUiEvent(uiEvent: UiEvent) {
+        viewModelScope.launch {
+            _purchaseSummaryReportScreenEvent.send(
+                PurchaseSummaryReportScreenUiEvent(
+                    uiEvent
+                )
+            )
+        }
+    }
+
 
     private val _fromDateState = mutableStateOf("")
     val fromDateState: State<String> = _fromDateState
@@ -163,6 +198,10 @@ class PurchaseViewModel @Inject constructor(
         mutableStateOf(null)
     val purchaseMastersReportTotal: State<PurchaseMasterTotals?> = _purchaseMastersReportTotal
 
+    val purchaseSummaryReportList = mutableStateListOf<PurchaseSummaryResponse>()
+    private val _purchaseSummaryReportTotal:MutableState<PurchaseSummaryTotals?> = mutableStateOf(null)
+    val purchaseSummaryReportTotal:State<PurchaseSummaryTotals?> = _purchaseSummaryReportTotal
+
 
     val supplierPurchaseReportList = mutableStateListOf<PurchaseMastersResponse>()
     private val _supplierPurchaseReportTotal: MutableState<PurchaseMasterTotals?> =
@@ -176,9 +215,12 @@ class PurchaseViewModel @Inject constructor(
     val supplierLedgerReportTotals: State<SupplierLedgerTotals?> = _supplierLedgerReportTotals
 
 
+
+
+
     fun getPurchaseMastersReport(fromDate: LocalDate, toDate: LocalDate) {
-        _fromDateState.value = fromDate.toString()
-        _toDateState.value = toDate.toString()
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
 
@@ -250,14 +292,78 @@ class PurchaseViewModel @Inject constructor(
 
     }
 
+    fun getPurchaseSummaryReport(fromDate: LocalDate, toDate: LocalDate) {
+        purchaseMastersReportList.clear()
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _toDateState.value = toDate.localDateToStringConverter()
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}"
+        val url =
+            HttpRoutes.BASE_URL + HttpRoutes.PURCHASE_SUMMARY_REPORT
+
+        viewModelScope.launch(Dispatchers.IO) {
+            useCase.purchaseSummaryReportUseCase(
+                url, dateFrom = fromDateString,
+                dateTo = toDateString,
+                companyId = commonMemory.companyId.toInt()
+            ).collectLatest { value ->
+                when (value) {
+                    is GetDataFromRemote.Loading -> {
+                        sendQueryPurchaseSummaryReportScreenUiEvent(UiEvent.ShowProgressBar)
+                    }
+
+                    is GetDataFromRemote.Success -> {
+                        sendQueryPurchaseSummaryReportScreenUiEvent(UiEvent.CloseProgressBar)
+                        purchaseSummaryReportList.addAll(value.data)
+                        calculatePurchaseSummaryReportTotal(value.data)
+                        Log.e(TAG, "getPurchaseSummaryReport: ${value.data as List<PurchaseSummaryResponse>}", )
+                        sendQueryPurchaseSummaryReportScreenUiEvent(UiEvent.Navigate(route = PurchaseScreens.PurchaseSummaryReportScreen.route))
+                    }
+
+                    is GetDataFromRemote.Failed -> {
+                        sendQueryPurchaseSummaryReportScreenUiEvent(UiEvent.CloseProgressBar)
+                        Log.e(TAG, "getPurchaseSummaryReport: ${value.error}")
+                        sendQueryPurchaseMastersReportScreenEvent(
+                            UiEvent.ShowSnackBar(
+                                value.error.message ?: "There have some error"
+                            )
+                        )
+                    }
+                }
+
+            }
+        }
+    }
+
+    private  fun calculatePurchaseSummaryReportTotal(data:List<PurchaseSummaryResponse>){
+        viewModelScope.launch(Dispatchers.IO) {
+            var sumOfTaxable = 0.0
+            var sumOfTax = 0.0
+            var sumOfNet = 0.0
+            data.forEach {
+                sumOfTaxable += it.taxable
+                sumOfTax += it.tax
+                sumOfNet += it.net
+
+            }
+            _purchaseSummaryReportTotal.value = PurchaseSummaryTotals(
+                sumOfTaxable=sumOfTaxable,
+                sumOfTax = sumOfTax,
+                sumOfNet = sumOfNet
+            )
+        }
+    }
+
 
     fun getSupplierPurchaseReport(fromDate: LocalDate, toDate: LocalDate) {
         if (_selectedAccount.value == null) {
             sendQuerySupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar("Account is not selected"))
             return
         }
-        _fromDateState.value = fromDate.toString()
-        _toDateState.value = toDate.toString()
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
 
@@ -297,6 +403,8 @@ class PurchaseViewModel @Inject constructor(
         }
     }
 
+
+
     private fun calculateSupplierPurchaseReportTotals(data: List<PurchaseMastersResponse>) {
 
 
@@ -325,8 +433,6 @@ class PurchaseViewModel @Inject constructor(
                     sumOfBalanceAmount = sumOfBalanceAmt
                 )
         }
-
-
 
 
     }
@@ -381,10 +487,10 @@ class PurchaseViewModel @Inject constructor(
         }
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
-        _fromDateState.value = "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}"
+        _fromDateState.value = fromDate.localDateToStringConverter()
 
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
-        _toDateState.value = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}"
+        _toDateState.value = toDate.localDateToStringConverter()
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.SUPPLIER_LEDGER_REPORT + fromDateString + "/$toDateString" + "/${_selectedAccount.value?.accountId}" + "/${commonMemory.companyId}"
@@ -529,7 +635,7 @@ class PurchaseViewModel @Inject constructor(
     }
 
     fun makePdfForPurchaseMastersReport(getUri: (uri: Uri) -> Unit) {
-        if (purchaseMastersReportList.size>0){
+        if (purchaseMastersReportList.size > 0) {
             sendPurchaseMastersReportScreenEvent(UiEvent.ShowProgressBar)
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.pdfMakerPurchaseMastersReportUseCase(
@@ -539,23 +645,83 @@ class PurchaseViewModel @Inject constructor(
                     list = purchaseMastersReportList,
                     purchaseMastersReportListTotals = _purchaseMastersReportTotal.value!!,
                     purchaseMasterSelection = PurchaseMasterSelection.PURCHASE_MASTER,
-                    haveAnyError = {haveAnyError, error ->
+                    haveAnyError = { haveAnyError, error ->
                         sendPurchaseMastersReportScreenEvent(UiEvent.CloseProgressBar)
-                        if (haveAnyError){
-                            sendPurchaseMastersReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        if (haveAnyError) {
+                            sendPurchaseMastersReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
                         }
                     }
                 )
             }
 
-        }else{
+        } else {
             sendPurchaseMastersReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
 
     }
 
+    fun makePdfForPurchaseSummaryReport(getUri: (uri: Uri) -> Unit) {
+        if (purchaseSummaryReportList.size > 0) {
+            sendPurchaseSummaryReportScreenUiEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.purchaseSummaryReportPdfUseCase(
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value,
+                    getUri = getUri,
+                    list = purchaseSummaryReportList,
+                    purchaseSummaryTotals = _purchaseSummaryReportTotal.value!!,
+                    haveAnyError = { haveAnyError, error ->
+                        sendPurchaseSummaryReportScreenUiEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError) {
+                            sendPurchaseSummaryReportScreenUiEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
+                        }
+                    }
+                )
+            }
+
+        } else {
+            sendPurchaseSummaryReportScreenUiEvent(UiEvent.ShowSnackBar("List is empty"))
+        }
+
+    }
+
+    fun makeExcelForPurchaseSummaryReport(getUri: (uri: Uri) -> Unit) {
+        if (purchaseSummaryReportList.size > 0) {
+            sendPurchaseSummaryReportScreenUiEvent(UiEvent.ShowProgressBar)
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.purchaseSummaryReportExcelUseCase(
+                    fromDate = fromDateState.value,
+                    toDate = toDateState.value,
+                    getUri = getUri,
+                    list = purchaseSummaryReportList,
+                    haveAnyError = { haveAnyError, error ->
+                        sendPurchaseSummaryReportScreenUiEvent(UiEvent.CloseProgressBar)
+                        if (haveAnyError) {
+                            sendPurchaseSummaryReportScreenUiEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
+                        }
+                    }
+                )
+            }
+
+        } else {
+            sendPurchaseSummaryReportScreenUiEvent(UiEvent.ShowSnackBar("List is empty"))
+        }
+    }
+
     fun makeExcelForPurchaseMasterReport(getUri: (uri: Uri) -> Unit) {
-        if (purchaseMastersReportList.size>0){
+        if (purchaseMastersReportList.size > 0) {
             sendPurchaseMastersReportScreenEvent(UiEvent.ShowProgressBar)
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.excelMakerPurchaseMastersReportUseCase(
@@ -564,22 +730,26 @@ class PurchaseViewModel @Inject constructor(
                     getUri = getUri,
                     purchaseMasterSelection = PurchaseMasterSelection.PURCHASE_MASTER,
                     list = purchaseMastersReportList,
-                    haveAnyError = {haveAnyError, error ->
+                    haveAnyError = { haveAnyError, error ->
                         sendPurchaseMastersReportScreenEvent(UiEvent.CloseProgressBar)
-                        if (haveAnyError){
-                            sendPurchaseMastersReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        if (haveAnyError) {
+                            sendPurchaseMastersReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
                         }
                     }
                 )
             }
 
-        }else{
+        } else {
             sendPurchaseMastersReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }
 
     fun makePdfForSupplierPurchaseReport(getUri: (uri: Uri) -> Unit) {
-        if (supplierPurchaseReportList.size>0){
+        if (supplierPurchaseReportList.size > 0) {
             sendSupplierPurchaseReportScreenEvent(UiEvent.ShowProgressBar)
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.pdfMakerPurchaseMastersReportUseCase(
@@ -589,22 +759,26 @@ class PurchaseViewModel @Inject constructor(
                     list = supplierPurchaseReportList,
                     purchaseMastersReportListTotals = _supplierPurchaseReportTotal.value!!,
                     purchaseMasterSelection = PurchaseMasterSelection.SUPPLIER_PURCHASE,
-                    haveAnyError = {haveAnyError, error ->
+                    haveAnyError = { haveAnyError, error ->
                         sendSupplierPurchaseReportScreenEvent(UiEvent.CloseProgressBar)
-                        if (haveAnyError){
-                            sendSupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        if (haveAnyError) {
+                            sendSupplierPurchaseReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
                         }
                     }
                 )
             }
 
-        }else{
+        } else {
             sendSupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }
 
     fun makeExcelForSupplierPurchaseReport(getUri: (uri: Uri) -> Unit) {
-        if (supplierPurchaseReportList.size>0){
+        if (supplierPurchaseReportList.size > 0) {
             sendSupplierPurchaseReportScreenEvent(UiEvent.ShowProgressBar)
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.excelMakerPurchaseMastersReportUseCase(
@@ -613,16 +787,20 @@ class PurchaseViewModel @Inject constructor(
                     getUri = getUri,
                     list = supplierPurchaseReportList,
                     purchaseMasterSelection = PurchaseMasterSelection.SUPPLIER_PURCHASE,
-                    haveAnyError = {haveAnyError, error ->
+                    haveAnyError = { haveAnyError, error ->
                         sendSupplierPurchaseReportScreenEvent(UiEvent.CloseProgressBar)
-                        if (haveAnyError){
-                            sendSupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar(error ?:"There have some problem"))
+                        if (haveAnyError) {
+                            sendSupplierPurchaseReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    error ?: "There have some problem"
+                                )
+                            )
                         }
                     }
                 )
             }
 
-        }else{
+        } else {
             sendSupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
         }
     }

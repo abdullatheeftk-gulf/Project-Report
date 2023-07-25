@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.ReArrangedCustomerLedgerDetails
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.excel.createHeading
 import com.gulfappdeveloper.projectreport.share.excel.sales.pos_payment_report.PosPaymentReportExcel
 import kotlinx.coroutines.Dispatchers
@@ -272,7 +273,7 @@ object CustomerLedgerReportExcel {
             }
             // Date
             headerRow.createCell(1).apply {
-                setCellValue(reArrangedCustomerLedgerDetails.voucherDate.toString())
+                setCellValue(reArrangedCustomerLedgerDetails.voucherDate.stringToDateStringConverter())
                 cellStyle = generalHeaderCellStyle
             }
             // invoice No

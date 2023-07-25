@@ -5,6 +5,7 @@ import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
+import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseSummaryResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
@@ -15,6 +16,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.a
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ReArrangedExpenseLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterSelection
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterTotals
+import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseSummaryTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.CustomerLedgerTotals
@@ -386,6 +388,36 @@ class PdfExcelRepository @Inject constructor(
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list
+    )
+
+    suspend fun makeExcelForPurchaseSummaryReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<PurchaseSummaryResponse>
+    ) = excelService.makeExcelForPurchaseSummaryReport(
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
+        list = list
+    )
+
+    suspend fun writePdfForPurchaseSummaryReport(
+        fromDate: String,
+        toDate: String,
+        getUri: (Uri) -> Unit,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<PurchaseSummaryResponse>,
+        purchaseSummaryTotals: PurchaseSummaryTotals
+    ) = pdfService.writePdfForPurchaseSummaryReport(
+        fromDate = fromDate,
+        toDate = toDate,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
+        list = list,
+        purchaseSummaryTotals = purchaseSummaryTotals
     )
 
 

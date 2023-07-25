@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterSelection
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.excel.createHeading
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -264,7 +265,7 @@ object PurchaseMasterReportExcel {
         }
         // Date
         headerRow.createCell(1).apply {
-            setCellValue(purchaseMastersResponse.invoiceDate)
+            setCellValue(purchaseMastersResponse.invoiceDate.stringToDateStringConverter())
             cellStyle = generalHeaderCellStyle
         }
         // invoice No

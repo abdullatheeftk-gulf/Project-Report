@@ -11,6 +11,7 @@ import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMasters
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterSelection
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterTotals
+import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.pdf.calculatePageCount
 import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
@@ -383,7 +384,7 @@ object PurchaseMasterAndSupplierPurchaseReportPdf {
                 //Date
                 xPosition += 57.5f
                 canvas.drawText(
-                    purchaseMasterResponse.invoiceDate,
+                    purchaseMasterResponse.invoiceDate.stringToDateStringConverter(),
                     xPosition,
                     yPosition + 14.2f,
                     Paint().apply {

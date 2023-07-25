@@ -1,10 +1,12 @@
 package com.gulfappdeveloper.projectreport.repositories
 
+import android.net.Uri
 import com.gulfappdeveloper.projectreport.domain.models.general.GetDataFromRemote
 import com.gulfappdeveloper.projectreport.domain.models.ip4.SeeIp
 import com.gulfappdeveloper.projectreport.domain.models.license.LicenseRequestBody
 import com.gulfappdeveloper.projectreport.domain.models.license.LicenseResponse
 import com.gulfappdeveloper.projectreport.domain.models.login_and_register.CompanyRegisterResponse
+import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseSummaryResponse
 import com.gulfappdeveloper.projectreport.domain.services.ApiService
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -51,6 +53,18 @@ class ApiRepository @Inject constructor(
 
     // Purchase
 
+    suspend fun getPurchaseSummaryReport(
+        url: String,
+        dateFrom: String,
+        dateTo: String,
+        companyId: Int
+    ) = apiService.getPurchaseSummaryReport(
+        url = url,
+        dateFrom = dateFrom,
+        dateTo = dateTo,
+        companyId = companyId
+    )
+
     suspend fun getPurchaseMastersReport(url: String) =
         apiService.getPurchaseMastersReport(url = url)
 
@@ -90,6 +104,8 @@ class ApiRepository @Inject constructor(
         dateTo = dateTo,
         companyId = companyId
     )
+
+
 
 
 }

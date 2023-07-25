@@ -13,6 +13,7 @@ import com.gulfappdeveloper.projectreport.domain.models.license.LicenseResponse
 import com.gulfappdeveloper.projectreport.domain.models.login_and_register.CompanyRegisterResponse
 import com.gulfappdeveloper.projectreport.domain.models.login_and_register.LoginResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
+import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseSummaryResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.supplier_ledger_report.SupplierLedgerReportResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
@@ -54,6 +55,7 @@ interface ApiService {
     suspend fun getPurchaseMastersReport(url: String): Flow<GetDataFromRemote<List<PurchaseMastersResponse>>>
     suspend fun getSupplierPurchaseReport(url: String): Flow<GetDataFromRemote<List<PurchaseMastersResponse>>>
     suspend fun getSupplierLedgerReport(url:String) :Flow<GetDataFromRemote<SupplierLedgerReportResponse>>
+    suspend fun getPurchaseSummaryReport(url: String,dateFrom: String,dateTo:String,companyId: Int):Flow<GetDataFromRemote<List<PurchaseSummaryResponse>>>
 
     // Accounts
     suspend fun getExpenseLedgerReport(url: String,dateFrom:String,dateTo:String,expenseId:Int,companyId:Int):Flow<GetDataFromRemote<ExpenseLedgerReportResponse>>

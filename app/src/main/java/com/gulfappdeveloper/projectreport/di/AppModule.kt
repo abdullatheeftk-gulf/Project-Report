@@ -2,11 +2,14 @@ package com.gulfappdeveloper.projectreport.di
 
 import android.content.Context
 import androidx.room.Room
+import com.google.firebase.firestore.FirebaseFirestore
 import com.gulfappdeveloper.projectreport.data.data_store.DataStoreServiceImpl
+import com.gulfappdeveloper.projectreport.data.firebase.FirebaseServiceImpl
 import com.gulfappdeveloper.projectreport.data.room.LocalCompanyDataDao
 import com.gulfappdeveloper.projectreport.data.room.RoomDatabaseServiceImpl
 import com.gulfappdeveloper.projectreport.domain.services.DataStoreService
 import com.gulfappdeveloper.projectreport.domain.services.ExcelService
+import com.gulfappdeveloper.projectreport.domain.services.FirebaseService
 import com.gulfappdeveloper.projectreport.domain.services.PdfService
 import com.gulfappdeveloper.projectreport.domain.services.RoomDatabaseService
 import com.gulfappdeveloper.projectreport.root.AppRoomDatabase
@@ -65,4 +68,14 @@ object AppModule {
     @Singleton
     fun provideExcelService(@ApplicationContext context: Context,commonMemory: CommonMemory): ExcelService =
         ExcelServiceImpl(context = context, commonMemory = commonMemory)
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFireStoreDb() = FirebaseFirestore.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirebaseService(fdb: FirebaseFirestore): FirebaseService {
+        return FirebaseServiceImpl(fdb)
+    }
 }

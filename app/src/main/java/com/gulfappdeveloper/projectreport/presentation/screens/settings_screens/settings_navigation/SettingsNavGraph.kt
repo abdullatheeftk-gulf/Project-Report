@@ -35,7 +35,9 @@ fun SettingsNavGraph(
             ChangeCompanyScreen(
                 settingsNavHostController = settingsNavHostController,
                 settingsViewModel = settingsViewModel,
-                navHostController = navHostController
+                navHostController = navHostController,
+                rootViewModel = rootViewModel,
+                hideKeyboard = hideKeyboard
             )
         }
         composable(route = SettingsNavigationScreen.AddCompanyScreen.route) {

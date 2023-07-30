@@ -53,8 +53,8 @@ fun SettingsHomeScreen(
     ) { paddingValues ->
         Column(modifier = Modifier.padding(vertical = paddingValues.calculateTopPadding(), horizontal =8.dp )) {
             MenuCardItem(
-                title = "Change Company",
-                subtitle = "you can change company"
+                title = "Change Store",
+                subtitle = "you can change Store for reports"
             ) {
                 settingNavHostController.navigate(SettingsNavigationScreen.ChangeCompanyScreen.route)
             }

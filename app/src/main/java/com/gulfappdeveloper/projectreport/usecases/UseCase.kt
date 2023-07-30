@@ -20,6 +20,8 @@ import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.sales.GetSal
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.sales.GetSalesSummariesReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.sales.GetUserSalesReportUseCase
 import com.gulfappdeveloper.projectreport.usecases.api_usecases.get.welcome.WelcomeMessageUseCase
+import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.activation_status_use_case.ReadActivationStatusUseCase
+import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.activation_status_use_case.SaveActivationStatusUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.company_data_use_case.ReadCompanyDataUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.company_data_use_case.SaveCompanyDataUseCase
 import com.gulfappdeveloper.projectreport.usecases.data_store_use_cases.device_id_use_cases.ReadDeviceIdUseCase
@@ -93,6 +95,9 @@ data class UseCase(
 
     val saveUserNameUseCase: SaveUserNameUseCase,
     val readUserNameUseCase: ReadUserNameUseCase,
+
+    val saveActivationUseCase: SaveActivationStatusUseCase,
+    val readActivationStatusUseCase: ReadActivationStatusUseCase,
 
 
     // Room

@@ -9,6 +9,7 @@ interface DataStoreService {
     suspend fun saveDeviceId(deviceId:String)
     suspend fun saveCompanyData(companyData:String)
     suspend fun saveUserName(userName:String)
+    suspend fun saveActivationStatus(activationStatus:Boolean)
 
     fun readOperationCount(): Flow<Int>
     fun readIpaddress(): Flow<String>
@@ -16,4 +17,5 @@ interface DataStoreService {
     fun readDeviceId(): Flow<String>
     fun readCompanyData():Flow<String>
     fun readUserName():Flow<String>
+    fun readActivationStatus():Flow<Boolean>
 }

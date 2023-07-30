@@ -2,6 +2,7 @@ package com.gulfappdeveloper.projectreport.presentation.screens.login_screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,7 +10,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -17,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -39,13 +44,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
+import com.gulfappdeveloper.projectreport.navigation.RootNavScreens
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.login_screen.components.LoginErrorMessageAlertDialog
 import com.gulfappdeveloper.projectreport.root.RootViewModel
+import com.gulfappdeveloper.projectreport.ui.theme.MySecondaryColor
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -56,10 +65,15 @@ fun LoginScreen(
     rootViewModel: RootViewModel
 ) {
 
+    val isNavFromSettingScreenToLoginScreen by rootViewModel.isNavFromSettingToLogin
 
     var password by remember {
         mutableStateOf("")
     }
+
+    val localCompanyDataList = rootViewModel.localCompanyDataList
+
+    val selectedStore by rootViewModel.selectedStore
 
     var showPasswordToggle by remember {
         mutableStateOf(false)
@@ -81,7 +95,7 @@ fun LoginScreen(
         mutableStateOf("")
     }
 
-    var alertDialogMessage:String? by remember {
+    var alertDialogMessage: String? by remember {
         mutableStateOf(null)
     }
 
@@ -101,16 +115,32 @@ fun LoginScreen(
                 is UiEvent.ShowSnackBar -> {
                     showErrorMessage = true
                     errorMessage = value.uiEvent.message
-                    snackBarHostState.showSnackbar(value.uiEvent.message)
+                    snackBarHostState.showSnackbar(
+                        value.uiEvent.message,
+                        duration = SnackbarDuration.Long
+                    )
                 }
 
                 is UiEvent.Navigate -> {
-                    navHostController.popBackStack()
-                    if (value.uiEvent.route == "Error") {
-                        snackBarHostState.showSnackbar("Incorrect Password")
+                    if (localCompanyDataList.size > 1) {
+                        if (isNavFromSettingScreenToLoginScreen) {
+                            navHostController.navigate(value.uiEvent.route) {
+                                popUpTo(route = RootNavScreens.MainScreen.route) {
+                                    inclusive = true
+                                }
+                            }
+                        } else {
+                            navHostController.navigate(value.uiEvent.route) {
+                                popUpTo(route = RootNavScreens.SelectAStoreScreen.route) {
+                                    inclusive = true
+                                }
+                            }
+                        }
                     } else {
+                        navHostController.popBackStack()
                         navHostController.navigate(value.uiEvent.route)
                     }
+
                 }
 
                 is UiEvent.ShowAlertDialog -> {
@@ -134,20 +164,30 @@ fun LoginScreen(
             SnackbarHost(hostState = snackBarHostState)
         },
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Login",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.primary,
                         textDecoration = TextDecoration.Underline
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
-                /* colors = TopAppBarDefaults.mediumTopAppBarColors(
-                     //containerColor = MaterialTheme.colorScheme.primary,
-                 )*/
+
+                navigationIcon = {
+                    if (localCompanyDataList.size > 1) {
+                        IconButton(onClick = {
+                            navHostController.popBackStack()
+                        }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
 
             )
         }) {
@@ -155,11 +195,27 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(all = 16.dp),
+                .padding(top = it.calculateTopPadding(), start = 8.dp, end = 8.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(70.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(text = "Selected Store : ", modifier = Modifier)
+                Text(
+                    text = selectedStore?.name.toString(),
+                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 15.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            Spacer(modifier = Modifier.height(25.dp))
+
             OutlinedTextField(
                 value = userNameState,
                 onValueChange = { value ->
@@ -226,7 +282,7 @@ fun LoginScreen(
                                 id = if (showPasswordToggle) R.drawable.baseline_visibility_off_24 else R.drawable.baseline_visibility_24
                             ),
                             contentDescription = null,
-                            tint = Color(0xFFFE9903)
+                            tint = MySecondaryColor
                         )
                     }
 

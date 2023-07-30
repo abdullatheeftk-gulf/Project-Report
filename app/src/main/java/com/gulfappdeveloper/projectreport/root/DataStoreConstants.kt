@@ -1,6 +1,8 @@
 package com.gulfappdeveloper.projectreport.root
 
 object DataStoreConstants {
+    const val ACTIVATION_STATUS_KEY: String = "activation_status_key"
+
     const val PREFERENCE_NAME = "project_report_data_store"
 
     const val OPERATION_COUNT_KEY = "operation_count_data_store"

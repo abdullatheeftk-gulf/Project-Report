@@ -1,15 +1,24 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.splash_screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -23,7 +32,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
@@ -40,12 +51,9 @@ private const val TAG = "SplashScreen"
 fun SplashScreen(
     navHostController: NavHostController,
     rootViewModel: RootViewModel,
-    deviceId: String
 ) {
     val message by rootViewModel.welcomeMessage
 
-
-    // val density = LocalDensity.current
 
     val snackBarHostState = remember {
         SnackbarHostState()
@@ -58,19 +66,17 @@ fun SplashScreen(
     var showCompanyNotRegisteredAlertDialog by remember {
         mutableStateOf(false)
     }
+    var showLogoWithAnimation by remember {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(key1 = message){
+        if (message == "Unipospro"){
+            showLogoWithAnimation = true
+        }
+    }
 
 
-    /* var showLogoImage by remember {
-         mutableStateOf(false)
-     }
-
-     var showLicenseExpiryAlertDialog by remember{
-         mutableStateOf(false)
-     }
-
-     var showNoLicenseAlertDialog by remember{
-         mutableStateOf(false)
-     }*/
 
     LaunchedEffect(key1 = true) {
         rootViewModel.splashScreenEvent.collectLatest { value ->
@@ -84,7 +90,6 @@ fun SplashScreen(
                 }
 
                 is UiEvent.Navigate -> {
-                    // rootViewModel.saveDeviceIdUseCase(deviceId = deviceId)
                     navHostController.popBackStack()
                     navHostController.navigate(value.event.route)
                 }
@@ -94,12 +99,6 @@ fun SplashScreen(
                 }
 
                 is UiEvent.ShowAlertDialog -> {
-                    /*if (value.event.message=="License_Expired"){
-                        // ToDo
-                    }
-                    else{
-                        showNoLicenseAlertDialog = true
-                    }*/
 
                     if (value.event.message == AppConstants.COMPANY_NOT_REGISTERED) {
                         showCompanyNotRegisteredAlertDialog = true
@@ -111,13 +110,6 @@ fun SplashScreen(
         }
     }
 
-    /*if (showNoLicenseAlertDialog){
-        NoLicenseAlertDialog {
-            showLicenseExpiryAlertDialog = true
-            navHostController.popBackStack()
-            navHostController.navigate(RootNavScreens.RegisterCompanyScreen.route)
-        }
-    }*/
 
     if (showCompanyNotRegisteredAlertDialog) {
         CompanyNotRegisteredAlert {
@@ -152,45 +144,42 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(50.dp))
 
 
-            /* AnimatedVisibility(
-                 visible = showLogoImage,
-                 enter = slideInVertically {
-                     with(density) {
-                         100.dp.roundToPx()
-                     }
-                 } + expandVertically(
-                     expandFrom = Alignment.Top,
+           if (message!="Unipospro"){
+               Text(
+                   text = message,
+                   color = if(message =="No internet connectivity") Color.Red else MaterialTheme.colorScheme.primary,
+                   fontSize = MaterialTheme.typography.headlineMedium.fontSize,
+                   fontWeight = MaterialTheme.typography.headlineMedium.fontWeight,
+                   fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
+                   modifier = Modifier.fillMaxWidth(),
+                   textAlign = TextAlign.Center
+               )
+           }
 
-                     )
-                         + fadeIn(initialAlpha = 0.3f),
-                 exit = slideOutVertically() + shrinkVertically() + fadeOut()
-             ) {
-                *//* Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(200.dp)
-                        .height(150.dp),
-                    alignment = Alignment.Center
-                )*//*
-                
-                Text(text = message)
-            }
-            *//*if(showPleaseWaitText){
-                Text(
-                    text = "Please wait while we retrieve your public IP address.",
-                    color = Color.Red,
-                    modifier = Modifier.padding(16.dp),
+            AnimatedVisibility(
+                visible = showLogoWithAnimation && message=="Unipospro",
+                enter = slideInVertically(
+                    animationSpec = tween(
+                        durationMillis = 2000,
+                        easing = LinearOutSlowInEasing
+                    )
+                ){
+                    800
+                }
+                        + fadeIn(
+                    initialAlpha = 0.1f,
+                    animationSpec = tween(
+                    durationMillis = 2000, easing = LinearOutSlowInEasing
                 )
-            }*/
+                )
+            ) {
+                Image(painter = painterResource(id = R.drawable.mult_logo), contentDescription = null, modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .padding(16.dp))
+            }
 
-            Text(
-                text = message,
-                color = MaterialTheme.colorScheme.primary,
-                fontSize = MaterialTheme.typography.headlineMedium.fontSize,
-                fontWeight = MaterialTheme.typography.headlineMedium.fontWeight,
-                fontStyle = MaterialTheme.typography.headlineMedium.fontStyle
-            )
+
+
 
 
         }

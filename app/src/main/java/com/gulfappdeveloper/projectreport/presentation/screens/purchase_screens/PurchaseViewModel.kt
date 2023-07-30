@@ -302,6 +302,7 @@ class PurchaseViewModel @Inject constructor(
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.PURCHASE_SUMMARY_REPORT
+        Log.d(TAG, "getPurchaseSummaryReport: $url")
 
         viewModelScope.launch(Dispatchers.IO) {
             useCase.purchaseSummaryReportUseCase(

@@ -3,6 +3,7 @@ package com.gulfappdeveloper.projectreport.data.data_store
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = DataStoreConstants.PREFERENCE_NAME)
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = DataStoreConstants.PREFERENCE_NAME)
 
 class DataStoreServiceImpl(context: Context) : DataStoreService {
 
@@ -26,6 +27,7 @@ class DataStoreServiceImpl(context: Context) : DataStoreService {
         val deviceIdKey = stringPreferencesKey(name = DataStoreConstants.DEVICE_ID_KEY)
         val companyDataKey = stringPreferencesKey(name = DataStoreConstants.COMPANY_DATA_KEY)
         val userNameKey = stringPreferencesKey(name = DataStoreConstants.USER_NAME_KEY)
+        val activationStatusKey = booleanPreferencesKey(name = DataStoreConstants.ACTIVATION_STATUS_KEY)
     }
 
     private val dataStore = context.dataStore
@@ -64,6 +66,12 @@ class DataStoreServiceImpl(context: Context) : DataStoreService {
     override suspend fun saveUserName(userName: String) {
         dataStore.edit { preference ->
             preference[PreferenceKeys.userNameKey] = userName
+        }
+    }
+
+    override suspend fun saveActivationStatus(activationStatus: Boolean) {
+        dataStore.edit { preference ->
+            preference[PreferenceKeys.activationStatusKey] = activationStatus
         }
     }
 
@@ -148,6 +156,20 @@ class DataStoreServiceImpl(context: Context) : DataStoreService {
             .map { preferences ->
                 val companyData = preferences[PreferenceKeys.userNameKey] ?: ""
                 companyData
+            }
+    }
+
+    override fun readActivationStatus(): Flow<Boolean> {
+        return dataStore.data
+            .catch { exception ->
+                if (exception is IOException)
+                    emit(emptyPreferences())
+                else
+                    throw exception
+            }
+            .map { preferences ->
+                val activationStatus = preferences[PreferenceKeys.activationStatusKey] ?: false
+                activationStatus
             }
     }
 }

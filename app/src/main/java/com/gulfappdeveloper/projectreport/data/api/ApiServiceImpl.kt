@@ -26,6 +26,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -34,9 +35,11 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.JsonConvertException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.net.ConnectException
+import java.net.UnknownHostException
 
 private const val TAG = "ApiServiceImpl"
 
@@ -104,19 +107,43 @@ class ApiServiceImpl(
                 }
 
 
-            } catch (e: ConnectTimeoutException) {
-                // Log.e(TAG, " ConnectTimeoutException")
+            }
+            catch (e:UnknownHostException){
+                Log.e(TAG, " UnknownHostException")
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 700,
+                            message = "No internet connectivity"
+                        )
+                    )
+                )
+            }
+            catch (e:SocketTimeoutException){
+                 Log.e(TAG, " ConnectTimeoutException")
+                emit(
+                    GetDataFromRemote.Failed(
+                        error = Error(
+                            code = 599,
+                            message = "SocketTimeoutException Server Down"
+                        )
+                    )
+                )
+            }
+
+            catch (e: ConnectTimeoutException) {
+                 Log.e(TAG, " ConnectTimeoutException")
                 emit(
                     GetDataFromRemote.Failed(
                         error = Error(
                             code = 600,
-                            message = "ConnectTimeoutException Server Down"
+                            message = "No internet"
                         )
                     )
                 )
 
             } catch (e: NoTransformationFoundException) {
-                // Log.e(TAG, " NoTransformationFoundException")
+                 Log.e(TAG, " NoTransformationFoundException")
                 emit(
                     GetDataFromRemote.Failed(
                         error = Error(
@@ -126,6 +153,7 @@ class ApiServiceImpl(
                     )
                 )
             } catch (e: ConnectException) {
+                Log.e(TAG, "ConnectException: ", )
                 emit(
                     GetDataFromRemote.Failed(
                         error = Error(
@@ -135,6 +163,7 @@ class ApiServiceImpl(
                     )
                 )
             } catch (e: JsonConvertException) {
+                Log.e(TAG, "JsonConvertException", )
                 emit(
                     GetDataFromRemote.Failed(
                         error = Error(
@@ -144,6 +173,7 @@ class ApiServiceImpl(
                     )
                 )
             } catch (e: Exception) {
+                Log.e(TAG, "Exception: $e", )
                 emit(
                     GetDataFromRemote.Failed(
                         error = Error(
@@ -163,6 +193,8 @@ class ApiServiceImpl(
     ): Flow<GetDataFromRemote<LicenseResponse>> {
         return flow {
             try {
+                emit(GetDataFromRemote.Loading)
+                delay(1000)
                 val httpResponse = client.post(urlString = url) {
                     contentType(ContentType.Application.Json)
                     header("Authorization", rioLabKey)

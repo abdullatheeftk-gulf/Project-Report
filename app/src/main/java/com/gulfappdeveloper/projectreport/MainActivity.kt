@@ -48,15 +48,14 @@ class MainActivity : ComponentActivity() {
             files?.forEach {
                 it.delete()
             }
-        }catch (e:Exception){
-            Log.e(TAG, "onCreate: ${e.message}", )
+        } catch (e: Exception) {
+            Log.e(TAG, "onCreate: ${e.message}")
         }
 
 
-
-
+        //VW for this app only
         val deviceId =
-            Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID) + "PQ"
+            Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID) + "VW"
 
         setContent {
             ProjectReportTheme {
@@ -87,7 +86,6 @@ class MainActivity : ComponentActivity() {
             imm?.hideSoftInputFromWindow(view.windowToken, 0)
         }
     }
-
 
 
 }

@@ -14,7 +14,6 @@ class DataStoreRepository @Inject constructor(
     }
 
 
-
     suspend fun saveIpAddress(ipAddress: String) {
         dataStoreService.saveIpAddress(ipAddress = ipAddress)
     }
@@ -24,18 +23,22 @@ class DataStoreRepository @Inject constructor(
         dataStoreService.saveUniLicenseData(uniLicenseString = uniLicenseString)
     }
 
-    suspend fun saveDeviceId(deviceId:String){
+    suspend fun saveDeviceId(deviceId: String) {
         dataStoreService.saveDeviceId(deviceId = deviceId)
     }
 
-    suspend fun saveCompanyData(companyData:String){
+    suspend fun saveCompanyData(companyData: String) {
         dataStoreService.saveCompanyData(companyData = companyData)
     }
 
-    suspend fun saveUserName(userName:String){
+    suspend fun saveUserName(userName: String) {
         dataStoreService.saveUserName(userName = userName)
     }
 
+    suspend fun saveActivationStatus(activationStatus: Boolean) =
+        dataStoreService.saveActivationStatus(
+            activationStatus = activationStatus
+        )
 
 
     fun readOperationCount(): Flow<Int> {
@@ -58,4 +61,6 @@ class DataStoreRepository @Inject constructor(
     fun readCompanyData() = dataStoreService.readCompanyData()
 
     fun readUserName() = dataStoreService.readUserName()
+
+    fun readActivationStatus() = dataStoreService.readActivationStatus()
 }

@@ -10,7 +10,7 @@ class UniLicenseActivationUseCase(
     private val apiRepository: ApiRepository
 ) {
     suspend operator fun invoke(
-        rioLabKey: String,
+        rioLabKey: String = "riolab123456",
         url: String,
         licenseRequestBody: LicenseRequestBody
     ): Flow<GetDataFromRemote<LicenseResponse>> {

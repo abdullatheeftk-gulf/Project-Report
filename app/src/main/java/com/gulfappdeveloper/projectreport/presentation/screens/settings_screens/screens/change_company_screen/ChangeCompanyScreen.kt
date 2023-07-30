@@ -1,6 +1,13 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.screens.change_company_screen
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -40,18 +47,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.gulfappdeveloper.projectreport.R
 import com.gulfappdeveloper.projectreport.domain.models.room.LocalCompanyData
 import com.gulfappdeveloper.projectreport.navigation.RootNavScreens
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.SettingsViewModel
 import com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.screens.change_company_screen.componenets.AlertDialogForLocalCompanyDataSelection
 import com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.screens.change_company_screen.componenets.CompanyItems
+import com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.screens.change_company_screen.componenets.LicenceActivationBar
 import com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.settings_navigation.SettingsNavigationScreen
+import com.gulfappdeveloper.projectreport.root.RootViewModel
 import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = "ChangeCompanyScreen"
@@ -61,7 +72,9 @@ private const val TAG = "ChangeCompanyScreen"
 fun ChangeCompanyScreen(
     settingsNavHostController: NavHostController,
     navHostController: NavHostController,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    hideKeyboard:()->Unit,
+    rootViewModel: RootViewModel
 ) {
     val snackBarHostState = remember {
         SnackbarHostState()
@@ -74,13 +87,20 @@ fun ChangeCompanyScreen(
         mutableStateOf(null)
     }
 
-    LaunchedEffect(key1 = true){
-        settingsViewModel.changeCompanyScreenEvent.collectLatest {value ->
-            when(value.uiEvent){
-                is UiEvent.ShowSnackBar->{
-                    snackBarHostState.showSnackbar(value.uiEvent.message, duration = SnackbarDuration.Long)
+    val showLicenseActivationBar by settingsViewModel.showActivationBar
+    val appActivationStatus by settingsViewModel.appActivationStatus
+
+    LaunchedEffect(key1 = true) {
+        settingsViewModel.changeCompanyScreenEvent.collectLatest { value ->
+            when (value.uiEvent) {
+                is UiEvent.ShowSnackBar -> {
+                    snackBarHostState.showSnackbar(
+                        value.uiEvent.message,
+                        duration = SnackbarDuration.Long
+                    )
                 }
-                else->Unit
+
+                else -> Unit
             }
         }
     }
@@ -90,7 +110,8 @@ fun ChangeCompanyScreen(
             localCompanyData = it,
             onDismissRequest = {
                 alertDialogLocalCompanyData = null
-                navHostController.popBackStack(route = RootNavScreens.MainScreen.route,inclusive = true)
+                rootViewModel.setNavFromSettingToLogin(true)
+                //navHostController.popBackStack(route = RootNavScreens.MainScreen.route,inclusive = true)
                 navHostController.navigate(route = RootNavScreens.LoginScreen.route)
 
             },
@@ -105,7 +126,7 @@ fun ChangeCompanyScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = "Change Company", textDecoration = TextDecoration.Underline)
+                    Text(text = "Change Store", textDecoration = TextDecoration.Underline)
                 },
                 navigationIcon = {
                     IconButton(onClick = { settingsNavHostController.popBackStack() }) {
@@ -119,11 +140,16 @@ fun ChangeCompanyScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                settingsNavHostController.navigate(
-                    SettingsNavigationScreen.AddCompanyScreen.route
-                )
-            }) {
+            FloatingActionButton(
+                onClick = {
+                    if (!appActivationStatus) {
+                        settingsViewModel.setShowActivationBar(true)
+                        return@FloatingActionButton
+                    }
+                    settingsNavHostController.navigate(
+                        SettingsNavigationScreen.AddCompanyScreen.route
+                    )
+                }) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = null)
             }
         }
@@ -147,6 +173,34 @@ fun ChangeCompanyScreen(
             }
         }
 
+    }
+
+    AnimatedVisibility(
+        visible = showLicenseActivationBar,
+        enter = slideInVertically(
+            animationSpec = tween(
+                durationMillis = 2000,
+                easing = LinearOutSlowInEasing
+            )
+        ) {
+            -800
+        }
+        /* + fadeIn(
+     initialAlpha = 0.1f,
+     animationSpec = tween(
+         durationMillis = 2000, easing = LinearOutSlowInEasing
+     )
+ )*/,
+        exit = slideOutVertically(
+            animationSpec = tween(
+                durationMillis = 2000,
+                easing = LinearOutSlowInEasing
+            )
+        ) {
+            -1200
+        }
+    ) {
+        LicenceActivationBar(settingsViewModel = settingsViewModel,hideKeyboard=hideKeyboard)
     }
 }
 

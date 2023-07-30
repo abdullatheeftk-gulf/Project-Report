@@ -36,6 +36,7 @@ object NetworkModule {
                 connectTimeout = 60_000
                 socketTimeout = 60_000
             }
+
         }
     }
 

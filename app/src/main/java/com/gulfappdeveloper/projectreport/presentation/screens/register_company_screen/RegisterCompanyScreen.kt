@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -97,20 +98,15 @@ fun RegisterCompanyScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         text = "Register Your company",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.primary,
                         textDecoration = TextDecoration.Underline
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    //containerColor = MaterialTheme.colorScheme.primary,
-                )
 
             )
         }
@@ -136,7 +132,7 @@ fun RegisterCompanyScreen(
                 },
                 placeholder = {
                     Text(
-                        text = "Enter Company Code",
+                        text = "Enter one of your store code",
                         modifier = Modifier.alpha(0.5f)
                     )
                 },

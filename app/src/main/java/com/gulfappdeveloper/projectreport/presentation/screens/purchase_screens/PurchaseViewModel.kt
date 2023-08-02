@@ -201,8 +201,9 @@ class PurchaseViewModel @Inject constructor(
     val purchaseMastersReportTotal: State<PurchaseMasterTotals?> = _purchaseMastersReportTotal
 
     val purchaseSummaryReportList = mutableStateListOf<PurchaseSummaryResponse>()
-    private val _purchaseSummaryReportTotal:MutableState<PurchaseSummaryTotals?> = mutableStateOf(null)
-    val purchaseSummaryReportTotal:State<PurchaseSummaryTotals?> = _purchaseSummaryReportTotal
+    private val _purchaseSummaryReportTotal: MutableState<PurchaseSummaryTotals?> =
+        mutableStateOf(null)
+    val purchaseSummaryReportTotal: State<PurchaseSummaryTotals?> = _purchaseSummaryReportTotal
 
 
     val supplierPurchaseReportList = mutableStateListOf<PurchaseMastersResponse>()
@@ -217,11 +218,8 @@ class PurchaseViewModel @Inject constructor(
     val supplierLedgerReportTotals: State<SupplierLedgerTotals?> = _supplierLedgerReportTotals
 
 
-
-
-
     fun getPurchaseMastersReport(fromDate: LocalDate, toDate: LocalDate) {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
 
         _fromDateState.value = fromDate.localDateToStringConverter()
         _toDateState.value = toDate.localDateToStringConverter()
@@ -299,7 +297,7 @@ class PurchaseViewModel @Inject constructor(
     }
 
     fun getPurchaseSummaryReport(fromDate: LocalDate, toDate: LocalDate) {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
 
         purchaseMastersReportList.clear()
         _fromDateState.value = fromDate.localDateToStringConverter()
@@ -349,7 +347,7 @@ class PurchaseViewModel @Inject constructor(
         }
     }
 
-    private  fun calculatePurchaseSummaryReportTotal(data:List<PurchaseSummaryResponse>){
+    private fun calculatePurchaseSummaryReportTotal(data: List<PurchaseSummaryResponse>) {
         viewModelScope.launch(Dispatchers.IO) {
             var sumOfTaxable = 0.0
             var sumOfTax = 0.0
@@ -361,7 +359,7 @@ class PurchaseViewModel @Inject constructor(
 
             }
             _purchaseSummaryReportTotal.value = PurchaseSummaryTotals(
-                sumOfTaxable=sumOfTaxable,
+                sumOfTaxable = sumOfTaxable,
                 sumOfTax = sumOfTax,
                 sumOfNet = sumOfNet
             )
@@ -370,7 +368,7 @@ class PurchaseViewModel @Inject constructor(
 
 
     fun getSupplierPurchaseReport(fromDate: LocalDate, toDate: LocalDate) {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
 
         if (_selectedAccount.value == null) {
             sendQuerySupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar("Account is not selected"))
@@ -421,7 +419,6 @@ class PurchaseViewModel @Inject constructor(
     }
 
 
-
     private fun calculateSupplierPurchaseReportTotals(data: List<PurchaseMastersResponse>) {
 
 
@@ -455,7 +452,7 @@ class PurchaseViewModel @Inject constructor(
     }
 
     fun getSupplierAccountList() {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
 
         accountList.clear()
         val url =
@@ -505,7 +502,7 @@ class PurchaseViewModel @Inject constructor(
     }
 
     fun getSupplierLedgerReport(fromDate: LocalDate, toDate: LocalDate) {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
 
         reArrangedSupplierLedgerReportList.clear()
         if (_selectedAccount.value == null) {
@@ -532,12 +529,7 @@ class PurchaseViewModel @Inject constructor(
                         _partyName.value = value.data.partyName
                         _balance.value = value.data.balance
                         calculateSupplierLedgerTotalsAndReArrange(value.data.details)
-                        sendQuerySupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
-                        sendQuerySupplierLedgerReportScreenEvent(
-                            UiEvent.Navigate(
-                                PurchaseScreens.SupplierLedgerReportScreen.route
-                            )
-                        )
+
                     }
 
                     is GetDataFromRemote.Failed -> {
@@ -562,10 +554,9 @@ class PurchaseViewModel @Inject constructor(
 
     private fun calculateSupplierLedgerTotalsAndReArrange(data: List<Detail>) {
 
-        var sumOfDebit = 0.0
-        var sumOfCredit = 0.0
-
         viewModelScope.launch(Dispatchers.IO) {
+            var sumOfDebit = 0.0
+            var sumOfCredit = 0.0
             data.forEachIndexed { index, detail ->
                 val reArrangedSupplierLedgerDetail =
                     ReArrangedSupplierLedgerDetail(
@@ -584,12 +575,16 @@ class PurchaseViewModel @Inject constructor(
                     sumOfCredit += detail.amount
                 }
             }
+            _supplierLedgerReportTotals.value =
+                SupplierLedgerTotals(sumOfDebit = sumOfDebit, sumOfCredit = sumOfCredit)
+            sendQuerySupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
+            sendQuerySupplierLedgerReportScreenEvent(
+                UiEvent.Navigate(
+                    PurchaseScreens.SupplierLedgerReportScreen.route
+                )
+            )
+
         }
-
-
-        _supplierLedgerReportTotals.value =
-            SupplierLedgerTotals(sumOfDebit = sumOfDebit, sumOfCredit = sumOfCredit)
-
 
     }
 

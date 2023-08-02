@@ -195,9 +195,9 @@ class AccountViewModel
                     is GetDataFromRemote.Success -> {
                         _partyName.value = value.data.partyName
                         _balance.value = value.data.balance
-                        sendQueryExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
+
                         calculateExpenseLedgerTotalsAndReArrange(data = value.data.details)
-                        sendQueryExpenseLedgerScreenEvent(UiEvent.Navigate(AccountScreens.ExpenseLedgerScreen.route))
+
                     }
 
                     is GetDataFromRemote.Failed -> {
@@ -217,10 +217,11 @@ class AccountViewModel
 
     private fun calculateExpenseLedgerTotalsAndReArrange(data: List<ExpenseLedgerDetail>) {
 
-        var sumOfDebit = 0.0
-        var sumOfCredit = 0.0
+
 
         viewModelScope.launch(Dispatchers.IO) {
+            var sumOfDebit = 0.0
+            var sumOfCredit = 0.0
             data.forEachIndexed { index, detail ->
                 val reArrangedExpenseLedgerDetail =
                     ReArrangedExpenseLedgerDetail(
@@ -239,11 +240,14 @@ class AccountViewModel
                     sumOfCredit += detail.amount
                 }
             }
+            _expenseLedgerReportTotals.value =
+                ExpenseLedgerReportTotals(sumOfDebit = sumOfDebit, sumOfCredit = sumOfCredit)
+            sendQueryExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
+            sendQueryExpenseLedgerScreenEvent(UiEvent.Navigate(AccountScreens.ExpenseLedgerScreen.route))
         }
 
 
-        _expenseLedgerReportTotals.value =
-            ExpenseLedgerReportTotals(sumOfDebit = sumOfDebit, sumOfCredit = sumOfCredit)
+
 
 
     }

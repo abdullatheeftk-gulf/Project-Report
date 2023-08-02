@@ -653,12 +653,7 @@ class SalesViewModel @Inject constructor(
 
                         calculateCustomerLedgerTotalAndReArrangeList(data = value.data.details)
 
-                        sendQueryCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
-                        sendQueryCustomerLedgerReportScreenEvent(
-                            UiEvent.Navigate(
-                                SalesScreens.CustomerLedgerReportScreen.route
-                            )
-                        )
+
                     }
 
                     is GetDataFromRemote.Failed -> {
@@ -698,6 +693,12 @@ class SalesViewModel @Inject constructor(
         }
         _customerLedgerReportTotals.value =
             CustomerLedgerTotals(sumOfDebit = sumOfDebit, sumOfCredit = sumOfCredit)
+        sendQueryCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
+        sendQueryCustomerLedgerReportScreenEvent(
+            UiEvent.Navigate(
+                SalesScreens.CustomerLedgerReportScreen.route
+            )
+        )
     }
 
     fun getPosPaymentReport(fromDate: LocalDate, toDate: LocalDate) {

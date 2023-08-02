@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.gulfappdeveloper.projectreport.BuildConfig
 import com.gulfappdeveloper.projectreport.navigation.RootNavScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_home_screen.components.MenuCardItem
 import com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.SettingsViewModel
@@ -50,20 +51,27 @@ fun SettingsHomeScreen(
             )
         },
 
-    ) { paddingValues ->
-        Column(modifier = Modifier.padding(vertical = paddingValues.calculateTopPadding(), horizontal =8.dp )) {
-            MenuCardItem(
-                title = "Change Store",
-                subtitle = "you can change Store for reports"
-            ) {
-                settingNavHostController.navigate(SettingsNavigationScreen.ChangeCompanyScreen.route)
+        ) { paddingValues ->
+        Column(
+            modifier = Modifier.padding(
+                vertical = paddingValues.calculateTopPadding(),
+                horizontal = 8.dp
+            )
+        ) {
+            if (BuildConfig.APP_STATUS) {
+                MenuCardItem(
+                    title = "Change Store",
+                    subtitle = "you can change Store for reports"
+                ) {
+                    settingNavHostController.navigate(SettingsNavigationScreen.ChangeCompanyScreen.route)
+                }
             }
             MenuCardItem(
                 title = "Logout",
                 subtitle = "Logout from this session"
             ) {
-                navHostController.navigate(route = RootNavScreens.LoginScreen.route){
-                    popUpTo(route = RootNavScreens.MainScreen.route){
+                navHostController.navigate(route = RootNavScreens.LoginScreen.route) {
+                    popUpTo(route = RootNavScreens.MainScreen.route) {
                         inclusive = true
                     }
                 }

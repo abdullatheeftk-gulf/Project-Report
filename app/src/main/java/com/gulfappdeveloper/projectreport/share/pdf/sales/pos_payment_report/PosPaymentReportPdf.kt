@@ -14,13 +14,13 @@ import com.gulfappdeveloper.projectreport.share.pdf.calculatePageCount
 import com.gulfappdeveloper.projectreport.share.pdf.writeCompanyName
 import com.gulfappdeveloper.projectreport.share.pdf.writeHeading
 import com.gulfappdeveloper.projectreport.share.pdf.writePeriodText
-import com.itextpdf.kernel.pdf.CompressionConstants
+/*import com.itextpdf.kernel.pdf.CompressionConstants
 import com.itextpdf.kernel.pdf.EncryptionConstants
 import com.itextpdf.kernel.pdf.EncryptionProperties
 import com.itextpdf.kernel.pdf.PdfReader
 import com.itextpdf.kernel.pdf.PdfWriter
 import com.itextpdf.kernel.pdf.WriterProperties
-import com.itextpdf.layout.Document
+import com.itextpdf.layout.Document*/
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

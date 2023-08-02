@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,10 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,7 +29,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,13 +48,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
-//import com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.CustomerPaymentScreenViewModel
-//import com.gulfappdeveloper.projectreport.presentation.screens.customer_payment_screens.screens.customer_payment_report_screen.components.CustomerPaymentReportTable
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.SalesViewModel
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.report_screen.components.CustomerPaymentReportTable
 import kotlinx.coroutines.flow.collectLatest
 
-private const val TAG = "CustomerPaymentReportSc"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -130,7 +125,7 @@ fun CustomerPaymentReportScreen(
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center
                         )
-                        Text(text = "   ")
+                        Spacer(modifier = Modifier.width(8.dp))
                     }
                     
                 },
@@ -156,7 +151,6 @@ fun CustomerPaymentReportScreen(
                     )
                     Box(
                         modifier = Modifier
-                            //.fillMaxWidth()
                             .wrapContentSize(Alignment.TopEnd)
                     ) {
                         IconButton(onClick = {
@@ -295,7 +289,6 @@ fun ScreenOrientationActionForCustomerPayment(
 
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
-        // salesViewModel.setOrientation(!portrait)
 
     }) {
         Icon(

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -29,7 +30,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,7 +53,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.A
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.screens.expense_ledger_report_screen.report.componenets.ExpenseLedgerReportTable
 import kotlinx.coroutines.flow.collectLatest
 
-private const val TAG = "ExpenseLEdgerReportScre"
+//private const val TAG = "ExpenseLEdgerReportScre"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,12 +116,16 @@ fun ExpenseLedgerReportScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = "Expense Ledger Report",
-                        textDecoration = TextDecoration.Underline,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
+                    Row {
+                        Text(
+                            text = "Expense Ledger Report",
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -212,7 +216,12 @@ fun ExpenseLedgerReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start=4.dp,end=4.dp,top=it.calculateTopPadding(), bottom = it.calculateBottomPadding()),
+                .padding(
+                    start = 4.dp,
+                    end = 4.dp,
+                    top = it.calculateTopPadding(),
+                    bottom = it.calculateBottomPadding()
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -241,8 +250,7 @@ fun ExpenseLedgerReportScreen(
                 }
                 try {
                     return@Scaffold
-                } catch (e: Exception) {
-                    Log.e(TAG, "PosPaymentReportScreen: $e")
+                } catch (_: Exception) {
                 }
 
             }

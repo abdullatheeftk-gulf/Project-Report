@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -33,7 +34,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -108,12 +108,16 @@ fun UserSalesReportScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = "User Sales Report ",
-                        textDecoration = TextDecoration.Underline,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
+                    Row {
+                        Text(
+                            text = "User Sales Report ",
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -200,7 +204,12 @@ fun UserSalesReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 4.dp,end=4.dp, top = it.calculateTopPadding(), bottom = it.calculateBottomPadding()),
+                .padding(
+                    start = 4.dp,
+                    end = 4.dp,
+                    top = it.calculateTopPadding(),
+                    bottom = it.calculateBottomPadding()
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {

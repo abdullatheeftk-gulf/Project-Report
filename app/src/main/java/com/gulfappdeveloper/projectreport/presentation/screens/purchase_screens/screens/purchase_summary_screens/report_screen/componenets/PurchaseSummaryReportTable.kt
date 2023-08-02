@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseSummaryResponse
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseSummaryTotals
+import com.gulfappdeveloper.projectreport.root.formatFloatToTwoDecimalPlaces
 import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
@@ -48,7 +49,7 @@ fun PurchaseSummaryReportTable(
                     0 -> 44.dp
                     1 -> 100.dp
                     2 -> 64.dp
-                    3 -> 200.dp
+                    3 -> 240.dp
                     4 -> 102.dp
                     5 -> 102.dp
                     6 -> 102.dp
@@ -82,11 +83,11 @@ fun PurchaseSummaryReportTable(
                 0 -> "$rowCount"
                 1 -> rowData.invoiceDate.stringToDateStringConverter()
                 2 -> rowData.invoiceNo.toString()
-                3 -> rowData.supplier ?: ""
-                4 -> rowData.taxId ?: ""
-                5 -> rowData.taxable.toString()
-                6 -> rowData.tax.toString()
-                7 -> rowData.net.toString()
+                3 -> rowData.supplier ?: "-"
+                4 -> rowData.taxId ?: "-"
+                5 -> rowData.taxable.formatFloatToTwoDecimalPlaces()
+                6 -> rowData.tax.formatFloatToTwoDecimalPlaces()
+                7 -> rowData.net.formatFloatToTwoDecimalPlaces()
 
 
                 else -> "Error"

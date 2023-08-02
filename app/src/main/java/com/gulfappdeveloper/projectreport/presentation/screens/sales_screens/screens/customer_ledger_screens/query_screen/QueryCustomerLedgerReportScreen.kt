@@ -1,5 +1,7 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.query_screen
 
+import android.app.Activity
+import android.content.pm.ActivityInfo
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,7 +33,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -107,23 +109,12 @@ fun QueryCustomerLedgerReportScreen(
         }
     )
 
-    /*var showAccountTypeDropDownMenu by remember {
-        mutableStateOf(false)
-    }*/
+
 
     var showAccountDropDownMenu by remember {
         mutableStateOf(false)
     }
 
-    /*val accountTypeList = listOf<String>(
-        "Customer", "SupplierLedgerReportScreenEvent", "Expense"
-    )*/
-
-    /*var selectedAccountType by remember {
-        mutableStateOf("Customer")
-    }*/
-
-    //val accountType by salesViewModel
 
     val accountList = salesViewModel.accountList
 
@@ -162,7 +153,8 @@ fun QueryCustomerLedgerReportScreen(
     }
 
 
-
+    val activity = LocalContext.current as Activity
+    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
 
     Scaffold(
@@ -327,7 +319,8 @@ fun QueryCustomerLedgerReportScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_calendar_month),
-                                    contentDescription = null
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -371,7 +364,8 @@ fun QueryCustomerLedgerReportScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_calendar_month),
-                                    contentDescription = null
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }

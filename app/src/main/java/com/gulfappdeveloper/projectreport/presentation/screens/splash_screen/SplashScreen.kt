@@ -3,7 +3,6 @@ package com.gulfappdeveloper.projectreport.presentation.screens.splash_screen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -32,11 +30,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.gulfappdeveloper.projectreport.BuildConfig
 import com.gulfappdeveloper.projectreport.R
 import com.gulfappdeveloper.projectreport.navigation.RootNavScreens
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
@@ -70,8 +68,8 @@ fun SplashScreen(
         mutableStateOf(false)
     }
 
-    LaunchedEffect(key1 = message){
-        if (message == "Unipospro"){
+    LaunchedEffect(key1 = message) {
+        if (message == "Unipospro") {
             showLogoWithAnimation = true
         }
     }
@@ -144,42 +142,46 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(50.dp))
 
 
-           if (message!="Unipospro"){
-               Text(
-                   text = message,
-                   color = if(message =="No internet connectivity") Color.Red else MaterialTheme.colorScheme.primary,
-                   fontSize = MaterialTheme.typography.headlineMedium.fontSize,
-                   fontWeight = MaterialTheme.typography.headlineMedium.fontWeight,
-                   fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
-                   modifier = Modifier.fillMaxWidth(),
-                   textAlign = TextAlign.Center
-               )
-           }
+            if (message != "Unipospro") {
+                Text(
+                    text = message,
+                    color = if (message == "No internet connectivity") Color.Red else MaterialTheme.colorScheme.primary,
+                    fontSize = MaterialTheme.typography.headlineMedium.fontSize,
+                    fontWeight = MaterialTheme.typography.headlineMedium.fontWeight,
+                    fontStyle = MaterialTheme.typography.headlineMedium.fontStyle,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+            }
 
             AnimatedVisibility(
-                visible = showLogoWithAnimation && message=="Unipospro",
+                visible = showLogoWithAnimation && message == "Unipospro",
                 enter = slideInVertically(
                     animationSpec = tween(
                         durationMillis = 2000,
                         easing = LinearOutSlowInEasing
                     )
-                ){
+                ) {
                     800
                 }
                         + fadeIn(
                     initialAlpha = 0.1f,
                     animationSpec = tween(
-                    durationMillis = 2000, easing = LinearOutSlowInEasing
-                )
+                        durationMillis = 2000, easing = LinearOutSlowInEasing
+                    )
                 )
             ) {
-                Image(painter = painterResource(id = R.drawable.mult_logo), contentDescription = null, modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .padding(16.dp))
+                Image(
+                    painter = painterResource(
+                        id = if (BuildConfig.APP_STATUS)
+                            R.drawable.mult_logo
+                        else
+                            R.drawable.single_logo
+                    ), contentDescription = null, modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .padding(16.dp)
+                )
             }
-
-
-
 
 
         }

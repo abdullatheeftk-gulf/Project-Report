@@ -1,7 +1,6 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.account_screens
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
@@ -13,7 +12,7 @@ import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
 import com.gulfappdeveloper.projectreport.domain.models.general.GetDataFromRemote
 import com.gulfappdeveloper.projectreport.domain.models.ledger.GetCustomerForLedgerReportResponse
-import com.gulfappdeveloper.projectreport.domain.models.purchase.supplier_ledger_report.Detail
+import com.gulfappdeveloper.projectreport.domain.services.FirebaseService
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ExpenseLedgerReportTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ReArrangedExpenseLedgerDetail
@@ -24,11 +23,10 @@ import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.s
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.screens.payments_report_screen.report.util.PaymentsReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.screens.receipts_report_screen.query.util.QueryReceiptsReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.screens.receipts_report_screen.report.util.ReceiptsReportScreenEvent
-import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
-import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
 import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
+import com.gulfappdeveloper.projectreport.root.sendErrorDataToFirebase
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -36,17 +34,17 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.apache.commons.collections4.Get
 import java.time.LocalDate
+import java.util.Date
 import javax.inject.Inject
 
-private const val TAG = "AccountViewModel"
 
 @HiltViewModel
 class AccountViewModel
 @Inject constructor(
     private val useCase: UseCase,
-    private val commonMemory: CommonMemory
+    private val commonMemory: CommonMemory,
+    private val firebaseService: FirebaseService
 ) : ViewModel() {
 
     private val _queryExpenseLedgerReportScreenEvent =
@@ -114,6 +112,7 @@ class AccountViewModel
 
 
     fun getCustomerAccountList() {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
         accountList.clear()
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.GET_CUSTOMER_FOR_LEDGER + commonMemory.companyId + "/Expense"
@@ -132,6 +131,12 @@ class AccountViewModel
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
                         sendQueryExpenseLedgerScreenEvent(
                             UiEvent.ShowSnackBar(
@@ -158,6 +163,7 @@ class AccountViewModel
     }
 
     fun getExpenseLedgerReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
         reArrangedExpenseLedgerReportList.clear()
         if (_selectedAccount.value == null) {
             sendQueryExpenseLedgerScreenEvent(UiEvent.ShowSnackBar("No Account is selected"))
@@ -172,7 +178,6 @@ class AccountViewModel
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.EXPENSE_LEDGER_REPORT
-        Log.e(TAG, "getSupplierLedgerReport: $url")
         viewModelScope.launch(Dispatchers.IO) {
             useCase.expenseLedgerReportUseCase(
                 url = url,
@@ -192,12 +197,16 @@ class AccountViewModel
                         _balance.value = value.data.balance
                         sendQueryExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
                         calculateExpenseLedgerTotalsAndReArrange(data = value.data.details)
-                        Log.d(TAG, "getExpenseLedgerReport: ${value.data}")
                         sendQueryExpenseLedgerScreenEvent(UiEvent.Navigate(AccountScreens.ExpenseLedgerScreen.route))
                     }
 
                     is GetDataFromRemote.Failed -> {
-                        Log.e(TAG, "getExpenseLedgerReport: ${value.error}")
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
                     }
                 }
@@ -372,6 +381,7 @@ class AccountViewModel
 
 
     fun getPaymentsReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
         paymentsReportList.clear()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
@@ -382,7 +392,6 @@ class AccountViewModel
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.PAYMENT_REPORT
-        Log.e(TAG, "getSupplierLedgerReport: $url")
 
         viewModelScope.launch(Dispatchers.IO) {
             useCase.getPaymentsReportUseCase(
@@ -400,11 +409,16 @@ class AccountViewModel
                         sendQueryPaymentsReportScreenEvent(UiEvent.CloseProgressBar)
                         paymentsReportList.addAll(value.data)
                         calculatePaymentReportTotals(value.data)
-                        Log.e(TAG, "getPaymentsReport: ${value.data}", )
                         sendQueryPaymentsReportScreenEvent(UiEvent.Navigate(AccountScreens.PaymentsReportScreen.route))
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryPaymentsReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQueryPaymentsReportScreenEvent(
                             UiEvent.ShowSnackBar(
@@ -474,6 +488,7 @@ class AccountViewModel
     }
 
     fun getReceiptReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
         receiptsReportList.clear()
         val fromDateString =
             "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
@@ -484,7 +499,6 @@ class AccountViewModel
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.RECEIPT_REPORT
-        Log.e(TAG, "getSupplierLedgerReport: $url")
 
         viewModelScope.launch(Dispatchers.IO) {
             useCase.getReceiptReportUseCase(
@@ -503,7 +517,6 @@ class AccountViewModel
                         sendQueryReceiptsReportScreenEvent(UiEvent.CloseProgressBar)
                         receiptsReportList.addAll(value.data)
                         calculateReceiptReportTotals(value.data)
-                        Log.w(TAG, "getReceiptReport: ${value.data}", )
                         sendQueryReceiptsReportScreenEvent(UiEvent.Navigate(AccountScreens.ReceiptsReportScreen.route))
 
                         //sendQueryReceiptsReportScreenEvent()
@@ -512,6 +525,12 @@ class AccountViewModel
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryReceiptsReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQueryReceiptsReportScreenEvent(
                             UiEvent.ShowSnackBar(

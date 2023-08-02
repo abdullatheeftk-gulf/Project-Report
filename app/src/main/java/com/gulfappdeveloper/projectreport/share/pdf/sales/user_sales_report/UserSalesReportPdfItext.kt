@@ -1,5 +1,6 @@
 package com.gulfappdeveloper.projectreport.share.pdf.sales.user_sales_report
 
+/*
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -57,12 +58,14 @@ object UserSalesReportPdfItext {
             val ownerPassword = "9526317685"
             val writer = PdfWriter(
                 fileOutputStream,
-                /*WriterProperties().setStandardEncryption(
+                */
+/*WriterProperties().setStandardEncryption(
                     userPassword.toByteArray(),
                     ownerPassword.toByteArray(),
                     EncryptionConstants.ALLOW_PRINTING,
                     EncryptionConstants.ENCRYPTION_AES_256
-                )*/
+                )*//*
+
             )
             val pdf = PdfDocument(writer)
 
@@ -237,4 +240,4 @@ object UserSalesReportPdfItext {
 
 
     }
-}
+}*/

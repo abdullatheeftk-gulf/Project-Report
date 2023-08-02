@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -29,7 +29,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,11 +49,9 @@ import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.AccountViewModel
-import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.screens.expense_ledger_report_screen.report.componenets.ExpenseLedgerReportTable
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.screens.payments_report_screen.report.componenets.PaymentsReportTable
 import kotlinx.coroutines.flow.collectLatest
 
-private const val TAG = "ExpenseLEdgerReportScre"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,12 +114,16 @@ fun PaymentsReportScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = "Payment Report",
-                        textDecoration = TextDecoration.Underline,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
+                    Row {
+                        Text(
+                            text = "Payment Report",
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -215,7 +216,7 @@ fun PaymentsReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top=it.calculateTopPadding(), start = 4.dp,end=4.dp),
+                .padding(top = it.calculateTopPadding(), start = 4.dp, end = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -244,8 +245,7 @@ fun PaymentsReportScreen(
                 }
                 try {
                     return@Scaffold
-                } catch (e: Exception) {
-                    Log.e(TAG, "PosPaymentReportScreen: $e")
+                } catch (_: Exception) {
                 }
 
             }

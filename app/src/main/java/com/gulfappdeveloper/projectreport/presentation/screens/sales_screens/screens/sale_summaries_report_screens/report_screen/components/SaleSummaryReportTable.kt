@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.SaleSummariesReportTotals
+import com.gulfappdeveloper.projectreport.root.formatFloatToTwoDecimalPlaces
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
 import eu.wewox.lazytable.lazyTableDimensions
@@ -25,7 +27,8 @@ import eu.wewox.lazytable.lazyTablePinConfiguration
 
 @Composable
 fun SaleSummaryReportTable(
-    saleSummaryReportList:SnapshotStateList<SaleSummariesResponse>,
+    saleSummaryReportList: SnapshotStateList<SaleSummariesResponse>,
+    saleSummariesReportTotals: SaleSummariesReportTotals
 ) {
     val totalColumn = 7
     LazyTable(
@@ -45,11 +48,12 @@ fun SaleSummaryReportTable(
                 val value = when (it) {
                     0 -> 44.dp
                     1 -> 100.dp
-                    2 -> 64.dp
+                    2 -> 145.dp
                     3 -> 200.dp
-                    4 -> 92.dp
-                    6 -> 92.dp
-                    else -> 92.dp
+                    4 -> 145.dp
+                    5 -> 145.dp
+                    6 -> 145.dp
+                    else -> 145.dp
                 }
                 value
 
@@ -76,33 +80,37 @@ fun SaleSummaryReportTable(
             val rowData = saleSummaryReportList[rowCount - 1]
             val content = when (columCont) {
                 0 -> "$rowCount"
-                1-> rowData.date
-                2-> rowData.taxable.toString()
-                3-> rowData.tax.toString()
-                4-> rowData.returnTaxable.toString()
-                5-> rowData.returnTax.toString()
-                6-> rowData.net.toString()
-                else->"Error"
+                1 -> rowData.date
+                2 -> rowData.taxable.formatFloatToTwoDecimalPlaces()
+                3 -> rowData.tax.formatFloatToTwoDecimalPlaces()
+                4 -> rowData.returnTaxable.formatFloatToTwoDecimalPlaces()
+                5 -> rowData.returnTax.formatFloatToTwoDecimalPlaces()
+                6 -> rowData.net.formatFloatToTwoDecimalPlaces()
+                else -> "Error"
             }
 
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .background(if(rowCount%2==0) Color(0xFFEDE6E6) else MaterialTheme.colorScheme.background )
+                    .background(if (rowCount % 2 == 0) Color(0xFFEDE6E6) else MaterialTheme.colorScheme.background)
                     .border(Dp.Hairline, Color.Black)
             ) {
-                if (columCont%totalColumn==1){
+                if (columCont % totalColumn == 1) {
                     Text(
                         text = content,
-                        modifier = Modifier.wrapContentSize().padding(horizontal = 4.dp),
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .padding(horizontal = 4.dp),
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 2,
                         fontSize = 14.sp,
                     )
-                }else {
+                } else {
                     Text(
                         text = content,
-                        modifier = Modifier.wrapContentSize().padding(horizontal = 4.dp),
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .padding(horizontal = 4.dp),
                         overflow = TextOverflow.Ellipsis
                     )
                 }
@@ -132,7 +140,8 @@ fun SaleSummaryReportTable(
                 2 -> {
                     "Taxable"
                 }
-                3->{
+
+                3 -> {
                     "Tax"
                 }
 
@@ -164,6 +173,125 @@ fun SaleSummaryReportTable(
                     fontWeight = MaterialTheme.typography.titleMedium.fontWeight
                 )
             }
+        }
+
+        items(
+            count = totalColumn,
+            layoutInfo = {
+                LazyTableItem(
+                    column = it % totalColumn,
+                    row = saleSummaryReportList.size + 1
+                )
+            }
+        ) {
+            when (it) {
+                0 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                        //.border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = "",
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+                        )
+                    }
+                }
+
+                1 -> {
+                    Box(
+                        contentAlignment = Alignment.CenterEnd,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                        //.border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = "Total :- ",
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+                        )
+                    }
+                }
+
+                2 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                            .border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = String.format("%.2f", saleSummariesReportTotals.sumOfTaxable),
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.labelLarge.fontWeight
+                        )
+                    }
+                }
+
+                3-> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                            .border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = String.format("%.2f", saleSummariesReportTotals.sumOfTax),
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.labelLarge.fontWeight
+                        )
+                    }
+                }
+
+                4 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                            .border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = String.format("%.2f", saleSummariesReportTotals.sumOfReturnTaxable),
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.labelLarge.fontWeight
+                        )
+                    }
+                }
+                5 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                            .border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = String.format("%.2f", saleSummariesReportTotals.sumOfReturnTax),
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.labelLarge.fontWeight
+                        )
+                    }
+                }
+
+                6 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                            .border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = String.format("%.2f", saleSummariesReportTotals.sumOfNet),
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.labelLarge.fontWeight
+                        )
+                    }
+                }
+
+                else -> Unit
+            }
+
         }
 
     }

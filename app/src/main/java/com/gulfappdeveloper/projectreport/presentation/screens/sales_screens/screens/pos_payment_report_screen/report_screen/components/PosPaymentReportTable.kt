@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
+import com.gulfappdeveloper.projectreport.root.formatFloatToTwoDecimalPlaces
 import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
@@ -83,12 +84,12 @@ fun PosPaymentReportTable(
                 1 -> rowData.date.stringToDateStringConverter()
                 2 -> rowData.invoiceNo.toString()
                 3 -> rowData.party
-                4 -> rowData.cash.toString()
-                5 -> rowData.card.toString()
-                6 -> rowData.onlineAmount.toString()
-                7 -> rowData.credit.toString()
-                8 -> rowData.returnAmount.toString()
-                9 -> rowData.total.toString()
+                4 -> rowData.cash.formatFloatToTwoDecimalPlaces()
+                5 -> rowData.card.formatFloatToTwoDecimalPlaces()
+                6 -> rowData.onlineAmount.formatFloatToTwoDecimalPlaces()
+                7 -> rowData.credit.formatFloatToTwoDecimalPlaces()
+                8 -> rowData.returnAmount.formatFloatToTwoDecimalPlaces()
+                9 -> rowData.total.formatFloatToTwoDecimalPlaces()
                 else -> "Error"
             }
 

@@ -1,16 +1,13 @@
 package com.gulfappdeveloper.projectreport.root
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gulfappdeveloper.projectreport.domain.models.firebase.FirebaseGeneralData
+import com.gulfappdeveloper.projectreport.BuildConfig
 import com.gulfappdeveloper.projectreport.domain.models.general.GetDataFromRemote
-import com.gulfappdeveloper.projectreport.domain.models.license.UniLicenseDetails
-import com.gulfappdeveloper.projectreport.domain.models.login_and_register.CompanyRegisterResponse
 import com.gulfappdeveloper.projectreport.domain.models.room.LocalCompanyData
 import com.gulfappdeveloper.projectreport.domain.services.FirebaseService
 import com.gulfappdeveloper.projectreport.navigation.RootNavScreens
@@ -28,12 +25,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 
-private const val TAG = "RootViewModel"
 
 @HiltViewModel
 class RootViewModel @Inject constructor(
@@ -42,10 +36,10 @@ class RootViewModel @Inject constructor(
     private val firebaseService: FirebaseService
 ) : ViewModel() {
 
-    private var _isNavFromSettingToLogin= mutableStateOf(false)
-    val isNavFromSettingToLogin:State<Boolean> = _isNavFromSettingToLogin
+    private var _isNavFromSettingToLogin = mutableStateOf(false)
+    val isNavFromSettingToLogin: State<Boolean> = _isNavFromSettingToLogin
 
-    fun setNavFromSettingToLogin(value:Boolean){
+    fun setNavFromSettingToLogin(value: Boolean) {
         _isNavFromSettingToLogin.value = value
     }
 
@@ -80,14 +74,14 @@ class RootViewModel @Inject constructor(
     private val _welcomeMessage = mutableStateOf("")
     val welcomeMessage: State<String> = _welcomeMessage
 
-    private var _isInitialLoadingFinished = false
+    //private var _isInitialLoadingFinished = false
     private var _oneTimeSavedDeviceId = false
     private var _oneTimeSavedIpAddress = false
     private var _publicIpAddress = ""
     private var _companyId = -1
 
-    private val _uniLicenseDetails: MutableState<UniLicenseDetails?> = mutableStateOf(null)
-    val uniLicenseDetails: State<UniLicenseDetails?> = _uniLicenseDetails
+    /*private val _uniLicenseDetails: MutableState<UniLicenseDetails?> = mutableStateOf(null)
+    val uniLicenseDetails: State<UniLicenseDetails?> = _uniLicenseDetails*/
 
     private val _deviceIdState: MutableState<String> = mutableStateOf("")
     // val deviceIdState:State<String> = _deviceIdState
@@ -104,15 +98,13 @@ class RootViewModel @Inject constructor(
     private val _selectedCompanyId: MutableState<Int> = mutableStateOf(-1)
     val selectedCompanyId: State<Int> = _selectedCompanyId
 
-    private val _selectedStore:MutableState<LocalCompanyData?> = mutableStateOf(null)
-    val selectedStore:State<LocalCompanyData?> = _selectedStore
+    private val _selectedStore: MutableState<LocalCompanyData?> = mutableStateOf(null)
+    val selectedStore: State<LocalCompanyData?> = _selectedStore
 
     init {
-        // updateOperationCount()
-        // readUniLicenseKeyDetails()
-        // readOperationCount()
-         readIpAddressUseCase()
-        // readDeviceIdUseCase()
+        readDeviceIdUseCase()
+        readIpAddressUseCase()
+
         //readCompanyData()
         getWelcomeMessage()
         getAllLocalCompanyDataFromRoom()
@@ -120,47 +112,44 @@ class RootViewModel @Inject constructor(
         checkForPublicIpAddressStatus()
 
 
-
     }
-
 
 
     private fun getAllLocalCompanyDataFromRoom() {
         viewModelScope.launch {
             useCase.getAllLocalCompanyDataUseCase().collectLatest { value ->
                 localCompanyDataList.clear()
-                Log.i(TAG, "getAllLocalCompanyData: $value")
                 localCompanyDataList.addAll(value)
             }
         }
     }
 
-    private fun updateOperationCount() {
+    /*private fun updateOperationCount() {
         viewModelScope.launch {
-            Log.e(TAG, "updateOperationCount: ")
             useCase.updateOperationCountUseCase()
         }
     }
-
-    private fun readOperationCount() {
-        viewModelScope.launch {
-            useCase.readOperationCountUseCase().collectLatest { count ->
-                Log.i(TAG, "readOperationCount: $count")
-            }
-        }
-    }
+*/
+    /* private fun readOperationCount() {
+         viewModelScope.launch {
+             useCase.readOperationCountUseCase().collectLatest { count ->
+                // Log.i(TAG, "readOperationCount: $count")
+             }
+         }
+     }*/
 
     private fun saveIpAddressUseCase(ipAddress: String) {
         viewModelScope.launch {
-            Log.e(TAG, "saveIpAddressUseCase: ")
-            useCase.saveIpAddressUseCase(ipAddress = ipAddress)
+            // Log.e(TAG, "saveIpAddressUseCase: ")
+            _publicIpAddress.ifEmpty {
+                useCase.saveIpAddressUseCase(ipAddress = ipAddress)
+            }
         }
     }
 
     private fun readIpAddressUseCase() {
         viewModelScope.launch {
             useCase.readIpAddressUseCase().collectLatest { value ->
-                Log.i(TAG, "readIpAddressUseCase: $value")
                 _publicIpAddress = value
             }
         }
@@ -172,9 +161,7 @@ class RootViewModel @Inject constructor(
 
                 if (!_oneTimeSavedDeviceId) {
                     _oneTimeSavedDeviceId = true
-                    Log.e(TAG, "saveDeviceIdUseCase: ")
                     useCase.saveDeviceIdUseCase(deviceId = deviceId)
-
                 }
             }
 
@@ -185,7 +172,7 @@ class RootViewModel @Inject constructor(
         viewModelScope.launch {
             useCase.readDeviceIdUseCase().collectLatest { value ->
                 _deviceIdState.value = value
-                Log.i(TAG, "readDeviceIdUseCase: $value")
+                // Log.i(TAG, "readDeviceIdUseCase: $value")
             }
         }
     }
@@ -196,7 +183,7 @@ class RootViewModel @Inject constructor(
         }
     }*/
 
-    private fun readUniLicenseKeyDetails() {
+    /*private fun readUniLicenseKeyDetails() {
         viewModelScope.launch {
             useCase.readUniLicenseUseCase().collectLatest { value ->
                 // checking for saved license ledgerDetails
@@ -231,13 +218,13 @@ class RootViewModel @Inject constructor(
 
                     }
                 } else {
-                    Log.d(TAG, "readUniLicenseKeyDetails: test")
+                    //Log.d(TAG, "readUniLicenseKeyDetails: test")
                     checkForPublicIpAddressStatus()
                     sendSplashScreenEvent(UiEvent.ShowAlertDialog(""))
                 }
             }
         }
-    }
+    }*/
 
     fun savePreferredStoreToDataStore(localCompanyData: LocalCompanyData) {
         viewModelScope.launch {
@@ -261,7 +248,7 @@ class RootViewModel @Inject constructor(
                         _selectedStore.value = preferredStore
                         // Log.e(TAG, "readCompanyData: $_companyId")
 
-                        if (localCompanyDataList.size > 1) {
+                        if (localCompanyDataList.size > 1 && BuildConfig.APP_STATUS) {
                             sendSplashScreenEvent(UiEvent.Navigate(route = RootNavScreens.SelectAStoreScreen.route))
                         } else {
                             sendSplashScreenEvent(UiEvent.Navigate(route = RootNavScreens.LoginScreen.route))
@@ -272,7 +259,7 @@ class RootViewModel @Inject constructor(
                         //sendSplashScreenEvent(UiEvent.Navigate(route = RootNavScreens.RegisterCompanyScreen.route))
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "readCompanyData: $e")
+                    // Log.e(TAG, "readCompanyData: $e")
                 }
 
             }
@@ -280,10 +267,13 @@ class RootViewModel @Inject constructor(
     }
 
     private fun getWelcomeMessage() {
-        // Log.i(TAG, "getWelcomeMessage: ")
+
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
+
+        val url = HttpRoutes.BASE_URL + HttpRoutes.WELCOME_MESSAGE
         viewModelScope.launch(Dispatchers.IO) {
             useCase.welcomeMessageUseCase(
-                url = HttpRoutes.BASE_URL + HttpRoutes.WELCOME_MESSAGE
+                url = url
             ).collectLatest {
                 when (it) {
                     is GetDataFromRemote.Loading -> {
@@ -304,10 +294,16 @@ class RootViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Failed -> {
+
                         sendSplashScreenEvent(UiEvent.CloseProgressBar)
-                        Log.e(TAG, "getWelcomeMessage: ${it.error}")
+                        val error = it.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         _welcomeMessage.value =
-                            it.error.message ?: "Error on loading Data from server"
+                            error.message ?: "Error on loading Data from server"
                     }
 
                 }
@@ -336,7 +332,7 @@ class RootViewModel @Inject constructor(
     }
 
     private fun getIp4Address() {
-        Log.d(TAG, "getIp4Address: ")
+        //Log.d(TAG, "getIp4Address: ")
         val url = HttpRoutes.SEE_IP4
         viewModelScope.launch(Dispatchers.IO) {
             useCase.getIP4AddressUseCase(url = url).collectLatest { value ->
@@ -360,7 +356,7 @@ class RootViewModel @Inject constructor(
     }
 
 
-    private fun isUniPosLicenseExpired(eDate: String): Boolean {
+    /*private fun isUniPosLicenseExpired(eDate: String): Boolean {
 
         return try {
             val expDate: Date = SimpleDateFormat(
@@ -383,15 +379,16 @@ class RootViewModel @Inject constructor(
         } catch (e: Exception) {
             true
         }
-    }
+    }*/
 
     fun registerCompany(companyCode: String) {
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
         val url = HttpRoutes.BASE_URL + HttpRoutes.REGISTER_COMPANY + "/$companyCode"
         viewModelScope.launch(Dispatchers.IO) {
             useCase.registerCompanyUseCase(url = url).collectLatest { value ->
                 when (value) {
                     is GetDataFromRemote.Loading -> {
-                        Log.w(TAG, "registerCompany: ")
+                        // Log.w(TAG, "registerCompany: ")
                         sendRegisterCompanyScreenEvent(UiEvent.ShowProgressBar)
                     }
 
@@ -406,14 +403,20 @@ class RootViewModel @Inject constructor(
                             taxId = result.taxId
                         )
                         insertCompanyDataToLocalDatabase(localCompanyData = localCompanyData)
-                        Log.d(TAG, "registerCompany: $result")
+                        // Log.d(TAG, "registerCompany: $result")
                         savePreferredStoreToDataStore(localCompanyData)
                         _companyId = result.id
                         sendRegisterCompanyScreenEvent(UiEvent.Navigate(RootNavScreens.LoginScreen.route))
                     }
 
                     is GetDataFromRemote.Failed -> {
-                        Log.e(TAG, "registerCompany: ${value.error.code}")
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
+                        //Log.e(TAG, "registerCompany: ${value.error.code}")
                         sendRegisterCompanyScreenEvent(UiEvent.CloseProgressBar)
                         sendRegisterCompanyScreenEvent(UiEvent.ShowSnackBar("Failed to register"))
                     }
@@ -424,6 +427,7 @@ class RootViewModel @Inject constructor(
     }
 
     fun login(userName: String, password: String) {
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
         if (_companyId == -1) {
             sendLoginScreenEvent(UiEvent.ShowSnackBar("Company is not registered"))
             return
@@ -443,15 +447,21 @@ class RootViewModel @Inject constructor(
                         if (loginResponse.status) {
                             sendLoginScreenEvent(UiEvent.Navigate(RootNavScreens.MainScreen.route))
                             commonMemory.userId = value.data.userId?.toShort()!!
-                            Log.d(TAG, "login: ${value.data}")
+                            //Log.d(TAG, "login: ${value.data}")
                             saveUserNameInDataStore(userName = userName)
                         } else {
-                            Log.i(TAG, "login: ${loginResponse.message}")
+                            // Log.i(TAG, "login: ${loginResponse.message}")
                             sendLoginScreenEvent(UiEvent.ShowAlertDialog(loginResponse.message))
                         }
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendLoginScreenEvent(UiEvent.CloseProgressBar)
                         sendLoginScreenEvent(
                             UiEvent.ShowSnackBar(
@@ -459,7 +469,7 @@ class RootViewModel @Inject constructor(
                                     ?: "There have some error with code ${value.error.code}"
                             )
                         )
-                        Log.e(TAG, "login: ${value.error.code}, ${value.error.message}")
+                        //Log.e(TAG, "login: ${value.error.code}, ${value.error.message}")
                     }
 
                 }

@@ -3,6 +3,7 @@ package com.gulfappdeveloper.projectreport.di
 import android.content.Context
 import androidx.room.Room
 import com.google.firebase.firestore.FirebaseFirestore
+import com.gulfappdeveloper.projectreport.BuildConfig
 import com.gulfappdeveloper.projectreport.data.data_store.DataStoreServiceImpl
 import com.gulfappdeveloper.projectreport.data.firebase.FirebaseServiceImpl
 import com.gulfappdeveloper.projectreport.data.room.LocalCompanyDataDao
@@ -42,7 +43,11 @@ object AppModule {
     @Provides
     @Singleton
     fun provideRoomDatabase(@ApplicationContext context: Context) =
-        Room.databaseBuilder(context, AppRoomDatabase::class.java, "report_project_database")
+        Room.databaseBuilder(
+            context,
+            AppRoomDatabase::class.java,
+            if(BuildConfig.APP_STATUS) "report_project_database" else "report_project_database_single"
+        )
             .build()
 
     @Provides

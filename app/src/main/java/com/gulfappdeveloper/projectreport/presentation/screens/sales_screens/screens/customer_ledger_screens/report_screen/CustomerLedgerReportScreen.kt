@@ -1,7 +1,6 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.report_screen
 
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -28,7 +28,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,7 +51,6 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.scr
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.report_screen.ScreenOrientationActionForPosPayment
 import kotlinx.coroutines.flow.collectLatest
 
-private const val TAG = "CustomerLedgerReportScr"
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun CustomerLedgerReportScreen(
@@ -70,7 +68,6 @@ fun CustomerLedgerReportScreen(
     val toDate by salesViewModel.toDateState
 
 
-    //val customerLedgerReportList = salesViewModel.customerLedgerReportList
 
     val reArrangedCustomerLedgerReportList = salesViewModel.reArrangedCustomerLedgerReportList
     val customerLedgerReportTotals by salesViewModel.customerLedgerReportTotals
@@ -115,12 +112,16 @@ fun CustomerLedgerReportScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = "Customer Ledger Report ",
-                        textDecoration = TextDecoration.Underline,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
+                    Row {
+                        Text(
+                            text = "Customer Ledger Report",
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -210,7 +211,12 @@ fun CustomerLedgerReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = it.calculateTopPadding(), bottom = it.calculateBottomPadding(), start = 4.dp, end = 4.dp),
+                .padding(
+                    top = it.calculateTopPadding(),
+                    bottom = it.calculateBottomPadding(),
+                    start = 4.dp,
+                    end = 4.dp
+                ),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 

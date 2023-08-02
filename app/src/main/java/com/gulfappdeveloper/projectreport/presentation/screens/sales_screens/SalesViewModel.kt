@@ -1,7 +1,6 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
@@ -16,8 +15,8 @@ import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.UserSalesResponse
+import com.gulfappdeveloper.projectreport.domain.services.FirebaseService
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
-import com.gulfappdeveloper.projectreport.presentation.screens.ledger_report_screens.navigation.LedgerReportScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.navigation.SalesScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.CustomerLedgerTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.ReArrangedCustomerLedgerDetails
@@ -29,15 +28,16 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.scr
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.report_screen.CustomerPaymentReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.query_screen.util.QueryPosPaymentReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.report_screen.util.PosPaymentReportScreenEvent
-import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.query_screen.util.QuerySalesInvoiceReportEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sale_summaries_report_screens.query_screen.util.QuerySaleSummariesReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sale_summaries_report_screens.report_screen.util.SaleSummariesReportScreenEvent
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.query_screen.util.QuerySalesInvoiceReportEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.report_screen.util.SalesInvoiceReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.user_sales_report_screens.query_screen.util.QueryUserSalesReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.user_sales_report_screens.report_screen.util.UserSalesReportScreenEvent
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
 import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
+import com.gulfappdeveloper.projectreport.root.sendErrorDataToFirebase
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -46,14 +46,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.Date
 import javax.inject.Inject
 
-private const val TAG = "SalesViewModel"
+//private const val TAG = "SalesViewModel"
 
 @HiltViewModel
 class SalesViewModel @Inject constructor(
     private val useCase: UseCase,
     private val commonMemory: CommonMemory,
+    private val firebaseService: FirebaseService
 ) : ViewModel() {
 
     private val _querySalesInvoiceReportScreenEvent = Channel<QuerySalesInvoiceReportEvent>()
@@ -237,6 +239,8 @@ class SalesViewModel @Inject constructor(
 
 
     fun getSalesInvoiceReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         _fromDateState.value = fromDate.localDateToStringConverter()
         _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
@@ -245,7 +249,6 @@ class SalesViewModel @Inject constructor(
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.SALES_INVOICE_REPORT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
-        Log.d(TAG, "getSaleInvoiceReport: $url")
 
         salesInvoiceReportList.clear()
         viewModelScope.launch(Dispatchers.IO) {
@@ -259,18 +262,22 @@ class SalesViewModel @Inject constructor(
                         sendQuerySalesInvoiceReportEvent(UiEvent.CloseProgressBar)
                         salesInvoiceReportList.addAll(value.data)
                         calculateTotalsForSalesInvoiceReport()
-                        Log.d(TAG, "getSalesInvoiceReport: ${value.data}")
                         sendQuerySalesInvoiceReportEvent(UiEvent.Navigate(SalesScreens.SalesInvoiceReportScreen.route))
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQuerySalesInvoiceReportEvent(UiEvent.CloseProgressBar)
                         sendQuerySalesInvoiceReportEvent(
                             UiEvent.ShowSnackBar(
                                 value.error.message ?: ""
                             )
                         )
-                        Log.e(TAG, "getSalesInvoiceReport: ${value.error}")
                     }
                 }
 
@@ -356,6 +363,8 @@ class SalesViewModel @Inject constructor(
 
 
     fun getSaleSummariesReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         _fromDateState.value = fromDate.localDateToStringConverter()
         _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
@@ -364,7 +373,6 @@ class SalesViewModel @Inject constructor(
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.SALE_SUMMARIES_REPORT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
-        Log.d(TAG, "getSaleSummariesReport: $url")
 
         saleSummariesReportList.clear()
         viewModelScope.launch(Dispatchers.IO) {
@@ -379,17 +387,21 @@ class SalesViewModel @Inject constructor(
                         saleSummariesReportList.addAll(value.data)
                         calculateSaleSummariesReportTotals()
                         sendQuerySaleSummariesReportScreenEvent(UiEvent.Navigate(route = SalesScreens.SaleSummariesReportScreen.route))
-                        Log.e(TAG, "getSaleSummariesReport: ${value.data}")
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQuerySaleSummariesReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQuerySaleSummariesReportScreenEvent(
                             UiEvent.ShowSnackBar(
                                 value.error.message ?: "There have some problem"
                             )
                         )
-                        Log.e(TAG, "getSaleSummariesReport: ${value.error}")
                     }
                 }
 
@@ -479,6 +491,8 @@ class SalesViewModel @Inject constructor(
     }
 
     fun getUserSalesReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         _fromDateState.value = fromDate.localDateToStringConverter()
         _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
@@ -487,7 +501,6 @@ class SalesViewModel @Inject constructor(
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.USER_SALES + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
-        Log.d(TAG, "getUserSalesReport: $url")
 
         userSalesReportList.clear()
         viewModelScope.launch(Dispatchers.IO) {
@@ -501,17 +514,21 @@ class SalesViewModel @Inject constructor(
                         sendQueryUserSalesReportScreenEvent(UiEvent.CloseProgressBar)
                         userSalesReportList.addAll(value.data)
                         sendQueryUserSalesReportScreenEvent(UiEvent.Navigate(route = SalesScreens.UserSalesReportScreen.route))
-                        Log.e(TAG, "getUserSalesReport: ${value.data}")
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryUserSalesReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQueryUserSalesReportScreenEvent(
                             UiEvent.ShowSnackBar(
                                 value.error.message ?: ""
                             )
                         )
-                        Log.e(TAG, "getUserSalesReport: ${value.error}")
                     }
                 }
 
@@ -521,6 +538,8 @@ class SalesViewModel @Inject constructor(
 
 
     fun getCustomerPaymentReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         _fromDateState.value = fromDate.localDateToStringConverter()
         _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
@@ -529,7 +548,6 @@ class SalesViewModel @Inject constructor(
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.GET_CUSTOMER_PAYMENT_REPORT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
-        Log.d(TAG, "getCustomerPaymentReport: $url")
         viewModelScope.launch(Dispatchers.IO) {
             useCase.getCustomerPaymentUseCase(url = url).collectLatest { value ->
                 customerPaymentReportList.clear()
@@ -549,8 +567,13 @@ class SalesViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryCustomerPaymentReportScreenEvent(UiEvent.CloseProgressBar)
-                        Log.e(TAG, "getCustomerPaymentReport: ${value.error}")
                         sendQueryCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar(value.error.message!!))
                     }
                 }
@@ -560,6 +583,8 @@ class SalesViewModel @Inject constructor(
 
 
     fun getCustomerAccountList() {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.GET_CUSTOMER_FOR_LEDGER + commonMemory.companyId + "/Customer"
 
@@ -574,6 +599,12 @@ class SalesViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQueryCustomerLedgerReportScreenEvent(
                             UiEvent.ShowSnackBar(
@@ -593,6 +624,8 @@ class SalesViewModel @Inject constructor(
 
 
     fun getCustomerLedgerReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         if (_selectedAccount.value == null) {
             sendQueryCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar("No Account is selected"))
             return
@@ -629,6 +662,12 @@ class SalesViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQueryCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar("failed"))
                     }
@@ -662,6 +701,8 @@ class SalesViewModel @Inject constructor(
     }
 
     fun getPosPaymentReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         _fromDateState.value = fromDate.localDateToStringConverter()
         _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
@@ -670,7 +711,6 @@ class SalesViewModel @Inject constructor(
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.POS_PAYMENT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
-        Log.d(TAG, "getPosPaymentReport: $url")
         viewModelScope.launch(Dispatchers.IO) {
             useCase.getPosPaymentReportUseCase(url = url).collectLatest { value ->
                 posPaymentReportList.clear()
@@ -680,7 +720,6 @@ class SalesViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Success -> {
-                        Log.d(TAG, "getPosPaymentReport: ${value.data}")
                         sendQueryPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
                         posPaymentReportList.addAll(value.data)
                         calculateTotalForPosPaymentReport(value.data)
@@ -688,8 +727,13 @@ class SalesViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
-                        Log.e(TAG, "getPosPaymentReport: ${value.error}")
                         sendQueryPosPaymentReportScreenEvent(UiEvent.ShowSnackBar(value.error.message!!))
                     }
                 }
@@ -766,7 +810,6 @@ class SalesViewModel @Inject constructor(
                         getUri = getUri
                     ) { error, errorS ->
                         sendCustomerPaymentReportScreenEvent(UiEvent.CloseProgressBar)
-                        Log.e(TAG, "makeExcelForCustomerPaymentReport: $error $errorS")
                         if (error){
                             sendCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar(errorS?:"There have some problem when making Excel sheet"))
                         }
@@ -795,7 +838,6 @@ class SalesViewModel @Inject constructor(
                     getUri = getUri
                 ) { error, errorS ->
                     sendPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
-                    Log.e(TAG, "makePdfForPosPaymentReport: $error $errorS")
                     if (error) {
                         sendPosPaymentReportScreenEvent(
                             UiEvent.ShowSnackBar(
@@ -822,7 +864,6 @@ class SalesViewModel @Inject constructor(
                     getUri = getUri
                 ) { error, errorS ->
                     sendPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
-                    Log.e(TAG, "makeExcelForPosPaymentReport: $error $errorS")
                     if (error) {
                         sendPosPaymentReportScreenEvent(
                             UiEvent.ShowSnackBar(

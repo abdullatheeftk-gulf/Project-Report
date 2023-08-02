@@ -21,6 +21,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.a
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ReArrangedExpenseLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
+import com.gulfappdeveloper.projectreport.root.formatFloatToTwoDecimalPlaces
 import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
@@ -83,8 +84,8 @@ fun ExpenseLedgerReportTable(
                 1 -> rowData.voucherDate.stringToDateStringConverter()
                 2 -> rowData.voucherNo.toString()
                 3 -> rowData.particulars
-                4 -> rowData.debit.toString()
-                5 -> rowData.credit.toString()
+                4 -> rowData.debit.formatFloatToTwoDecimalPlaces()
+                5 -> rowData.credit.formatFloatToTwoDecimalPlaces()
                 else -> "Error"
             }
 

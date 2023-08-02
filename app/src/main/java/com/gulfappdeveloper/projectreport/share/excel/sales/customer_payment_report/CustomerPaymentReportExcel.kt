@@ -32,6 +32,7 @@ object CustomerPaymentReportExcel {
         toDate: String,
         getUri: (Uri) -> Unit,
         list: List<CustomerPaymentResponse>,
+        companyName:String,
         haveAnyError: (isError: Boolean, errorString: String?) -> Unit
     ) = try {
         val wb = XSSFWorkbook()
@@ -39,7 +40,13 @@ object CustomerPaymentReportExcel {
         val sheet = wb.createSheet(currentDateAndTime)
         //createHeading(sheet, wb)
         sheet.createHeading(wb = wb, headingTitle = "Customer Payment Report", noOfColumns = 9)
-        createPeriodTitle(sheet, wb, fromDate, toDate)
+        createPeriodTitle(
+            sheet = sheet,
+            wb = wb,
+            fromDate = fromDate,
+            toDate = toDate,
+            companyName = companyName
+        )
         createHeaderOfTable(sheet = sheet, wb = wb)
 
 
@@ -94,32 +101,13 @@ object CustomerPaymentReportExcel {
         haveAnyError(true, e.message)
     }
 
-/*    private fun createHeading(sheet: Sheet, wb: XSSFWorkbook) {
-        val headingRow = sheet.createRow(0)
-        headingRow.height = (40*20).toShort()
-        headingRow.createCell(0).apply {
-            setCellValue("Customer Payment Report")
-            cellStyle = wb.createCellStyle().apply {
-                alignment = HorizontalAlignment.CENTER
-                verticalAlignment = VerticalAlignment.CENTER
-                val font = wb.createFont().apply {
-                    fontHeight = (21*20).toShort()
-                    color = IndexedColors.BLUE.index
-                    underline = XSSFFont.U_SINGLE
-
-                } as XSSFFont
-                setFont(font)
-            }
-        }
-        sheet.addMergedRegion(CellRangeAddress(0, 0, 0, 8))
-
-    }*/
 
     private fun createPeriodTitle(
         sheet: Sheet,
         wb: XSSFWorkbook,
         fromDate: String,
-        toDate: String
+        toDate: String,
+        companyName: String
     ) {
         val periodRow = sheet.createRow(1)
         val font = wb.createFont().apply {
@@ -135,6 +123,12 @@ object CustomerPaymentReportExcel {
         }
         periodRow.createCell(0).apply {
             setCellValue(richTextString)
+        }
+        periodRow.createCell(8).apply {
+            setCellValue("Company: $companyName")
+            cellStyle = wb.createCellStyle().apply {
+                alignment = HorizontalAlignment.RIGHT
+            }
         }
     }
 

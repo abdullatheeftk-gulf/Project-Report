@@ -1,6 +1,5 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.report_screen.components
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -21,18 +19,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
+import com.gulfappdeveloper.projectreport.root.formatFloatToTwoDecimalPlaces
 import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
 import eu.wewox.lazytable.lazyTableDimensions
 import eu.wewox.lazytable.lazyTablePinConfiguration
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
-private const val TAG = "NewTable"
 
 @Composable
 fun CustomerPaymentReportTable(
@@ -95,19 +88,26 @@ fun CustomerPaymentReportTable(
                 1 -> rowData.date.stringToDateStringConverter()
                 2 -> rowData.receiptNo.toString()
                 3 -> rowData.party
-                4 -> rowData.cash
-                5 -> rowData.card
-                6 -> rowData.onlineAmount
-                7 -> rowData.credit
-                8 -> rowData.total
+                4 -> rowData.cash.toFloat().formatFloatToTwoDecimalPlaces()
+                5 -> rowData.card.toFloat().formatFloatToTwoDecimalPlaces()
+                6 -> rowData.onlineAmount.toFloat().formatFloatToTwoDecimalPlaces()
+                7 -> rowData.credit.toFloat().formatFloatToTwoDecimalPlaces()
+                8 -> rowData.total.toFloat().formatFloatToTwoDecimalPlaces()
                 else -> "Error"
             }
 
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .background(if (rowCount % 2 == 0) Color(0xFFEDE6E6) else MaterialTheme.colorScheme.background)
-                    .border(Dp.Hairline, Color.Black)
+                    .background(
+                        if (rowCount % 2 == 0)
+                            Color(0xFFEDE6E6)
+                        else
+                            MaterialTheme.colorScheme.background)
+                    .border(
+                        Dp.Hairline,
+                        Color.Black
+                    )
             ) {
                 if (columCont % 9 == 1) {
                     Text(
@@ -213,7 +213,6 @@ fun CustomerPaymentReportTable(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .background(Color(0xFFFFFFFF))
-                            //.border(Dp.Hairline, Color.Black)
                     ) {
                         Text(
                             text = "",
@@ -243,7 +242,6 @@ fun CustomerPaymentReportTable(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .background(Color(0xFFFFFFFF))
-                        //.border(Dp.Hairline, Color.Black)
                     ) {
                         Text(
                             text = "",

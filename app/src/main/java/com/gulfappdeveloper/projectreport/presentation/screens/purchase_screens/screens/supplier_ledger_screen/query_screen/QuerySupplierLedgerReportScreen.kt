@@ -33,7 +33,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -305,7 +304,8 @@ fun QuerySupplierLedgerReportScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_calendar_month),
-                                    contentDescription = null
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -347,7 +347,8 @@ fun QuerySupplierLedgerReportScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_calendar_month),
-                                    contentDescription = null
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }

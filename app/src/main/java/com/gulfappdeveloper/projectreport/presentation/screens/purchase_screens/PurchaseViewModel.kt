@@ -1,7 +1,6 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
@@ -13,6 +12,7 @@ import com.gulfappdeveloper.projectreport.domain.models.ledger.GetCustomerForLed
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseSummaryResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.supplier_ledger_report.Detail
+import com.gulfappdeveloper.projectreport.domain.services.FirebaseService
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.navigation.PurchaseScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterSelection
@@ -31,6 +31,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
 import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
+import com.gulfappdeveloper.projectreport.root.sendErrorDataToFirebase
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -39,14 +40,15 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.Date
 import javax.inject.Inject
 
-private const val TAG = "PurchaseViewModel"
 
 @HiltViewModel
 class PurchaseViewModel @Inject constructor(
     private val useCase: UseCase,
-    private val commonMemory: CommonMemory
+    private val commonMemory: CommonMemory,
+    private val firebaseService: FirebaseService
 ) : ViewModel() {
 
     private val _queryPurchaseMastersReportScreenEvent =
@@ -219,6 +221,8 @@ class PurchaseViewModel @Inject constructor(
 
 
     fun getPurchaseMastersReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         _fromDateState.value = fromDate.localDateToStringConverter()
         _toDateState.value = toDate.localDateToStringConverter()
         val fromDateString =
@@ -227,21 +231,18 @@ class PurchaseViewModel @Inject constructor(
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.PURCHASE_MASTERS_REPORT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
-        Log.d(TAG, "getPurchaseMastersReport: $url")
         purchaseMastersReportList.clear()
         viewModelScope.launch(Dispatchers.IO) {
             sendQueryPurchaseMastersReportScreenEvent(UiEvent.ShowProgressBar)
             useCase.purchaseMastersReportUseCase(url = url).collectLatest { value ->
                 when (value) {
                     is GetDataFromRemote.Loading -> {
-                        Log.e(TAG, "getPurchaseMastersReport: ")
                         sendQueryPurchaseMastersReportScreenEvent(UiEvent.ShowProgressBar)
                     }
 
                     is GetDataFromRemote.Success -> {
                         sendQueryPurchaseMastersReportScreenEvent(UiEvent.CloseProgressBar)
                         val result = value.data
-                        Log.w(TAG, "getPurchaseMastersReport: $result")
                         purchaseMastersReportList.addAll(result)
                         calculatePurchaseMastersReportTotals(value.data)
                         sendQueryPurchaseMastersReportScreenEvent(UiEvent.Navigate(PurchaseScreens.PurchaseMastersReportScreen.route))
@@ -249,8 +250,13 @@ class PurchaseViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryPurchaseMastersReportScreenEvent(UiEvent.CloseProgressBar)
-                        Log.e(TAG, "getPurchaseMastersReport: ${value.error}")
                         sendQueryPurchaseMastersReportScreenEvent(
                             UiEvent.ShowSnackBar(
                                 value.error.message ?: "There have some error"
@@ -293,6 +299,8 @@ class PurchaseViewModel @Inject constructor(
     }
 
     fun getPurchaseSummaryReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         purchaseMastersReportList.clear()
         _fromDateState.value = fromDate.localDateToStringConverter()
         _toDateState.value = toDate.localDateToStringConverter()
@@ -302,7 +310,6 @@ class PurchaseViewModel @Inject constructor(
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.PURCHASE_SUMMARY_REPORT
-        Log.d(TAG, "getPurchaseSummaryReport: $url")
 
         viewModelScope.launch(Dispatchers.IO) {
             useCase.purchaseSummaryReportUseCase(
@@ -319,13 +326,17 @@ class PurchaseViewModel @Inject constructor(
                         sendQueryPurchaseSummaryReportScreenUiEvent(UiEvent.CloseProgressBar)
                         purchaseSummaryReportList.addAll(value.data)
                         calculatePurchaseSummaryReportTotal(value.data)
-                        Log.e(TAG, "getPurchaseSummaryReport: ${value.data as List<PurchaseSummaryResponse>}", )
                         sendQueryPurchaseSummaryReportScreenUiEvent(UiEvent.Navigate(route = PurchaseScreens.PurchaseSummaryReportScreen.route))
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryPurchaseSummaryReportScreenUiEvent(UiEvent.CloseProgressBar)
-                        Log.e(TAG, "getPurchaseSummaryReport: ${value.error}")
                         sendQueryPurchaseMastersReportScreenEvent(
                             UiEvent.ShowSnackBar(
                                 value.error.message ?: "There have some error"
@@ -359,6 +370,8 @@ class PurchaseViewModel @Inject constructor(
 
 
     fun getSupplierPurchaseReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         if (_selectedAccount.value == null) {
             sendQuerySupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar("Account is not selected"))
             return
@@ -371,7 +384,6 @@ class PurchaseViewModel @Inject constructor(
         val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.SUPPLIER_PURCHASE_REPORT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}" + "/${_selectedAccount.value?.accountId}"
-        Log.d(TAG, "getSupplierPurchaseReport: $url")
         supplierPurchaseReportList.clear()
         viewModelScope.launch(Dispatchers.IO) {
             useCase.purchaseMastersReportUseCase(url = url).collectLatest { value ->
@@ -383,15 +395,19 @@ class PurchaseViewModel @Inject constructor(
                     is GetDataFromRemote.Success -> {
                         sendQuerySupplierPurchaseReportScreenEvent(UiEvent.CloseProgressBar)
                         val result = value.data
-                        Log.w(TAG, "getSupplierPurchaseReport: $result")
                         supplierPurchaseReportList.addAll(result)
                         calculateSupplierPurchaseReportTotals(result)
                         sendQuerySupplierPurchaseReportScreenEvent(UiEvent.Navigate(PurchaseScreens.SupplierPurchaseReportScreen.route))
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQueryPurchaseMastersReportScreenEvent(UiEvent.CloseProgressBar)
-                        Log.e(TAG, "getPurchaseMastersReport: ${value.error}")
                         sendQueryPurchaseMastersReportScreenEvent(
                             UiEvent.ShowSnackBar(
                                 value.error.message ?: "There have some error"
@@ -439,6 +455,8 @@ class PurchaseViewModel @Inject constructor(
     }
 
     fun getSupplierAccountList() {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         accountList.clear()
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.GET_CUSTOMER_FOR_LEDGER + commonMemory.companyId + "/Supplier"
@@ -459,6 +477,12 @@ class PurchaseViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQuerySupplierPurchaseReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQuerySupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQuerySupplierPurchaseReportScreenEvent(
@@ -481,6 +505,8 @@ class PurchaseViewModel @Inject constructor(
     }
 
     fun getSupplierLedgerReport(fromDate: LocalDate, toDate: LocalDate) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         reArrangedSupplierLedgerReportList.clear()
         if (_selectedAccount.value == null) {
             sendQuerySupplierLedgerReportScreenEvent(UiEvent.ShowSnackBar("No Account is selected"))
@@ -495,7 +521,6 @@ class PurchaseViewModel @Inject constructor(
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.SUPPLIER_LEDGER_REPORT + fromDateString + "/$toDateString" + "/${_selectedAccount.value?.accountId}" + "/${commonMemory.companyId}"
-        Log.e(TAG, "getSupplierLedgerReport: $url")
         viewModelScope.launch(Dispatchers.IO) {
             useCase.supplierLedgerReportUseCase(url = url).collectLatest { value ->
                 when (value) {
@@ -508,7 +533,6 @@ class PurchaseViewModel @Inject constructor(
                         _balance.value = value.data.balance
                         calculateSupplierLedgerTotalsAndReArrange(value.data.details)
                         sendQuerySupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
-                        Log.d(TAG, "getSupplierLedgerReport: ${value.data}")
                         sendQuerySupplierLedgerReportScreenEvent(
                             UiEvent.Navigate(
                                 PurchaseScreens.SupplierLedgerReportScreen.route
@@ -517,13 +541,18 @@ class PurchaseViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendQuerySupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
                         sendQuerySupplierLedgerReportScreenEvent(
                             UiEvent.ShowSnackBar(
                                 value.error.message ?: "There have some error"
                             )
                         )
-                        Log.e(TAG, "getSupplierLedgerReport: ${value.error}")
 
                     }
                 }

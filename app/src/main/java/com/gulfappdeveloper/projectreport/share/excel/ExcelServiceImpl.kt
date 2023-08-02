@@ -48,8 +48,8 @@ class ExcelServiceImpl(
             haveAnyError = haveAnyError,
             fromDate = fromDate,
             toDate = toDate,
-            getUri = getUri
-
+            getUri = getUri,
+            companyName = commonMemory.companyName
         )
     }
 

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -29,7 +29,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,7 +52,6 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.Sal
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sale_summaries_report_screens.report_screen.components.SaleSummaryReportTable
 import kotlinx.coroutines.flow.collectLatest
 
-private const val TAG = "SaleSummaryReportScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +68,7 @@ fun SaleSummaryReportScreen(
     val toDate by salesViewModel.toDateState
 
     val saleSummariesReportList = salesViewModel.saleSummariesReportList
+    val saleSummariesReportTotals by salesViewModel.saleSummariesReportTotal
 
     val context = LocalContext.current
 
@@ -116,12 +115,16 @@ fun SaleSummaryReportScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = "Sale Summary Report ",
-                        textDecoration = TextDecoration.Underline,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
+                    Row {
+                        Text(
+                            text = "Sale Summary Report ",
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -212,7 +215,12 @@ fun SaleSummaryReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 4.dp,end=4.dp, top = it.calculateTopPadding(), bottom = it.calculateBottomPadding()),
+                .padding(
+                    start = 4.dp,
+                    end = 4.dp,
+                    top = it.calculateTopPadding(),
+                    bottom = it.calculateBottomPadding()
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
@@ -242,12 +250,14 @@ fun SaleSummaryReportScreen(
                 }
                 try {
                     return@Scaffold
-                } catch (e: Exception) {
-                    Log.e(TAG, "CustomerPaymentReportScreen: $e")
+                } catch (_: Exception) {
                 }
 
             }
-            SaleSummaryReportTable(saleSummaryReportList = saleSummariesReportList)
+            SaleSummaryReportTable(
+                saleSummaryReportList = saleSummariesReportList,
+                saleSummariesReportTotals = saleSummariesReportTotals!!
+            )
         }
     }
     if (showProgressBar) {
@@ -275,7 +285,6 @@ fun ScreenOrientationActionForSaleSummary(
 
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
-        // salesViewModel.setOrientation(!portrait)
 
     }) {
         Icon(

@@ -62,20 +62,17 @@ fun AccountHomeScreen(
             Spacer(modifier = Modifier.height(60.dp))
             MenuCardItem(
                 title = "Expense Ledger Report",
-                subtitle = "It will give Expense Ledger report"
             ) {
                 accountViewModel.getCustomerAccountList()
                 accountNavHostController.navigate(AccountScreens.QueryExpenseLedgerScreen.route)
             }
             MenuCardItem(
                 title = "Payments Report",
-                subtitle = "It will give Payments report"
             ) {
                 accountNavHostController.navigate(AccountScreens.QueryPaymentsReportScreen.route)
             }
             MenuCardItem(
                 title = "Receipts Report",
-                subtitle = "It will give Receipts report"
             ) {
                 accountNavHostController.navigate(AccountScreens.QueryReceiptsReportScreen.route)
             }

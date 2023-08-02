@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +19,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
+import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.SalesInvoiceReportTotals
+import com.gulfappdeveloper.projectreport.root.formatFloatToTwoDecimalPlaces
 import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
@@ -28,7 +29,8 @@ import eu.wewox.lazytable.lazyTablePinConfiguration
 
 @Composable
 fun SaleInvoiceReportTable(
-    saleInvoiceReportList: SnapshotStateList<SalesInvoiceResponse>
+    saleInvoiceReportList: SnapshotStateList<SalesInvoiceResponse>,
+    salesInvoiceReportTotals: SalesInvoiceReportTotals
 ) {
     val totalColumn = 9
     LazyTable(
@@ -47,14 +49,15 @@ fun SaleInvoiceReportTable(
             columnSize = {
                 val value = when (it) {
                     0 -> 44.dp
-                    1 -> 100.dp
-                    2 -> 64.dp
-                    3 -> 200.dp
-                    4 -> 92.dp
-                    6 -> 92.dp
-                    7 -> 92.dp
-                    8 -> 92.dp
-                    else -> 92.dp
+                    1 -> 120.dp
+                    2 -> 144.dp
+                    3 -> 260.dp
+                    4 -> 144.dp
+                    5 -> 144.dp
+                    6 -> 144.dp
+                    7 -> 144.dp
+                    8 -> 144.dp
+                    else -> 144.dp
                 }
                 value
 
@@ -84,11 +87,11 @@ fun SaleInvoiceReportTable(
                 1 -> rowData.date.stringToDateStringConverter()
                 2 -> rowData.invoiceNo.toString()
                 3 -> rowData.party ?: "-"
-                4 -> rowData.taxable.toString()
-                5 -> rowData.tax.toString()
-                6 -> rowData.returnTaxable.toString()
-                7 -> rowData.taxOnReturn.toString()
-                8 -> rowData.net.toString()
+                4 -> rowData.taxable.formatFloatToTwoDecimalPlaces()
+                5 -> rowData.tax.formatFloatToTwoDecimalPlaces()
+                6 -> rowData.returnTaxable.formatFloatToTwoDecimalPlaces()
+                7 -> rowData.taxOnReturn.formatFloatToTwoDecimalPlaces()
+                8 -> rowData.net.formatFloatToTwoDecimalPlaces()
                 else -> "Error"
             }
 
@@ -158,6 +161,155 @@ fun SaleInvoiceReportTable(
                     fontWeight = MaterialTheme.typography.titleMedium.fontWeight
                 )
             }
+        }
+        items(
+            count = totalColumn,
+            layoutInfo = {
+                LazyTableItem(
+                    column = it % totalColumn,
+                    row = saleInvoiceReportList.size + 1
+                )
+            }
+        ) {
+            when (it) {
+                0 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                        //.border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = "",
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+                        )
+                    }
+                }
+                1 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                        //.border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = "",
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+                        )
+                    }
+                }
+                2 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                        //.border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = "",
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+                        )
+                    }
+                }
+
+                3 -> {
+                    Box(
+                        contentAlignment = Alignment.CenterEnd,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                        //.border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = "Total :- ",
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+                        )
+                    }
+                }
+
+
+                4 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                            .border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = String.format("%.2f", salesInvoiceReportTotals.sumOfTaxable),
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.labelLarge.fontWeight
+                        )
+                    }
+                }
+                5 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                            .border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = String.format("%.2f", salesInvoiceReportTotals.sumOfTax),
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.labelLarge.fontWeight
+                        )
+                    }
+                }
+                6 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                            .border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = String.format("%.2f", salesInvoiceReportTotals.sumOfReturn),
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.labelLarge.fontWeight
+                        )
+                    }
+                }
+
+                7-> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                            .border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = String.format("%.2f", salesInvoiceReportTotals.sumOfTaxOnReturn),
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.labelLarge.fontWeight
+                        )
+                    }
+                }
+
+
+
+
+                8 -> {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .background(Color(0xFFFFFFFF))
+                            .border(Dp.Hairline, Color.Black)
+                    ) {
+                        Text(
+                            text = String.format("%.2f", salesInvoiceReportTotals.sumOfNet),
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            fontWeight = MaterialTheme.typography.labelLarge.fontWeight
+                        )
+                    }
+                }
+
+                else -> Unit
+            }
+
         }
 
     }

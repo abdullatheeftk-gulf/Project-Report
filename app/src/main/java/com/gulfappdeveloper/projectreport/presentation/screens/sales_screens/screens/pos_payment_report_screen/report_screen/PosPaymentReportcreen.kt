@@ -1,11 +1,9 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.report_screen
 
 import android.app.Activity
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -30,7 +29,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,7 +52,6 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.Sal
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.report_screen.components.PosPaymentReportTable
 import kotlinx.coroutines.flow.collectLatest
 
-private const val TAG = "PosPaymentReportScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,12 +114,16 @@ fun PosPaymentReportScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = "Pos Payment Report ",
-                        textDecoration = TextDecoration.Underline,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
+                    Row {
+                        Text(
+                            text = "Pos Payment Report ",
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -213,7 +214,12 @@ fun PosPaymentReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 4.dp,end=4.dp,top=it.calculateTopPadding(), bottom = it.calculateBottomPadding()),
+                .padding(
+                    start = 4.dp,
+                    end = 4.dp,
+                    top = it.calculateTopPadding(),
+                    bottom = it.calculateBottomPadding()
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -242,8 +248,7 @@ fun PosPaymentReportScreen(
                 }
                 try {
                     return@Scaffold
-                } catch (e: Exception) {
-                    Log.e(TAG, "PosPaymentReportScreen: $e")
+                } catch (_: Exception) {
                 }
 
             }
@@ -278,7 +283,6 @@ fun ScreenOrientationActionForPosPayment(
 
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
-        // salesViewModel.setOrientation(!portrait)
 
     }) {
         Icon(

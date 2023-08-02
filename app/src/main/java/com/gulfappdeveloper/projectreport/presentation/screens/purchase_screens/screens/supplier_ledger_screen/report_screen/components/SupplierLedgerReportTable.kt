@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.ReArrangedSupplierLedgerDetail
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.SupplierLedgerTotals
+import com.gulfappdeveloper.projectreport.root.formatFloatToTwoDecimalPlaces
 import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
@@ -81,8 +82,8 @@ fun SupplierLedgerReportTable(
                 1 -> rowData.voucherDate.stringToDateStringConverter()
                 2 -> rowData.voucherNo.toString()
                 3 -> rowData.particulars
-                4 -> rowData.debit.toString()
-                5 -> rowData.credit.toString()
+                4 -> rowData.debit.formatFloatToTwoDecimalPlaces()
+                5 -> rowData.credit.formatFloatToTwoDecimalPlaces()
                 else -> "Error"
             }
 

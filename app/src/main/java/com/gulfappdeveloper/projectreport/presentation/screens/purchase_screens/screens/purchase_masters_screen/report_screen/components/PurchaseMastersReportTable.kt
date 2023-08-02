@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterTotals
+import com.gulfappdeveloper.projectreport.root.formatFloatToTwoDecimalPlaces
 import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
@@ -85,12 +86,12 @@ fun PurchaseMastersReportTable(
                 1 -> rowData.invoiceDate.stringToDateStringConverter()
                 2 -> rowData.invoiceNo.toString()
                 3 -> rowData.supplier
-                4 -> rowData.taxable.toString()
-                5 -> rowData.tax.toString()
-                6 -> rowData.net.toString()
-                7 -> rowData.payment.toString()
-                8 -> rowData.returnAmount.toString()
-                9 -> rowData.balanceAmount.toString()
+                4 -> rowData.taxable.formatFloatToTwoDecimalPlaces()
+                5 -> rowData.tax.formatFloatToTwoDecimalPlaces()
+                6 -> rowData.net.formatFloatToTwoDecimalPlaces()
+                7 -> rowData.payment.formatFloatToTwoDecimalPlaces()
+                8 -> rowData.returnAmount.formatFloatToTwoDecimalPlaces()
+                9 -> rowData.balanceAmount.formatFloatToTwoDecimalPlaces()
                 else -> "Error"
             }
 

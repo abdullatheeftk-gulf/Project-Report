@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -28,7 +29,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,13 +45,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toFile
 import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.R
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.SalesViewModel
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.report_screen.components.SaleInvoiceReportTable
-import com.itextpdf.kernel.pdf.PdfReader
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,6 +66,7 @@ fun SaleInvoiceReportScreen(
     val toDate by salesViewModel.toDateState
 
     val saleInvoiceReportList = salesViewModel.salesInvoiceReportList
+    val salesInvoiceReportTotals by salesViewModel.salesInvoiceTotal
 
     val context = LocalContext.current
 
@@ -111,12 +110,16 @@ fun SaleInvoiceReportScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(
-                        text = "Sale Invoice Report ",
-                        textDecoration = TextDecoration.Underline,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
+                    Row {
+                        Text(
+                            text = "Sale Invoice Report ",
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -207,7 +210,12 @@ fun SaleInvoiceReportScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = it.calculateTopPadding(), bottom = it.calculateBottomPadding(), start = 4.dp, end = 4.dp),
+                .padding(
+                    top = it.calculateTopPadding(),
+                    bottom = it.calculateBottomPadding(),
+                    start = 4.dp,
+                    end = 4.dp
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -241,7 +249,10 @@ fun SaleInvoiceReportScreen(
                 }
 
             }
-            SaleInvoiceReportTable(saleInvoiceReportList = saleInvoiceReportList)
+            SaleInvoiceReportTable(
+                saleInvoiceReportList = saleInvoiceReportList,
+                salesInvoiceReportTotals = salesInvoiceReportTotals!!
+            )
         }
     }
 

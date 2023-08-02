@@ -1,6 +1,7 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_payment_report_screens.query_screen
 
-import android.util.Log
+import android.app.Activity
+import android.content.pm.ActivityInfo
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,16 +26,16 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -52,7 +53,7 @@ import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 
-private const val TAG = "QueryCustomerPaymentRep"
+//private const val TAG = "QueryCustomerPaymentRep"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QueryCustomerPaymentReportScreen(
@@ -112,19 +113,19 @@ fun QueryCustomerPaymentReportScreen(
         salesViewModel.queryCustomerPaymentReportScreenEvent.collectLatest { value ->
             when(value.uiEvent){
                 is UiEvent.ShowProgressBar->{
-                    Log.d(TAG, "QueryCustomerPaymentScreen: ")
+                    //Log.d(TAG, "QueryCustomerPaymentScreen: ")
                     showProgressBar = true
                 }
                 is UiEvent.CloseProgressBar->{
-                    Log.d(TAG, "QueryCustomerPaymentScreen: ")
+                   // Log.d(TAG, "QueryCustomerPaymentScreen: ")
                     showProgressBar = false
                 }
                 is UiEvent.Navigate->{
-                    Log.d(TAG, "QueryCustomerPaymentScreen: ")
+                   // Log.d(TAG, "QueryCustomerPaymentScreen: ")
                     salesNavHostController.navigate(value.uiEvent.route)
                 }
                 is UiEvent.ShowSnackBar->{
-                    Log.e(TAG, "QueryCustomerPaymentScreen: ${value.uiEvent.message}")
+                    //Log.e(TAG, "QueryCustomerPaymentScreen: ${value.uiEvent.message}")
                     snackBarHostState.showSnackbar(value.uiEvent.message)
                 }
                 else->Unit
@@ -132,6 +133,9 @@ fun QueryCustomerPaymentReportScreen(
 
         }
     }
+
+    val activity = LocalContext.current as Activity
+    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
     Scaffold(
     snackbarHost = {
@@ -204,7 +208,8 @@ fun QueryCustomerPaymentReportScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_calendar_month),
-                                    contentDescription = null
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -246,7 +251,8 @@ fun QueryCustomerPaymentReportScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_calendar_month),
-                                    contentDescription = null
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }

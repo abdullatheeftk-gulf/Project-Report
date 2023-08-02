@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
-import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,22 +11,14 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import com.gulfappdeveloper.projectreport.domain.services.PdfService
 import com.gulfappdeveloper.projectreport.navigation.RootNavGraph
-import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.RootViewModel
-import com.gulfappdeveloper.projectreport.share.pdf.sales.customer_ledger_report.CustomerLedgerReportPdf
 import com.gulfappdeveloper.projectreport.ui.theme.ProjectReportTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
-import javax.inject.Inject
 
-private const val TAG = "MainActivity"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -36,20 +27,18 @@ class MainActivity : ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "onCreate: ")
         super.onCreate(savedInstanceState)
 
         try {
             val path =
                 Environment.getExternalStorageDirectory().path + "/Android/data/${packageName}/files"
-            Log.e(TAG, "onCreate: $path")
             val directory = File(path)
             val files = directory.listFiles()
             files?.forEach {
                 it.delete()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "onCreate: ${e.message}")
+            e.message
         }
 
 
@@ -78,6 +67,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
     }
 
     private fun hideSoftKeyboard() {

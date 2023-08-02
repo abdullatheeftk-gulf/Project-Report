@@ -1,6 +1,5 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.settings_screens
 
-import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
@@ -15,15 +14,14 @@ import com.gulfappdeveloper.projectreport.domain.models.license.LicenseRequestBo
 import com.gulfappdeveloper.projectreport.domain.models.login_and_register.CompanyRegisterResponse
 import com.gulfappdeveloper.projectreport.domain.models.room.LocalCompanyData
 import com.gulfappdeveloper.projectreport.domain.services.FirebaseService
-import com.gulfappdeveloper.projectreport.navigation.RootNavScreens
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
-import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.sales_invoice_report_screens.report_screen.util.SalesInvoiceReportScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.screens.add_company_screen.util.AddCompanyScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.screens.change_company_screen.util.ChangeCompanyScreenEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.settings_screens.screens.change_company_screen.util.LicenseActivationBarEvent
 import com.gulfappdeveloper.projectreport.root.AppConstants
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
+import com.gulfappdeveloper.projectreport.root.sendErrorDataToFirebase
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +34,6 @@ import kotlinx.serialization.json.Json
 import java.util.Date
 import javax.inject.Inject
 
-private const val TAG = "SettingsViewModel"
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -66,7 +63,7 @@ class SettingsViewModel @Inject constructor(
     val deviceId: State<String> = _deviceId
 
     private val _ipAddress = mutableStateOf("")
-    val ipAddress: State<String> = _ipAddress
+   // val ipAddress: State<String> = _ipAddress
 
     private val _appActivationStatus = mutableStateOf(false)
     val appActivationStatus: State<Boolean> = _appActivationStatus
@@ -118,9 +115,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun saveActivationStatusToDataStore(value: Boolean) {
+    private fun Boolean.saveActivationStatusToDataStore() {
         viewModelScope.launch(Dispatchers.IO) {
-            useCase.saveActivationUseCase(value)
+            useCase.saveActivationUseCase(this@saveActivationStatusToDataStore)
         }
     }
 
@@ -147,7 +144,6 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             useCase.getAllLocalCompanyDataUseCase().collectLatest { value ->
                 localCompanyDataList.clear()
-                Log.i(TAG, "getAllLocalCompanyData: $value")
                 localCompanyDataList.addAll(value)
             }
         }
@@ -171,21 +167,10 @@ class SettingsViewModel @Inject constructor(
                         _companyId = companyDataResponse.id
                         commonMemory.companyId = _companyId.toShort()
                         _selectedCompanyId.value = companyDataResponse.id
-                        Log.e(
-                            TAG,
-                            "readCompanyDataFromDataStore: data from data store-> $companyDataResponse"
-                        )
                         commonMemory.companyName = companyDataResponse.name
-                        Log.d(TAG, "commonMemory: ${commonMemory.companyId}")
-                        // Log.e(TAG, "readCompanyData: $_companyId")
-                        //sendSplashScreenEvent(UiEvent.Navigate(route = RootNavScreens.LoginScreen.route))
 
-                    } else {
-                        //sendSplashScreenEvent(UiEvent.ShowAlertDialog(AppConstants.COMPANY_NOT_REGISTERED))
-                        //sendSplashScreenEvent(UiEvent.Navigate(route = RootNavScreens.RegisterCompanyScreen.route))
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "readCompanyDataFromDataStore: ${e.message}")
+                } catch (_: Exception) {
                 }
 
             }
@@ -193,6 +178,8 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun registerCompany(companyCode: String) {
+        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         val url = HttpRoutes.BASE_URL + HttpRoutes.REGISTER_COMPANY + "/$companyCode"
         viewModelScope.launch(Dispatchers.IO) {
             useCase.registerCompanyUseCase(url = url).collectLatest { value ->
@@ -212,12 +199,17 @@ class SettingsViewModel @Inject constructor(
                             taxId = result.taxId
                         )
                         insertCompanyDataToLocalDatabase(localCompanyData = localCompanyData)
-                        //saveCompanyData(companyRegisterResponse = result)
 
                         sendAddCompanyScreenEvent(UiEvent.Navigate("pop"))
                     }
 
                     is GetDataFromRemote.Failed -> {
+                        val error = value.error
+                        firebaseService.sendErrorDataToFirebase(
+                            url = url,
+                            error = error,
+                            funcName = funcName
+                        )
                         sendAddCompanyScreenEvent(UiEvent.CloseProgressBar)
                         sendAddCompanyScreenEvent(UiEvent.ShowSnackBar("Failed to register"))
                     }
@@ -235,7 +227,6 @@ class SettingsViewModel @Inject constructor(
                 )
             } catch (e: Exception) {
                 sendChangeCompanyScreenEvent(UiEvent.ShowSnackBar("This company registered before"))
-                Log.e(TAG, "insertCompanyDataToLocalDatabase: ${e.message}")
             }
         }
     }
@@ -274,13 +265,13 @@ class SettingsViewModel @Inject constructor(
                       //Showing message on LicenseActivationBar
                       sendLicenseActivationBarEvent(UiEvent.ShowSnackBar(AppConstants.ACTIVATION_SUCCESS))
                       _appActivationStatus.value = true
-                      saveActivationStatusToDataStore(value = true)
+                      true.saveActivationStatusToDataStore()
                       setShowActivationBar(false)
                       saveGeneralDataToFirebase()
                   }
                   is GetDataFromRemote.Failed->{
                       val error = value.error
-                      saveErrorDataToFireBase(url = url,error, functionName = "activateApp")
+                      url.saveErrorDataToFireBase(error, functionName = "activateApp")
                       sendLicenseActivationBarEvent(UiEvent.CloseProgressBar)
                       val errorMessage = value.error.message?:"There have some error when activating app"
                       sendLicenseActivationBarEvent(UiEvent.ShowSnackBar(errorMessage))
@@ -305,13 +296,13 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun saveErrorDataToFireBase(url:String,error:Error,functionName:String){
+    private fun String.saveErrorDataToFireBase(error: Error, functionName: String){
         viewModelScope.launch(Dispatchers.IO) {
             firebaseService.insertErrorDataToFireStore(
                 collectionName = "ErrorData",
                 documentName = "SettingsViewModel-$functionName-${Date()}",
                 error = FirebaseError(
-                    url = url,
+                    url = this@saveErrorDataToFireBase,
                     errorCode = error.code,
                     errorMessage = error.message?:"Unknown problem",
                     ipAddress = _ipAddress.value

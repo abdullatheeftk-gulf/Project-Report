@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun MenuCardItem(
     title: String,
-    subtitle: String?,
+    subtitle: String?=null,
     onClicked: () -> Unit
 ) {
     Card(
@@ -33,7 +33,10 @@ fun MenuCardItem(
             .padding(4.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                .padding(
+                start = 8.dp, top = 4.dp, bottom = 4.dp
+            ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

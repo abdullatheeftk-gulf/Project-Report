@@ -2,12 +2,11 @@ package com.gulfappdeveloper.projectreport.share.excel.sales.customer_ledger_rep
 
 import android.content.Context
 import android.net.Uri
+import androidx.annotation.Keep
 import androidx.core.content.FileProvider
-import com.gulfappdeveloper.projectreport.domain.models.sales.PosPaymentResponse
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.ReArrangedCustomerLedgerDetails
 import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import com.gulfappdeveloper.projectreport.share.excel.createHeading
-import com.gulfappdeveloper.projectreport.share.excel.sales.pos_payment_report.PosPaymentReportExcel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.apache.poi.ss.usermodel.BorderStyle
@@ -106,6 +105,7 @@ object CustomerLedgerReportExcel {
             haveAnyError(false, null)
 
         } catch (e: Exception) {
+            e.printStackTrace()
             haveAnyError(true, e.message)
         }
     }
@@ -121,7 +121,7 @@ object CustomerLedgerReportExcel {
                 setCellValue("Party Name :\t $partyName")
             }
         } catch (e: Exception) {
-            throw Exception(e.message)
+            throw e
         }
     }
 
@@ -136,7 +136,7 @@ object CustomerLedgerReportExcel {
                 setCellValue("Balance :\t $balance")
             }
         } catch (e: Exception) {
-            throw Exception(e.message)
+            throw e
         }
     }
 
@@ -172,7 +172,7 @@ object CustomerLedgerReportExcel {
 
             }
         } catch (e: Exception) {
-            throw Exception(e.message)
+            throw e
         }
 
     }
@@ -235,7 +235,7 @@ object CustomerLedgerReportExcel {
             }
 
         } catch (e: Exception) {
-            throw Exception(e.message)
+            throw e
         }
 
     }
@@ -305,93 +305,97 @@ object CustomerLedgerReportExcel {
                 }
             }
         } catch (e: Exception) {
-            throw Exception(e.message)
+            throw e
         }
 
     }
 
     private fun createTotalValueRow(sheet: Sheet, wb: XSSFWorkbook, rowIndex: Int) {
-        val totalRow = sheet.createRow(rowIndex).apply {
-            height = (25 * 20).toShort()
+        try {
+            val totalRow = sheet.createRow(rowIndex).apply {
+                height = (25 * 20).toShort()
 
-        }
+            }
 
-        totalRow.createCell(4).apply {
-            cellFormula = "Sum(E6:E$rowIndex)"
-            cellStyle = wb.createCellStyle().apply {
-                val font = wb.createFont().apply {
-                    fontHeight = (14 * 20).toShort()
-                    bold = true
-                    color = IndexedColors.BLUE.index
+            totalRow.createCell(4).apply {
+                cellFormula = "Sum(E6:E$rowIndex)"
+                cellStyle = wb.createCellStyle().apply {
+                    val font = wb.createFont().apply {
+                        fontHeight = (14 * 20).toShort()
+                        bold = true
+                        color = IndexedColors.BLUE.index
+                    }
+                    setFont(font)
+                    borderBottom = BorderStyle.MEDIUM
+                    borderLeft = BorderStyle.THIN
+                    alignment = HorizontalAlignment.CENTER
+                    verticalAlignment = VerticalAlignment.CENTER
+                    dataFormat = wb.createDataFormat().getFormat("0.00")
+
                 }
-                setFont(font)
-                borderBottom = BorderStyle.MEDIUM
-                borderLeft = BorderStyle.THIN
-                alignment = HorizontalAlignment.CENTER
-                verticalAlignment = VerticalAlignment.CENTER
-                dataFormat = wb.createDataFormat().getFormat("0.00")
-
             }
-        }
 
 
-        totalRow.createCell(5).apply {
-            cellFormula = "Sum(F6:F$rowIndex)"
-            cellStyle = wb.createCellStyle().apply {
-                val font = wb.createFont().apply {
-                    fontHeight = (14 * 20).toShort()
-                    bold = true
-                    color = IndexedColors.BLUE.index
+            totalRow.createCell(5).apply {
+                cellFormula = "Sum(F6:F$rowIndex)"
+                cellStyle = wb.createCellStyle().apply {
+                    val font = wb.createFont().apply {
+                        fontHeight = (14 * 20).toShort()
+                        bold = true
+                        color = IndexedColors.BLUE.index
+                    }
+                    setFont(font)
+                    borderBottom = BorderStyle.MEDIUM
+                    borderLeft = BorderStyle.THIN
+                    borderRight = BorderStyle.MEDIUM
+                    alignment = HorizontalAlignment.CENTER
+                    verticalAlignment = VerticalAlignment.CENTER
+                    dataFormat = wb.createDataFormat().getFormat("0.00")
                 }
-                setFont(font)
-                borderBottom = BorderStyle.MEDIUM
-                borderLeft = BorderStyle.THIN
-                borderRight = BorderStyle.MEDIUM
-                alignment = HorizontalAlignment.CENTER
-                verticalAlignment = VerticalAlignment.CENTER
-                dataFormat = wb.createDataFormat().getFormat("0.00")
             }
-        }
-        sheet.addMergedRegion(CellRangeAddress(rowIndex, rowIndex, 0, 3))
-        totalRow.createCell(0).apply {
-            setCellValue("TOTAL:- ")
-            cellStyle = wb.createCellStyle().apply {
-                alignment = HorizontalAlignment.RIGHT
-                verticalAlignment = VerticalAlignment.CENTER
-                val font = wb.createFont().apply {
-                    fontHeight = 280
-                    color = IndexedColors.BLUE.index
-                    bold = true
-                } as XSSFFont
-                setFont(font)
-                borderBottom = BorderStyle.MEDIUM
-                borderLeft = BorderStyle.MEDIUM
+            sheet.addMergedRegion(CellRangeAddress(rowIndex, rowIndex, 0, 3))
+            totalRow.createCell(0).apply {
+                setCellValue("TOTAL:- ")
+                cellStyle = wb.createCellStyle().apply {
+                    alignment = HorizontalAlignment.RIGHT
+                    verticalAlignment = VerticalAlignment.CENTER
+                    val font = wb.createFont().apply {
+                        fontHeight = 280
+                        color = IndexedColors.BLUE.index
+                        bold = true
+                    } as XSSFFont
+                    setFont(font)
+                    borderBottom = BorderStyle.MEDIUM
+                    borderLeft = BorderStyle.MEDIUM
 
+                }
             }
-        }
-        totalRow.createCell(1).apply {
+            totalRow.createCell(1).apply {
 
-            cellStyle = wb.createCellStyle().apply {
+                cellStyle = wb.createCellStyle().apply {
 
-                borderBottom = BorderStyle.MEDIUM
+                    borderBottom = BorderStyle.MEDIUM
 
+                }
             }
-        }
-        totalRow.createCell(2).apply {
+            totalRow.createCell(2).apply {
 
-            cellStyle = wb.createCellStyle().apply {
+                cellStyle = wb.createCellStyle().apply {
 
-                borderBottom = BorderStyle.MEDIUM
+                    borderBottom = BorderStyle.MEDIUM
 
+                }
             }
-        }
-        totalRow.createCell(3).apply {
+            totalRow.createCell(3).apply {
 
-            cellStyle = wb.createCellStyle().apply {
+                cellStyle = wb.createCellStyle().apply {
 
-                borderBottom = BorderStyle.MEDIUM
+                    borderBottom = BorderStyle.MEDIUM
 
+                }
             }
+        }catch (e:Exception){
+            throw  e
         }
     }
 }

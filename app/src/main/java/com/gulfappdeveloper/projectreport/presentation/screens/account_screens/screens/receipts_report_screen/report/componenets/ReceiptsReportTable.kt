@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
+import com.gulfappdeveloper.projectreport.root.formatFloatToTwoDecimalPlaces
 import com.gulfappdeveloper.projectreport.root.stringToDateStringConverter
 import eu.wewox.lazytable.LazyTable
 import eu.wewox.lazytable.LazyTableItem
@@ -79,7 +80,7 @@ fun ReceiptsReportTable(
                 1 -> rowData.date.stringToDateStringConverter()
                 2 -> rowData.vchrNo.toString()
                 3 -> rowData.particulars
-                4 -> rowData.amount.toString()
+                4 -> rowData.amount.formatFloatToTwoDecimalPlaces()
                 else -> "Error"
             }
 

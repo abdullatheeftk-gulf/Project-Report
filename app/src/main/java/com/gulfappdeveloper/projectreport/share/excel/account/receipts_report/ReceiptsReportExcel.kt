@@ -71,7 +71,7 @@ object ReceiptsReportExcel {
 
 
             sheet.setColumnWidth(0, 5 * 200)
-            sheet.setColumnWidth(1, 25 * 200)
+            sheet.setColumnWidth(1, 35 * 200)
             sheet.setColumnWidth(2, 15 * 200)
             sheet.setColumnWidth(3, 40 * 200)
             sheet.setColumnWidth(4, 20 * 200)

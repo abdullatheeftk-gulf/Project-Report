@@ -63,26 +63,22 @@ fun PurchaseHomeScreen(
         ) {
             PurchaseMenuCardItem(
                 title = "Purchase Masters Report",
-                subtitle = "It will give purchase masters report"
             ) {
                 purchaseNavHostController.navigate(PurchaseScreens.QueryPurchaseMastersReportScreen.route)
             }
             PurchaseMenuCardItem(
                 title = "Purchase Summary Report",
-                subtitle = "It will give purchase summary report"
             ) {
                 purchaseNavHostController.navigate(PurchaseScreens.QueryPurchaseSummaryReportScreen.route)
             }
             PurchaseMenuCardItem(
                 title = "Supplier Purchase Report",
-                subtitle = "It will give supplier purchase report"
             ) {
                 purchaseViewModel.getSupplierAccountList()
                 purchaseNavHostController.navigate(PurchaseScreens.QuerySupplierPurchaseReportScreen.route)
             }
             PurchaseMenuCardItem(
                 title = "Supplier Ledger Report",
-                subtitle = "It will give supplier ledger report"
             ) {
                 purchaseViewModel.getSupplierAccountList()
                 purchaseNavHostController.navigate(PurchaseScreens.QuerySupplierLedgerReportScreen.route)

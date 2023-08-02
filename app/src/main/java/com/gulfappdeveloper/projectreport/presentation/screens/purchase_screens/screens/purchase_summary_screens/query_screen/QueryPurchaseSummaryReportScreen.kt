@@ -205,7 +205,8 @@ fun QueryPurchaseSummaryReportScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_calendar_month),
-                                    contentDescription = null
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
@@ -247,7 +248,8 @@ fun QueryPurchaseSummaryReportScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.baseline_calendar_month),
-                                    contentDescription = null
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }

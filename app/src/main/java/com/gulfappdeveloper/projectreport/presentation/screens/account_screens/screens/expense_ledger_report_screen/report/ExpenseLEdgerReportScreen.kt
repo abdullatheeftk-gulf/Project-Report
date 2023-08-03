@@ -118,7 +118,8 @@ fun ExpenseLedgerReportScreen(
                 title = {
                     Row {
                         Text(
-                            text = "Expense Ledger Report",
+                            text = "Expense Ledger\n" +
+                                    "Report",
                             textDecoration = TextDecoration.Underline,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center

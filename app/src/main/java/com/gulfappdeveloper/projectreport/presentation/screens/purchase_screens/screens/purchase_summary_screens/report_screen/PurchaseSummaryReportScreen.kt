@@ -124,7 +124,7 @@ fun PurchaseSummaryReportScreen(
                 title = {
                     Row {
                         Text(
-                            text = "Purchase Summary Report",
+                            text = "Purchase Summary\nReport",
                             textDecoration = TextDecoration.Underline,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center

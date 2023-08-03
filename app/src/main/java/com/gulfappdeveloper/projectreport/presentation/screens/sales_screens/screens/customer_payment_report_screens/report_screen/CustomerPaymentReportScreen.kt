@@ -120,7 +120,7 @@ fun CustomerPaymentReportScreen(
                 title = {
                     Row() {
                         Text(
-                            text = "Customer Payment Report",
+                            text = "Customer Payment\nReport",
                             textDecoration = TextDecoration.Underline,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center

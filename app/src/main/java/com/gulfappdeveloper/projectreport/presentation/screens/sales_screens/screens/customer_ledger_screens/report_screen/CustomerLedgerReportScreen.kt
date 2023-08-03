@@ -114,7 +114,7 @@ fun CustomerLedgerReportScreen(
                 title = {
                     Row {
                         Text(
-                            text = "Customer Ledger Report",
+                            text = "Customer Ledger\nReport",
                             textDecoration = TextDecoration.Underline,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center

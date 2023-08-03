@@ -117,7 +117,7 @@ fun SaleSummaryReportScreen(
                 title = {
                     Row {
                         Text(
-                            text = "Sale Summary Report ",
+                            text = "Sale Summary\nReport ",
                             textDecoration = TextDecoration.Underline,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center

@@ -17,8 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,13 +26,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.gulfappdeveloper.projectreport.BuildConfig
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.root.RootViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -101,7 +97,7 @@ fun RegisterCompanyScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Register Your company",
+                        text = if (BuildConfig.APP_STATUS) "Register your one store" else "Register your company",
                         color = MaterialTheme.colorScheme.primary,
                         textDecoration = TextDecoration.Underline
                     )
@@ -132,7 +128,8 @@ fun RegisterCompanyScreen(
                 },
                 placeholder = {
                     Text(
-                        text = "Enter one of your store code",
+                        //text = "Enter one of your store code",
+                        text = if(BuildConfig.APP_STATUS) "Enter one of your store code" else "Enter company code",
                         modifier = Modifier.alpha(0.5f)
                     )
                 },

@@ -121,7 +121,7 @@ fun SupplierLedgerReportScreen(
                 title = {
                     Row {
                         Text(
-                            text = "Supplier Ledger Report",
+                            text = "Supplier Ledger\nReport",
                             textDecoration = TextDecoration.Underline,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center

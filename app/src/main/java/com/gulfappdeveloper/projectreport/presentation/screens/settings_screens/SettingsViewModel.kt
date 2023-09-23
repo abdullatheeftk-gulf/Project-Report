@@ -1,5 +1,6 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.settings_screens
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
@@ -34,7 +35,7 @@ import kotlinx.serialization.json.Json
 import java.util.Date
 import javax.inject.Inject
 
-
+private const val TAG = "SettingsViewModel"
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val useCase: UseCase,
@@ -125,6 +126,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             useCase.readIpAddressUseCase().collectLatest { value ->
                 _ipAddress.value = value
+                Log.w(TAG, "readIpAddressFromDataStore: ${_ipAddress.value}", )
             }
         }
     }
@@ -251,6 +253,9 @@ class SettingsViewModel @Inject constructor(
             macId = _deviceId.value,
             ipAddress = _ipAddress.value
         )
+
+        Log.d(TAG, "activateApp: licensebody $licenseRequestBody")
+
         viewModelScope.launch(Dispatchers.IO) {
           useCase.uniLicenseActivationUseCase(
               url=url,
@@ -261,6 +266,8 @@ class SettingsViewModel @Inject constructor(
                       sendLicenseActivationBarEvent(UiEvent.ShowProgressBar)
                   }
                   is GetDataFromRemote.Success->{
+                      val result = value.data
+                      Log.i(TAG, "activateApp: license activation result", )
                       sendLicenseActivationBarEvent(UiEvent.CloseProgressBar)
                       //Showing message on LicenseActivationBar
                       sendLicenseActivationBarEvent(UiEvent.ShowSnackBar(AppConstants.ACTIVATION_SUCCESS))
@@ -270,7 +277,9 @@ class SettingsViewModel @Inject constructor(
                       saveGeneralDataToFirebase()
                   }
                   is GetDataFromRemote.Failed->{
+                      
                       val error = value.error
+                      Log.e(TAG, "activateApp: license activation failed $error", )
                       url.saveErrorDataToFireBase(error, functionName = "activateApp")
                       sendLicenseActivationBarEvent(UiEvent.CloseProgressBar)
                       val errorMessage = value.error.message?:"There have some error when activating app"

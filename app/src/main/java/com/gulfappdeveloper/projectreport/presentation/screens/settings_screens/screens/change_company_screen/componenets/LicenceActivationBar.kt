@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -122,13 +123,16 @@ fun LicenceActivationBar(
                     text = ":",
                     modifier = Modifier.weight(0.1f)
                 )
-                Text(
-                    text = deviceId,
-                    modifier = Modifier.weight(2f),
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
-                )
+                SelectionContainer {
+                    Text(
+                        text = deviceId,
+                        modifier = Modifier.weight(2f),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+
             }
             OutlinedTextField(
                 value = activationCode,

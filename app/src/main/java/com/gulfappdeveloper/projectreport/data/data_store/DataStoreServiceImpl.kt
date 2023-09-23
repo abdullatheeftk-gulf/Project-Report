@@ -1,6 +1,7 @@
 package com.gulfappdeveloper.projectreport.data.data_store
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -18,7 +19,7 @@ import kotlinx.coroutines.flow.map
 import java.io.IOException
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = if(BuildConfig.APP_STATUS) DataStoreConstants.PREFERENCE_NAME else DataStoreConstants.PREFERENCE_NAME+"_single")
-
+private const val TAG = "DataStoreServiceImpl"
 class DataStoreServiceImpl(context: Context) : DataStoreService {
 
     private object PreferenceKeys {
@@ -100,6 +101,7 @@ class DataStoreServiceImpl(context: Context) : DataStoreService {
             }
             .map { preferences ->
                 val ipAddress = preferences[PreferenceKeys.ipAddressKey] ?: ""
+                Log.w(TAG, "readIpaddress: $ipAddress", )
                 ipAddress
             }
     }

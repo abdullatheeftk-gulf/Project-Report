@@ -1,5 +1,6 @@
 package com.gulfappdeveloper.projectreport.root
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
@@ -28,7 +29,7 @@ import kotlinx.serialization.json.Json
 import java.util.Date
 import javax.inject.Inject
 
-
+private const val TAG = "RootViewModel"
 @HiltViewModel
 class RootViewModel @Inject constructor(
     private val useCase: UseCase,
@@ -140,9 +141,16 @@ class RootViewModel @Inject constructor(
 
     private fun saveIpAddressUseCase(ipAddress: String) {
         viewModelScope.launch {
-            // Log.e(TAG, "saveIpAddressUseCase: ")
-            _publicIpAddress.ifEmpty {
+            Log.e(TAG, "saveIpAddressUseCase: $ipAddress")
+            /*_publicIpAddress.ifEmpty {
                 useCase.saveIpAddressUseCase(ipAddress = ipAddress)
+                Log.d(TAG, "saveIpAddressUseCase: $ipAddress")
+            }*/
+            if (_publicIpAddress.isEmpty() && _publicIpAddress.isBlank()){
+                useCase.saveIpAddressUseCase(ipAddress = ipAddress)
+                Log.d(TAG, "saveIpAddressUseCase: $ipAddress")
+            }else{
+                Log.w(TAG, "saveIpAddressUseCase: not- $_publicIpAddress", )
             }
         }
     }
@@ -151,6 +159,7 @@ class RootViewModel @Inject constructor(
         viewModelScope.launch {
             useCase.readIpAddressUseCase().collectLatest { value ->
                 _publicIpAddress = value
+                Log.d(TAG, "sample----: $value")
             }
         }
     }
@@ -338,7 +347,8 @@ class RootViewModel @Inject constructor(
             useCase.getIP4AddressUseCase(url = url).collectLatest { value ->
                 when (value) {
                     is GetDataFromRemote.Success -> {
-                        _publicIpAddress = value.data.ip ?: ""
+                       // _publicIpAddress = value.data.ip ?: ""
+                        Log.d(TAG, "getIp4Address: $_publicIpAddress")
                         value.data.ip?.let {
                             if (it.isNotEmpty() || it.isNotBlank()) {
                                 if (!_oneTimeSavedIpAddress) {
@@ -384,11 +394,12 @@ class RootViewModel @Inject constructor(
     fun registerCompany(companyCode: String) {
         val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
         val url = HttpRoutes.BASE_URL + HttpRoutes.REGISTER_COMPANY + "/$companyCode"
+        //Log.d(TAG, "registerCompany: $url")
         viewModelScope.launch(Dispatchers.IO) {
             useCase.registerCompanyUseCase(url = url).collectLatest { value ->
                 when (value) {
                     is GetDataFromRemote.Loading -> {
-                        // Log.w(TAG, "registerCompany: ")
+                        //Log.w(TAG, "registerCompany: ")
                         sendRegisterCompanyScreenEvent(UiEvent.ShowProgressBar)
                     }
 
@@ -403,7 +414,7 @@ class RootViewModel @Inject constructor(
                             taxId = result.taxId
                         )
                         insertCompanyDataToLocalDatabase(localCompanyData = localCompanyData)
-                        // Log.d(TAG, "registerCompany: $result")
+                        //Log.d(TAG, "registerCompany: $result")
                         savePreferredStoreToDataStore(localCompanyData)
                         _companyId = result.id
                         sendRegisterCompanyScreenEvent(UiEvent.Navigate(RootNavScreens.LoginScreen.route))
@@ -416,7 +427,7 @@ class RootViewModel @Inject constructor(
                             error = error,
                             funcName = funcName
                         )
-                        //Log.e(TAG, "registerCompany: ${value.error.code}")
+                       // Log.e(TAG, "registerCompany: ${value.error.code}")
                         sendRegisterCompanyScreenEvent(UiEvent.CloseProgressBar)
                         sendRegisterCompanyScreenEvent(UiEvent.ShowSnackBar("Failed to register"))
                     }

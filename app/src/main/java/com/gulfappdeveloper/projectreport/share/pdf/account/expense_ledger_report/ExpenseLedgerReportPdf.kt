@@ -40,7 +40,9 @@ object ExpenseLedgerReportPdf {
         list: List<ReArrangedExpenseLedgerDetail>,
         expenseLedgerTotals: ExpenseLedgerReportTotals,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) {
@@ -62,7 +64,9 @@ object ExpenseLedgerReportPdf {
                             pageNo = pageNo,
                             totalPages = totalPages,
                             fromDate = fromDate,
+                            fromTime = fromTime,
                             toDate = toDate,
+                            toTime = toTime,
                             haveAnyError = haveAnyError,
                             list = newList,
                             expenseLedgerTotals = expenseLedgerTotals,
@@ -78,7 +82,9 @@ object ExpenseLedgerReportPdf {
                             pageNo = pageNo,
                             totalPages = totalPages,
                             fromDate = fromDate,
+                            fromTime = fromTime,
                             toDate = toDate,
+                            toTime = toTime,
                             haveAnyError = haveAnyError,
                             list = newList,
                             expenseLedgerTotals = expenseLedgerTotals,
@@ -93,7 +99,9 @@ object ExpenseLedgerReportPdf {
                             pageNo = pageNo,
                             totalPages = totalPages,
                             fromDate = fromDate,
+                            fromTime = fromTime,
                             toDate = toDate,
+                            toTime = toTime,
                             haveAnyError = haveAnyError,
                             list = newList,
                             expenseLedgerTotals = expenseLedgerTotals,
@@ -115,7 +123,9 @@ object ExpenseLedgerReportPdf {
                         pageNo = pageNo,
                         totalPages = totalPages,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         haveAnyError = haveAnyError,
                         list = newList,
                         expenseLedgerTotals = expenseLedgerTotals,
@@ -131,7 +141,9 @@ object ExpenseLedgerReportPdf {
                         pageNo = pageNo,
                         totalPages = totalPages,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         haveAnyError = haveAnyError,
                         list = newList,
                         expenseLedgerTotals = expenseLedgerTotals,
@@ -146,7 +158,9 @@ object ExpenseLedgerReportPdf {
                         pageNo = pageNo,
                         totalPages = totalPages,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         haveAnyError = haveAnyError,
                         list = newList,
                         expenseLedgerTotals = expenseLedgerTotals,
@@ -192,8 +206,10 @@ object ExpenseLedgerReportPdf {
         pageNo: Int,
         totalPages: Int,
         fromDate: String,
+        fromTime:String,
         pdfDocument: PdfDocument,
         toDate: String,
+        toTime:String,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<ReArrangedExpenseLedgerDetail>,
         expenseLedgerTotals: ExpenseLedgerReportTotals,
@@ -252,7 +268,13 @@ object ExpenseLedgerReportPdf {
             }
 
             // period & company name
-            canvas.writePeriodTextLedger(fromDate, toDate, yPosition)
+            canvas.writePeriodTextLedger(
+                fromDate,
+                fromTime,
+                toDate,
+                toTime,
+                yPosition
+            )
             canvas.writeCompanyName(companyName = companyName, yPosition = yPosition, xPosition = 677f)
 
             var xPosition = 30f

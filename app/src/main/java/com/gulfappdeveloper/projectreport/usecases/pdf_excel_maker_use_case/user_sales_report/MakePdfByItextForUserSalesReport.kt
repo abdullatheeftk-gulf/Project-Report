@@ -9,13 +9,17 @@ class MakePdfByItextForUserSalesReport(
 ) {
     suspend operator fun invoke(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<UserSalesResponse>
     ) = pdfExcelRepository.writePdfForUserSalesReportByItext(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list

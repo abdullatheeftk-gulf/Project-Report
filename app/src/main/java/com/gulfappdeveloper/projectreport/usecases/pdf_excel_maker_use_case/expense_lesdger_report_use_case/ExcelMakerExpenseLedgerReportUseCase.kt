@@ -10,7 +10,9 @@ class ExcelMakerExpenseLedgerReportUseCase(
     suspend operator fun invoke(
         list: List<ReArrangedExpenseLedgerDetail>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         partyName: String,
         balance: Float,
         getUri: (Uri) -> Unit,
@@ -20,7 +22,9 @@ class ExcelMakerExpenseLedgerReportUseCase(
         partyName = partyName,
         balance = balance,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError
     )

@@ -3,6 +3,7 @@ package com.gulfappdeveloper.projectreport.presentation.screens.account_screens
 import android.net.Uri
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -10,9 +11,11 @@ import androidx.lifecycle.viewModelScope
 import com.gulfappdeveloper.projectreport.domain.models.accounts.ExpenseLedgerDetail
 import com.gulfappdeveloper.projectreport.domain.models.accounts.PaymentResponse
 import com.gulfappdeveloper.projectreport.domain.models.accounts.ReceiptResponse
+import com.gulfappdeveloper.projectreport.domain.models.general.Error
 import com.gulfappdeveloper.projectreport.domain.models.general.GetDataFromRemote
 import com.gulfappdeveloper.projectreport.domain.models.ledger.GetCustomerForLedgerReportResponse
 import com.gulfappdeveloper.projectreport.domain.services.FirebaseService
+import com.gulfappdeveloper.projectreport.presentation.screen_util.PresentationConstants
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ExpenseLedgerReportTotals
 import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.account_models.ReArrangedExpenseLedgerDetail
@@ -26,6 +29,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.account_screens.s
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
 import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
+import com.gulfappdeveloper.projectreport.root.localTimeToStringConverter
 import com.gulfappdeveloper.projectreport.root.sendErrorDataToFirebase
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +39,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.Date
 import javax.inject.Inject
 
@@ -84,13 +89,19 @@ class AccountViewModel
     private val _fromDateState = mutableStateOf("")
     val fromDateState: State<String> = _fromDateState
 
+    private val _fromTimeState = mutableStateOf("")
+    val fromTimeState: State<String> = _fromTimeState
+
     private val _toDateState = mutableStateOf("")
     val toDateState: State<String> = _toDateState
+
+    private val _toTimeState = mutableStateOf("")
+    val toTimeState: State<String> = _toTimeState
 
     private val _partyName = mutableStateOf("")
     val partyName: State<String> = _partyName
 
-    private val _balance = mutableStateOf(0f)
+    private val _balance = mutableFloatStateOf(0f)
     val balance: State<Float> = _balance
 
     private val _orientation = mutableStateOf(true)
@@ -117,37 +128,74 @@ class AccountViewModel
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.GET_CUSTOMER_FOR_LEDGER + commonMemory.companyId + "/Expense"
 
-        viewModelScope.launch(Dispatchers.IO) {
-            useCase.getCustomerForLedgerUseCase(url = url).collectLatest { value ->
-                when (value) {
-                    is GetDataFromRemote.Loading -> {
-                        sendQueryExpenseLedgerScreenEvent(UiEvent.ShowProgressBar)
-                    }
+        try {
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.getCustomerForLedgerUseCase(url = url).collectLatest { value ->
+                    when (value) {
+                        is GetDataFromRemote.Loading -> {
+                            sendQueryExpenseLedgerScreenEvent(UiEvent.ShowProgressBar)
+                        }
 
-                    is GetDataFromRemote.Success -> {
-                        sendQueryExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
-                        accountList.addAll(value.data)
-                        setSelectedAccount(value.data[0])
-                    }
+                        is GetDataFromRemote.Success -> {
+                            sendQueryExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
+                            accountList.addAll(value.data)
+                            if (accountList.size > 0) {
+                                setSelectedAccount(accountList[0])
+                            }else{
+                                sendQueryExpenseLedgerScreenEvent(UiEvent.ShowSnackBar("There have some problemm while fetching account list"))
+                                firebaseService.sendErrorDataToFirebase(
+                                    url = url,
+                                    error = Error(
+                                        702,
+                                        message = "Account list is not more than 0"
+                                    ),
+                                    funcName = funcName
+                                )
+                            }
+                        }
 
-                    is GetDataFromRemote.Failed -> {
-                        val error = value.error
-                        firebaseService.sendErrorDataToFirebase(
-                            url = url,
-                            error = error,
-                            funcName = funcName
-                        )
-                        sendQueryExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
-                        sendQueryExpenseLedgerScreenEvent(
-                            UiEvent.ShowSnackBar(
-                                value.error.message ?: "There have some error"
+                        is GetDataFromRemote.Failed -> {
+                            val error = value.error
+                            firebaseService.sendErrorDataToFirebase(
+                                url = url,
+                                error = error,
+                                funcName = funcName
                             )
-                        )
-                        accountList.clear()
+                            sendQueryExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
+                            sendQueryExpenseLedgerScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    value.error.message ?: "There have some error"
+                                )
+                            )
+                            accountList.clear()
+                        }
+
+
                     }
-
-
                 }
+            }
+        }catch (e:IndexOutOfBoundsException){
+            viewModelScope.launch {
+                firebaseService.sendErrorDataToFirebase(
+                    url = url,
+                    error = Error(
+                        code = 700,
+                        message = e.message
+                    ),
+                    funcName = funcName
+                )
+            }
+
+        }catch (e:Exception){
+            viewModelScope.launch {
+                firebaseService.sendErrorDataToFirebase(
+                    url = url,
+                    error = Error(
+                        code = 701,
+                        message = e.message
+                    ),
+                    funcName = funcName
+                )
             }
         }
     }
@@ -162,19 +210,39 @@ class AccountViewModel
         }
     }
 
-    fun getExpenseLedgerReport(fromDate: LocalDate, toDate: LocalDate) {
+    fun getExpenseLedgerReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
         val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+
         reArrangedExpenseLedgerReportList.clear()
         if (_selectedAccount.value == null) {
             sendQueryExpenseLedgerScreenEvent(UiEvent.ShowSnackBar("No Account is selected"))
             return
         }
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
-        _fromDateState.value = fromDate.localDateToStringConverter()
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        if (falseDateSelection){
+            sendQueryExpenseLedgerScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
+
         _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
+
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.EXPENSE_LEDGER_REPORT
@@ -194,7 +262,7 @@ class AccountViewModel
 
                     is GetDataFromRemote.Success -> {
                         _partyName.value = value.data.partyName
-                        _balance.value = value.data.balance
+                        _balance.floatValue = value.data.balance
 
                         calculateExpenseLedgerTotalsAndReArrange(data = value.data.details)
 
@@ -259,11 +327,13 @@ class AccountViewModel
                 useCase.pdfMakerExpenseLedgerReportUseCase(
                     list = reArrangedExpenseLedgerReportList,
                     expenseLedgerTotal = _expenseLedgerReportTotals.value!!,
-                    balance = _balance.value,
+                    balance = _balance.floatValue,
                     partyName = _partyName.value,
                     getUri = getUri,
                     fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     haveAnyError = { haveAnyError, error ->
                         sendExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
                         if (haveAnyError) {
@@ -288,11 +358,13 @@ class AccountViewModel
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.excelMakerExpenseLedgerReportUseCase(
                     list = reArrangedExpenseLedgerReportList,
-                    balance = _balance.value,
+                    balance = _balance.floatValue,
                     partyName = _partyName.value,
                     getUri = getUri,
                     fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     haveAnyError = { haveAnyError, error ->
                         sendExpenseLedgerScreenEvent(UiEvent.CloseProgressBar)
                         if (haveAnyError) {
@@ -384,15 +456,36 @@ class AccountViewModel
     val receiptReportListTotal: State<Double> = _receiptReportListTotal
 
 
-    fun getPaymentsReport(fromDate: LocalDate, toDate: LocalDate) {
+    fun getPaymentsReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
         val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
-        paymentsReportList.clear()
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
-        _fromDateState.value = fromDate.localDateToStringConverter()
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
+
+        if (falseDateSelection){
+            sendQueryPaymentsReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
+
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
+
         _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+        paymentsReportList.clear()
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
+
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.PAYMENT_REPORT
@@ -450,7 +543,9 @@ class AccountViewModel
             viewModelScope.launch (Dispatchers.IO){
                 useCase.makePdfForPaymentsReportUseCase(
                     fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     list = paymentsReportList,
                     paymentReportListTotal = _paymentReportListTotal.value,
                     getUri = getUri,
@@ -474,7 +569,9 @@ class AccountViewModel
             viewModelScope.launch (Dispatchers.IO){
                 useCase.makeExcelForPaymentReportUseCase(
                     fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     list = paymentsReportList,
                     getUri = getUri,
                     haveAnyError = {haveAnyError, error ->
@@ -491,15 +588,40 @@ class AccountViewModel
         }
     }
 
-    fun getReceiptReport(fromDate: LocalDate, toDate: LocalDate) {
+    fun getReceiptReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
         val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
-        receiptsReportList.clear()
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
-        _fromDateState.value = fromDate.localDateToStringConverter()
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
+
+        if (falseDateSelection){
+            sendQueryReceiptsReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
+
+        receiptsReportList.clear()
+
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
+
         _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+
+
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
+
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.RECEIPT_REPORT
@@ -554,7 +676,9 @@ class AccountViewModel
             viewModelScope.launch (Dispatchers.IO){
                 useCase.makePdfForReceiptReportUseCase(
                     fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     list = receiptsReportList,
                     receiptReportListTotal = _receiptReportListTotal.value,
                     getUri = getUri,
@@ -578,7 +702,9 @@ class AccountViewModel
             viewModelScope.launch (Dispatchers.IO){
                 useCase.makeExcelForReceiptReportUseCase(
                     fromDate = _fromDateState.value,
+                    fromTime =_fromTimeState.value,
                     toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     list = receiptsReportList,
                     getUri = getUri,
                     haveAnyError = {haveAnyError, error ->
@@ -601,5 +727,22 @@ class AccountViewModel
             sumOfAmount += it.amount
         }
         _receiptReportListTotal.value = sumOfAmount
+    }
+
+
+    private fun checkForInvalidDateSelection(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ):Boolean {
+
+        return if(toDate.isBefore(fromDate)){
+            true
+        } else if (toDate.isEqual(fromDate)){
+            toTime.minusSeconds(1L).isBefore(fromTime)
+        }else{
+            false
+        }
     }
 }

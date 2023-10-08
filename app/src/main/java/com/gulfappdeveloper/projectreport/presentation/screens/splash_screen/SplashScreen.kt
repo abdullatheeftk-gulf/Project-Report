@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -45,6 +46,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = "SplashScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SplashScreen(
     navHostController: NavHostController,

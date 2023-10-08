@@ -10,14 +10,18 @@ class ExcelMakerUseCaseForCustomerPaymentReport(
     suspend operator fun invoke(
         list: List<CustomerPaymentResponse>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
     ) = pdfExcelRepository.writeExcelForCustomerPaymentReport(
-        list,
-        fromDate,
-        toDate,
-        getUri,
-        haveAnyError,
+        list = list,
+        fromDate = fromDate,
+        fromTime = fromTime,
+        toDate = toDate,
+        toTime = toTime,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
     )
 }

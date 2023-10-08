@@ -32,7 +32,9 @@ object SaleSummariesReportPdf {
         list: List<SaleSummariesResponse>,
         saleSummariesReportTotals: SaleSummariesReportTotals,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) {
@@ -52,7 +54,9 @@ object SaleSummariesReportPdf {
                         list = pageList,
                         saleSummariesReportTotals = saleSummariesReportTotals,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                         companyName = companyName
@@ -70,7 +74,9 @@ object SaleSummariesReportPdf {
                         list = pageList,
                         saleSummariesReportTotals = saleSummariesReportTotals,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                         companyName = companyName
@@ -86,7 +92,9 @@ object SaleSummariesReportPdf {
                         list = pageList,
                         saleSummariesReportTotals = saleSummariesReportTotals,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                         companyName = companyName
@@ -99,7 +107,9 @@ object SaleSummariesReportPdf {
                         list = pageList,
                         saleSummariesReportTotals = saleSummariesReportTotals,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                         companyName = companyName
@@ -114,7 +124,9 @@ object SaleSummariesReportPdf {
                         list = pageList,
                         saleSummariesReportTotals = saleSummariesReportTotals,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                         companyName = companyName
@@ -153,7 +165,9 @@ object SaleSummariesReportPdf {
         list: List<SaleSummariesResponse>,
         saleSummariesReportTotals: SaleSummariesReportTotals,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         totalPages: Int,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
     ) {
@@ -181,7 +195,13 @@ object SaleSummariesReportPdf {
 
             // dates
             yPosition += 30f
-            canvas.writePeriodText(fromDate, toDate, yPosition)
+            canvas.writePeriodText(
+                fromDate = fromDate,
+                fromTime = fromTime,
+                toDate = toDate,
+                toTime = toTime,
+                yPosition = yPosition
+            )
             canvas.writeCompanyName(
                 companyName = companyName,
                 yPosition = yPosition,

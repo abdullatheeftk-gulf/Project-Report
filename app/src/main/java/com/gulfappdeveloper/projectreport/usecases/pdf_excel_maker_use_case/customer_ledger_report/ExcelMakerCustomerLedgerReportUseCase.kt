@@ -13,7 +13,9 @@ class ExcelMakerCustomerLedgerReportUseCase
         partyName: String,
         balance: Float,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (isError: Boolean, errorString: String?) -> Unit
     ) =
@@ -22,7 +24,9 @@ class ExcelMakerCustomerLedgerReportUseCase
             partyName = partyName,
             balance = balance,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )

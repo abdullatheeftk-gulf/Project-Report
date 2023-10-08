@@ -9,14 +9,18 @@ class MakePdfForPaymentsReportUseCase(
 ) {
     suspend operator fun invoke(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PaymentResponse>,
         paymentReportListTotal: Double
     ) = pdfExcelRepository.writePdfForPaymentsReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list,

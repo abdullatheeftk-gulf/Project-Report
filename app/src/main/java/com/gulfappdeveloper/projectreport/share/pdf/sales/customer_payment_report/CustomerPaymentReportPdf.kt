@@ -30,7 +30,9 @@ object CustomerPaymentReportPdf {
         list: List<CustomerPaymentResponse>,
         listOfTotal: List<Double>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) {
@@ -49,7 +51,9 @@ object CustomerPaymentReportPdf {
                         list = pageList,
                         listOfTotal = listOfTotal,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                     )
@@ -67,13 +71,16 @@ object CustomerPaymentReportPdf {
                         list = pageList,
                         listOfTotal = listOfTotal,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                     )
 
                     pageList.clear()
                 }
+
                 26 -> {
                     createPage(
                         companyName = companyName,
@@ -82,7 +89,9 @@ object CustomerPaymentReportPdf {
                         list = pageList,
                         listOfTotal = listOfTotal,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                     )
@@ -95,11 +104,14 @@ object CustomerPaymentReportPdf {
                         list = pageList,
                         listOfTotal = listOfTotal,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                     )
                 }
+
                 else -> {
                     pageList.clear()
                     createPage(
@@ -109,7 +121,9 @@ object CustomerPaymentReportPdf {
                         list = pageList,
                         listOfTotal = listOfTotal,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                     )
@@ -168,9 +182,11 @@ object CustomerPaymentReportPdf {
         pageNo: Int,
         pdfDocument: PdfDocument,
         list: List<CustomerPaymentResponse>,
-        listOfTotal:List<Double>,
+        listOfTotal: List<Double>,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime: String,
         totalPages: Int,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
     ) {
@@ -196,7 +212,13 @@ object CustomerPaymentReportPdf {
 
             // dates
             yPosition += 30f
-            canvas.writePeriodText(fromDate, toDate, yPosition)
+            canvas.writePeriodText(
+                fromDate = fromDate,
+                fromTime = fromTime,
+                toDate = toDate,
+                toTime = toTime,
+                yPosition = yPosition
+            )
             canvas.writeCompanyName(
                 companyName = companyName,
                 yPosition = yPosition,
@@ -252,7 +274,7 @@ object CustomerPaymentReportPdf {
             canvas.drawText("SI", xPosition, yPosition, paintText)
 
             paintText.textAlign = Paint.Align.CENTER
-            xPosition +=80
+            xPosition += 80
             canvas.drawText("Date", xPosition, yPosition, paintText)
 
             paintText.textAlign = Paint.Align.CENTER
@@ -431,7 +453,8 @@ object CustomerPaymentReportPdf {
                 writeTotalValueRow(yPosition, canvas, listOfTotal = listOfTotal)
             }
 
-            val date = SimpleDateFormat("dd-MM-yyyy, hh:mm:ss a", Locale.getDefault()).format(Date())
+            val date =
+                SimpleDateFormat("dd-MM-yyyy, hh:mm:ss a", Locale.getDefault()).format(Date())
             canvas.drawText(date, 30f, 680f, Paint().apply {
                 color = Color.BLACK
                 textSize = 8f
@@ -439,7 +462,7 @@ object CustomerPaymentReportPdf {
                 textSkewX = -0.25f
             })
 
-            canvas.drawText("Unipospro",pageInfo.pageWidth/2f,680f,Paint().apply {
+            canvas.drawText("Unipospro", pageInfo.pageWidth / 2f, 680f, Paint().apply {
                 color = Color.BLACK
                 textSize = 8f
                 textAlign = Paint.Align.CENTER
@@ -460,7 +483,7 @@ object CustomerPaymentReportPdf {
         }
     }
 
-    private fun writeTotalValueRow(yPosition: Float, canvas: Canvas, listOfTotal:List<Double>) {
+    private fun writeTotalValueRow(yPosition: Float, canvas: Canvas, listOfTotal: List<Double>) {
         canvas.drawRect(30f, yPosition, 970f, yPosition + 25f, Paint().apply {
             style = Paint.Style.STROKE
         })
@@ -483,7 +506,7 @@ object CustomerPaymentReportPdf {
 
         xPosition += 45
         canvas.drawText(
-            String.format("%.2f",listOfTotal[0]),
+            String.format("%.2f", listOfTotal[0]),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -499,7 +522,7 @@ object CustomerPaymentReportPdf {
 
         xPosition += 45
         canvas.drawText(
-            String.format("%.2f",listOfTotal[1]),
+            String.format("%.2f", listOfTotal[1]),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -515,7 +538,7 @@ object CustomerPaymentReportPdf {
 
         xPosition += 45
         canvas.drawText(
-            String.format("%.2f",listOfTotal[2]),
+            String.format("%.2f", listOfTotal[2]),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -531,7 +554,7 @@ object CustomerPaymentReportPdf {
 
         xPosition += 45
         canvas.drawText(
-            String.format("%.2f",listOfTotal[3]),
+            String.format("%.2f", listOfTotal[3]),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {
@@ -547,7 +570,7 @@ object CustomerPaymentReportPdf {
 
         xPosition += 45
         canvas.drawText(
-            String.format("%.2f",listOfTotal[4]),
+            String.format("%.2f", listOfTotal[4]),
             xPosition,
             yPosition + 16.5f,
             Paint().apply {

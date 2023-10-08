@@ -30,7 +30,9 @@ object SaleSummariesReportExcel {
         companyName: String,
         context: Context,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         list: List<SaleSummariesResponse>,
         haveAnyError: (isError: Boolean, errorString: String?) -> Unit
@@ -49,7 +51,9 @@ object SaleSummariesReportExcel {
                 sheet = sheet,
                 wb = wb,
                 fromDate = fromDate,
+                fromTime = fromTime,
                 toDate = toDate,
+                toTime = toTime,
                 companyName = companyName,
             )
             // Header of the table
@@ -111,7 +115,9 @@ object SaleSummariesReportExcel {
         sheet: Sheet,
         wb: XSSFWorkbook,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         companyName: String,
     ) {
         try {
@@ -120,9 +126,9 @@ object SaleSummariesReportExcel {
                 color = IndexedColors.BLUE.index
             }
 
-            val richTextString = XSSFRichTextString("Period : $fromDate to $toDate").apply {
-                val lengthOfFromDate = fromDate.length
-                val totalLength = "Period : $fromDate to $toDate".length - 1
+            val richTextString = XSSFRichTextString("Period : $fromDate, $fromTime to $toDate, $toTime").apply {
+                val lengthOfFromDate = "$fromDate, $fromTime".length
+                val totalLength = "Period : $fromDate, $fromTime to $toDate, $toTime".length - 1
 
                 applyFont(9, 9 + lengthOfFromDate, font)
                 applyFont(13 + lengthOfFromDate, totalLength + 1, font)

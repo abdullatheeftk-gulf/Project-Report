@@ -1,7 +1,6 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.customer_ledger_screens.report_screen
 
 import android.content.Intent
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,11 +38,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.SalesViewModel
@@ -51,7 +52,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.scr
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.screens.pos_payment_report_screen.report_screen.ScreenOrientationActionForPosPayment
 import kotlinx.coroutines.flow.collectLatest
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomerLedgerReportScreen(
     saleNavHostController: NavHostController,
@@ -65,7 +66,10 @@ fun CustomerLedgerReportScreen(
     val balance by salesViewModel.balance
 
     val fromDate by salesViewModel.fromDateState
+    val fromTime by salesViewModel.fromTimeState
+
     val toDate by salesViewModel.toDateState
+    val toTime by salesViewModel.toTimeState
 
 
 
@@ -284,7 +288,7 @@ fun CustomerLedgerReportScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
                 Text(
                     text = "Period",
@@ -299,32 +303,18 @@ fun CustomerLedgerReportScreen(
                         .weight(.1f),
                     textAlign = TextAlign.Center
                 )
-                Row(
-                    modifier = Modifier
-                        //.fillMaxWidth()
-                        .weight(2f),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = fromDate,
-                        textAlign = TextAlign.Start,
-                        maxLines = 2,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp
-                    )
-                    Text(
-                        text = " to ",
-                        textAlign = TextAlign.Start,
-                        maxLines = 2,
-                    )
-                    Text(
-                        text = toDate,
-                        textAlign = TextAlign.Start,
-                        maxLines = 2,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 18.sp
-                    )
-                }
+                Text(
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                            append("$fromDate, $fromTime")
+                        }
+                        append(" to ")
+                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                            append("$toDate, $toTime")
+                        }
+                    },
+                    modifier = Modifier.weight(2f),
+                )
 
             }
             Spacer(modifier = Modifier.height(25.dp))

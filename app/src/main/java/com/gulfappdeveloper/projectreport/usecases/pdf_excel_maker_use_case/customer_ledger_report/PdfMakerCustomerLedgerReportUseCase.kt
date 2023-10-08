@@ -14,7 +14,9 @@ class PdfMakerCustomerLedgerReportUseCase(
         partyName: String,
         balance: Float,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) = pdfExcelRepository.writePdfForCustomerLedgerReport(
@@ -23,7 +25,9 @@ class PdfMakerCustomerLedgerReportUseCase(
         partyName = partyName,
         balance = balance,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError
     )

@@ -11,16 +11,20 @@ class PdfMakerUseCaseForCustomerPaymentReport(
         list: List<CustomerPaymentResponse>,
         listOfTotal:List<Double>,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri:(uri:Uri)->Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
     ) = pdfExcelRepository.writePdfAndShareItForCustomerPaymentReport(
-        list,
-        listOfTotal,
-        fromDate,
-        toDate,
-        getUri,
-        haveAnyError,
+        list = list,
+        listOfTotal = listOfTotal,
+        fromDate = fromDate,
+        fromTime = fromTime,
+        toDate = toDate,
+        toTime = toTime,
+        getUri = getUri,
+        haveAnyError = haveAnyError,
     )
 
 }

@@ -1,13 +1,16 @@
 package com.gulfappdeveloper.projectreport.presentation.screens.sales_screens
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gulfappdeveloper.projectreport.domain.models.customer_payment.CustomerPaymentResponse
+import com.gulfappdeveloper.projectreport.domain.models.general.Error
 import com.gulfappdeveloper.projectreport.domain.models.general.GetDataFromRemote
 import com.gulfappdeveloper.projectreport.domain.models.ledger.GetCustomerForLedgerReportResponse
 import com.gulfappdeveloper.projectreport.domain.models.ledger.LedgerDetail
@@ -16,6 +19,7 @@ import com.gulfappdeveloper.projectreport.domain.models.sales.SaleSummariesRespo
 import com.gulfappdeveloper.projectreport.domain.models.sales.SalesInvoiceResponse
 import com.gulfappdeveloper.projectreport.domain.models.sales.UserSalesResponse
 import com.gulfappdeveloper.projectreport.domain.services.FirebaseService
+import com.gulfappdeveloper.projectreport.presentation.screen_util.PresentationConstants
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.navigation.SalesScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.sales_models.CustomerLedgerTotals
@@ -37,19 +41,23 @@ import com.gulfappdeveloper.projectreport.presentation.screens.sales_screens.scr
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
 import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
+import com.gulfappdeveloper.projectreport.root.localTimeToStringConverter
 import com.gulfappdeveloper.projectreport.root.sendErrorDataToFirebase
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.Date
 import javax.inject.Inject
 
-//private const val TAG = "SalesViewModel"
+private const val TAG = "SalesViewModel"
 
 @HiltViewModel
 class SalesViewModel @Inject constructor(
@@ -190,13 +198,19 @@ class SalesViewModel @Inject constructor(
     private val _fromDateState = mutableStateOf("")
     val fromDateState: State<String> = _fromDateState
 
+    private val _fromTimeState = mutableStateOf("00:00")
+    val fromTimeState: State<String> = _fromTimeState
+
     private val _toDateState = mutableStateOf("")
     val toDateState: State<String> = _toDateState
+
+    private val _toTimeState = mutableStateOf("23:59")
+    val toTimeState: State<String> = _toTimeState
 
     private val _partyName = mutableStateOf("")
     val partyName: State<String> = _partyName
 
-    private val _balance = mutableStateOf(0f)
+    private val _balance = mutableFloatStateOf(0f)
     val balance: State<Float> = _balance
 
     private val _orientation = mutableStateOf(true)
@@ -232,21 +246,47 @@ class SalesViewModel @Inject constructor(
 
     val accountList = mutableStateListOf<GetCustomerForLedgerReportResponse>()
 
+    /*private val _accountListFlow:MutableStateFlow<List<GetCustomerForLedgerReportResponse>> = MutableStateFlow(emptyList())
+    val accountListFlow:StateFlow<List<GetCustomerForLedgerReportResponse>> = _accountListFlow*/
+
     val reArrangedCustomerLedgerReportList = mutableStateListOf<ReArrangedCustomerLedgerDetails>()
     private val _customerLedgerReportTotals: MutableState<CustomerLedgerTotals?> =
         mutableStateOf(null)
     val customerLedgerReportTotals: State<CustomerLedgerTotals?> = _customerLedgerReportTotals
 
 
-    fun getSalesInvoiceReport(fromDate: LocalDate, toDate: LocalDate) {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+    fun getSalesInvoiceReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
+
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
+
+        if (falseDateSelection){
+            sendQueryUserSalesReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
 
         _fromDateState.value = fromDate.localDateToStringConverter()
-        _toDateState.value = toDate.localDateToStringConverter()
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+
+
+        _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.SALES_INVOICE_REPORT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
 
@@ -279,6 +319,7 @@ class SalesViewModel @Inject constructor(
                             )
                         )
                     }
+                    else->Unit
                 }
 
             }
@@ -316,7 +357,9 @@ class SalesViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.pdfMakerSalesInvoiceReportUseCase(
                     fromDate = fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     list = salesInvoiceReportList,
                     salesInvoiceReportTotals = _salesInvoiceReportTotal.value!!,
@@ -341,7 +384,9 @@ class SalesViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.excelMakerSalesInvoiceReportUseCase(
                     fromDate = fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     list = salesInvoiceReportList,
                     haveAnyError = { haveAnyError: Boolean, error: String? ->
@@ -362,15 +407,36 @@ class SalesViewModel @Inject constructor(
     }
 
 
-    fun getSaleSummariesReport(fromDate: LocalDate, toDate: LocalDate) {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+    fun getSaleSummariesReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime,
+    ) {
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
+
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
+
+        if (falseDateSelection){
+            sendQuerySaleSummariesReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
 
         _fromDateState.value = fromDate.localDateToStringConverter()
-        _toDateState.value = toDate.localDateToStringConverter()
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.SALE_SUMMARIES_REPORT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
 
@@ -403,6 +469,8 @@ class SalesViewModel @Inject constructor(
                             )
                         )
                     }
+
+                    else -> Unit
                 }
 
             }
@@ -439,7 +507,9 @@ class SalesViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.pdfMakerSaleSummariesReportUseCase(
                     fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     list = saleSummariesReportList,
                     saleSummariesReportTotals = _saleSummariesReportTotal.value!!,
                     getUri = getUri,
@@ -468,7 +538,9 @@ class SalesViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.excelMakerSaleSummariesReportUseCase(
                     fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     list = saleSummariesReportList,
                     getUri = getUri,
                     haveAnyError = { haveAnyError, error ->
@@ -490,15 +562,35 @@ class SalesViewModel @Inject constructor(
         }
     }
 
-    fun getUserSalesReport(fromDate: LocalDate, toDate: LocalDate) {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+    fun getUserSalesReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
+
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
+
+        if (falseDateSelection){
+            sendQueryUserSalesReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
 
         _fromDateState.value = fromDate.localDateToStringConverter()
-        _toDateState.value = toDate.localDateToStringConverter()
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.USER_SALES + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
 
@@ -537,17 +629,44 @@ class SalesViewModel @Inject constructor(
     }
 
 
-    fun getCustomerPaymentReport(fromDate: LocalDate, toDate: LocalDate) {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+    fun getCustomerPaymentReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
+
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
+
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
+
+        if (falseDateSelection){
+            sendQueryCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
 
         _fromDateState.value = fromDate.localDateToStringConverter()
-        _toDateState.value = toDate.localDateToStringConverter()
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
+
+
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.GET_CUSTOMER_PAYMENT_REPORT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
+
+        Log.d(TAG, "getCustomerPaymentReport: $url")
+
         viewModelScope.launch(Dispatchers.IO) {
             useCase.getCustomerPaymentUseCase(url = url).collectLatest { value ->
                 customerPaymentReportList.clear()
@@ -557,7 +676,7 @@ class SalesViewModel @Inject constructor(
                     }
 
                     is GetDataFromRemote.Success -> {
-                        //Log.d(TAG, "getCustomerPaymentReport: ${value.data}")
+                        Log.d(TAG, "getCustomerPaymentReport: ${value.data}")
                         sendQueryCustomerPaymentReportScreenEvent(UiEvent.CloseProgressBar)
                         customerPaymentReportList.addAll(value.data)
                         calculateTotalForCustomerPaymentReport(value.data)
@@ -568,6 +687,7 @@ class SalesViewModel @Inject constructor(
 
                     is GetDataFromRemote.Failed -> {
                         val error = value.error
+                        Log.e(TAG, "getCustomerPaymentReport: $error")
                         firebaseService.sendErrorDataToFirebase(
                             url = url,
                             error = error,
@@ -583,59 +703,139 @@ class SalesViewModel @Inject constructor(
 
 
     fun getCustomerAccountList() {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
-
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.GET_CUSTOMER_FOR_LEDGER + commonMemory.companyId + "/Customer"
+        try {
 
-        viewModelScope.launch(Dispatchers.IO) {
-            useCase.getCustomerForLedgerUseCase(url = url).collectLatest { value ->
-                when (value) {
-                    is GetDataFromRemote.Success -> {
-                        sendQueryCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
-                        accountList.clear()
-                        accountList.addAll(value.data)
-                        setSelectedAccount(value.data[0])
-                    }
+            Log.e(TAG, "getCustomerAccountList: $url", )
 
-                    is GetDataFromRemote.Failed -> {
-                        val error = value.error
-                        firebaseService.sendErrorDataToFirebase(
-                            url = url,
-                            error = error,
-                            funcName = funcName
-                        )
-                        sendQueryCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
-                        sendQueryCustomerLedgerReportScreenEvent(
-                            UiEvent.ShowSnackBar(
-                                value.error.message ?: ""
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.getCustomerForLedgerUseCase(url = url).collectLatest { value ->
+                    when (value) {
+                        is GetDataFromRemote.Success -> {
+                            sendQueryCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
+                            accountList.clear()
+
+                            /*_accountListFlow.value = value.data
+
+                            if(_accountListFlow.value.isNotEmpty()){
+                                setSelectedAccount(_accountListFlow.value[0])
+                            }else{
+                                sendQueryCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar("There have some problem while fetching account list"))
+                                firebaseService.sendErrorDataToFirebase(
+                                    url = url,
+                                    error = Error(
+                                        802,
+                                        message = "Account list is not more than 0"
+                                    ),
+                                    funcName = funcName
+                                )
+                            }*/
+
+
+
+                            accountList.addAll(value.data)
+                            if (accountList.size > 0) {
+                                setSelectedAccount(accountList[0])
+                            }else{
+                                sendQueryCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar("There have some problemm while fetching account list"))
+                                firebaseService.sendErrorDataToFirebase(
+                                    url = url,
+                                    error = Error(
+                                        702,
+                                        message = "Account list is not more than 0"
+                                    ),
+                                    funcName = funcName
+                                )
+                            }
+                        }
+
+                        is GetDataFromRemote.Failed -> {
+                            val error = value.error
+                            firebaseService.sendErrorDataToFirebase(
+                                url = url,
+                                error = error,
+                                funcName = funcName
                             )
-                        )
-                        accountList.clear()
-                    }
+                            sendQueryCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
+                            sendQueryCustomerLedgerReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    value.error.message ?: ""
+                                )
+                            )
+                            accountList.clear()
+                        }
 
-                    is GetDataFromRemote.Loading -> {
-                        sendQueryCustomerLedgerReportScreenEvent(UiEvent.ShowProgressBar)
+                        is GetDataFromRemote.Loading -> {
+                            sendQueryCustomerLedgerReportScreenEvent(UiEvent.ShowProgressBar)
+                        }
                     }
                 }
+            }
+        }catch (e:IndexOutOfBoundsException){
+            viewModelScope.launch {
+                firebaseService.sendErrorDataToFirebase(
+                    url = url,
+                    error = Error(
+                        code = 700,
+                        message = e.message
+                    ),
+                    funcName = funcName
+                )
+            }
+
+        }catch (e:Exception){
+            viewModelScope.launch {
+                firebaseService.sendErrorDataToFirebase(
+                    url = url,
+                    error = Error(
+                        code = 701,
+                        message = e.message
+                    ),
+                    funcName = funcName
+                )
             }
         }
     }
 
 
-    fun getCustomerLedgerReport(fromDate: LocalDate, toDate: LocalDate) {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+    fun getCustomerLedgerReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
+
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
+
+        if (falseDateSelection){
+            sendQueryCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
 
         if (_selectedAccount.value == null) {
             sendQueryCustomerLedgerReportScreenEvent(UiEvent.ShowSnackBar("No Account is selected"))
             return
         }
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
-        _fromDateState.value = fromDate.localDateToStringConverter()
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
+
         _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+
+        val toDateString =
+            "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$fromTimeString"
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$toTimeString"
+
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.LEDGER_REPORT + fromDateString + "/$toDateString" + "/${_selectedAccount.value?.accountId}" + "/${commonMemory.companyId}"
@@ -701,15 +901,40 @@ class SalesViewModel @Inject constructor(
         )
     }
 
-    fun getPosPaymentReport(fromDate: LocalDate, toDate: LocalDate) {
-        val funcName = "RootViewModel."+object{}.javaClass.enclosingMethod?.name+ Date()
+    fun getPosPaymentReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
+        val falseDateAndTimeSelection = checkForInvalidDateSelection(
+            fromDate = fromDate,
+            fromTime = fromTime,
+            toDate = toDate,
+            toTime = toTime
+        )
+        if (falseDateAndTimeSelection){
+            sendQueryPosPaymentReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
+
+        val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
 
         _fromDateState.value = fromDate.localDateToStringConverter()
-        _toDateState.value = toDate.localDateToStringConverter()
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.POS_PAYMENT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
         viewModelScope.launch(Dispatchers.IO) {
@@ -766,6 +991,10 @@ class SalesViewModel @Inject constructor(
 
 
     fun makePdfForCustomerPaymentReport(getUri: (uri: Uri) -> Unit) {
+        Log.e(
+            TAG,
+            "makePdfForCustomerPaymentReport: ${_fromTimeState.value}, ${_toTimeState.value}",
+        )
         sendCustomerPaymentReportScreenEvent(UiEvent.ShowProgressBar)
         viewModelScope.launch(Dispatchers.IO) {
             if (customerPaymentReportList.size > 0) {
@@ -773,8 +1002,10 @@ class SalesViewModel @Inject constructor(
                     useCase.pdfMakerUseCaseForCustomerPaymentReport(
                         list = customerPaymentReportList,
                         listOfTotal = customerPaymentReportTotalList,
-                        _fromDateState.value,
-                        _toDateState.value,
+                        fromDate = _fromDateState.value,
+                        fromTime = _fromTimeState.value,
+                        toDate = _toDateState.value,
+                        toTime = _toTimeState.value,
                         getUri = getUri
                     ) { error, errorS ->
                         sendCustomerPaymentReportScreenEvent(UiEvent.CloseProgressBar)
@@ -793,7 +1024,7 @@ class SalesViewModel @Inject constructor(
                         )
                     )
                 }
-            }else{
+            } else {
                 sendCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar("Empty List"))
             }
         }
@@ -806,20 +1037,30 @@ class SalesViewModel @Inject constructor(
                 try {
                     useCase.excelMakerUseCaseForCustomerPaymentReport(
                         list = customerPaymentReportList,
-                        _fromDateState.value,
-                        _toDateState.value,
+                        fromDate = _fromDateState.value,
+                        fromTime = _fromTimeState.value,
+                        toDate = _toDateState.value,
+                        toTime = _toTimeState.value,
                         getUri = getUri
                     ) { error, errorS ->
                         sendCustomerPaymentReportScreenEvent(UiEvent.CloseProgressBar)
-                        if (error){
-                            sendCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar(errorS?:"There have some problem when making Excel sheet"))
+                        if (error) {
+                            sendCustomerPaymentReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    errorS ?: "There have some problem when making Excel sheet"
+                                )
+                            )
                         }
                     }
-                }catch (e:Exception){
-                    sendCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar(e.message?:"There have some problem"))
+                } catch (e: Exception) {
+                    sendCustomerPaymentReportScreenEvent(
+                        UiEvent.ShowSnackBar(
+                            e.message ?: "There have some problem"
+                        )
+                    )
                 }
 
-            }else{
+            } else {
                 sendCustomerPaymentReportScreenEvent(UiEvent.ShowSnackBar("Empty List"))
             }
         }
@@ -834,8 +1075,10 @@ class SalesViewModel @Inject constructor(
                 useCase.pdfMakerUseCaseForPosPaymentReport(
                     list = posPaymentReportList,
                     listOfTotal = posPaymentReportTotalList,
-                    _fromDateState.value,
-                    _toDateState.value,
+                   fromDate =  _fromDateState.value,
+                    fromTime = _fromTimeState.value,
+                    toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri
                 ) { error, errorS ->
                     sendPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
@@ -860,8 +1103,10 @@ class SalesViewModel @Inject constructor(
                 sendPosPaymentReportScreenEvent(UiEvent.ShowProgressBar)
                 useCase.excelMakerUseCasePosPaymentReportUseCase(
                     list = posPaymentReportList,
-                    _fromDateState.value,
-                    _toDateState.value,
+                    fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
+                    toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri
                 ) { error, errorS ->
                     sendPosPaymentReportScreenEvent(UiEvent.CloseProgressBar)
@@ -888,7 +1133,9 @@ class SalesViewModel @Inject constructor(
                     partyName = _partyName.value,
                     balance = _balance.value,
                     fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     haveAnyError = { haveAnyError, error ->
                         sendCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
@@ -917,9 +1164,11 @@ class SalesViewModel @Inject constructor(
                 useCase.excelMakerCustomerLedgerReportUseCase(
                     list = reArrangedCustomerLedgerReportList,
                     partyName = _partyName.value,
-                    balance = _balance.value,
+                    balance = _balance.floatValue,
                     fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                 ) { isError, errorString ->
                     sendCustomerLedgerReportScreenEvent(UiEvent.CloseProgressBar)
@@ -980,7 +1229,11 @@ class SalesViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.makePdfByItextForUserSalesReport(
                     fromDate = fromDateState.value,
-                    toDate = toDateState.value, getUri, list = userSalesReportList,
+                    fromTime = _fromTimeState.value,
+                    toDate = toDateState.value,
+                    toTime = _toTimeState.value,
+                    getUri = getUri,
+                    list = userSalesReportList,
                     haveAnyError = { haveAnyError, error ->
                         sendUserSalesReportScreenEvent(UiEvent.CloseProgressBar)
                         if (haveAnyError) {
@@ -1006,7 +1259,11 @@ class SalesViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.makeExcelForUserSalesReportUseCase(
                     fromDate = fromDateState.value,
-                    toDate = toDateState.value, getUri, list = userSalesReportList,
+                    fromTime = _fromTimeState.value,
+                    toDate = toDateState.value,
+                    toTime = _toTimeState.value,
+                    getUri = getUri,
+                    list = userSalesReportList,
                     haveAnyError = { haveAnyError, error ->
                         sendUserSalesReportScreenEvent(UiEvent.CloseProgressBar)
                         if (haveAnyError) {
@@ -1023,6 +1280,23 @@ class SalesViewModel @Inject constructor(
         } else {
             sendUserSalesReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
 
+        }
+    }
+
+
+    private fun checkForInvalidDateSelection(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ):Boolean {
+
+        return if(toDate.isBefore(fromDate)){
+            true
+        } else if (toDate.isEqual(fromDate)){
+            toTime.minusSeconds(1L).isBefore(fromTime)
+        }else{
+            false
         }
     }
 

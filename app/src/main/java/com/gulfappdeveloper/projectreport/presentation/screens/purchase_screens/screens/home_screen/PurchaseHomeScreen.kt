@@ -48,7 +48,7 @@ fun PurchaseHomeScreen(
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 titleContentColor = MaterialTheme.colorScheme.primary,
                 navigationIconContentColor = MaterialTheme.colorScheme.primary
             )

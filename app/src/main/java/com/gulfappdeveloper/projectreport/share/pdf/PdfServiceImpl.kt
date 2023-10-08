@@ -49,7 +49,9 @@ class PdfServiceImpl(
         list: List<CustomerPaymentResponse>,
         listOfTotal: List<Double>,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) {
@@ -61,7 +63,9 @@ class PdfServiceImpl(
             list = list,
             listOfTotal = listOfTotal,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -71,7 +75,9 @@ class PdfServiceImpl(
         list: List<PosPaymentResponse>,
         listOfTotal: List<Double>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) {
@@ -83,7 +89,9 @@ class PdfServiceImpl(
             list = list,
             listOfTotal = listOfTotal,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -93,7 +101,9 @@ class PdfServiceImpl(
         list: List<ReArrangedCustomerLedgerDetails>,
         customerLedgerTotals: CustomerLedgerTotals,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         partyName: String,
         balance: Float,
         getUri: (Uri) -> Unit,
@@ -109,7 +119,9 @@ class PdfServiceImpl(
             list = list,
             customerLedgerDetails = customerLedgerTotals,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -119,7 +131,9 @@ class PdfServiceImpl(
         list: List<ReArrangedSupplierLedgerDetail>,
         supplierLedgerTotal: SupplierLedgerTotals,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         partyName: String,
         balance: Float,
         getUri: (Uri) -> Unit,
@@ -135,7 +149,9 @@ class PdfServiceImpl(
             list = list,
             supplierLedgerTotals = supplierLedgerTotal,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -146,7 +162,9 @@ class PdfServiceImpl(
         list: List<ReArrangedExpenseLedgerDetail>,
         expenseLedgerTotal: ExpenseLedgerReportTotals,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         partyName: String,
         balance: Float,
         getUri: (Uri) -> Unit,
@@ -161,7 +179,9 @@ class PdfServiceImpl(
             list = list,
             expenseLedgerTotals = expenseLedgerTotal,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -169,7 +189,9 @@ class PdfServiceImpl(
 
     override suspend fun writePdfForSalesInvoiceReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<SalesInvoiceResponse>,
@@ -182,7 +204,9 @@ class PdfServiceImpl(
             list = list,
             salesInvoiceReportTotals = salesInvoiceReportTotals,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -190,7 +214,9 @@ class PdfServiceImpl(
 
     override suspend fun writePdfForSaleSummariesReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<SaleSummariesResponse>,
@@ -203,7 +229,9 @@ class PdfServiceImpl(
             list = list,
             saleSummariesReportTotals = saleSummariesReportTotals,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -211,7 +239,9 @@ class PdfServiceImpl(
 
     override suspend fun writePdfForPaymentsReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PaymentResponse>,
@@ -224,7 +254,9 @@ class PdfServiceImpl(
             list = list,
             paymentReportListTotal = paymentReportListTotal,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -232,7 +264,9 @@ class PdfServiceImpl(
 
     override suspend fun writePdfForReceiptsReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<ReceiptResponse>,
@@ -245,7 +279,9 @@ class PdfServiceImpl(
             list = list,
             receiptReportListTotal = receiptReportListTotal,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -253,7 +289,9 @@ class PdfServiceImpl(
 
     override suspend fun writePdfForPurchaseMastersReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseMastersResponse>,
@@ -268,7 +306,9 @@ class PdfServiceImpl(
             purchaseMasterTotals = purchaseMastersReportListTotals,
             purchaseMasterSelection = purchaseMasterSelection,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -276,19 +316,13 @@ class PdfServiceImpl(
 
     override suspend fun writePdfForUserSalesReportByItext(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<UserSalesResponse>
     ) {
-        /* UserSalesReportPdfItext.writePdf(
-             context = context,
-             fromDate = fromDate,
-             toDate = toDate,
-             companyName = commonMemory.companyName,
-             list = list,
-             getUri = getUri, haveAnyError = haveAnyError
-         )*/
 
         UserSalesReportPdf.makePdf(
             companyName = commonMemory.companyName,
@@ -296,7 +330,9 @@ class PdfServiceImpl(
             context = context,
             list = list,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )
@@ -304,7 +340,9 @@ class PdfServiceImpl(
 
     override suspend fun writePdfForPurchaseSummaryReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseSummaryResponse>,
@@ -317,7 +355,9 @@ class PdfServiceImpl(
             list = list,
             purchaseSummaryTotals = purchaseSummaryTotals,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             haveAnyError = haveAnyError
         )

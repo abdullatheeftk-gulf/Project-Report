@@ -3,16 +3,19 @@ package com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens
 import android.net.Uri
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gulfappdeveloper.projectreport.domain.models.general.Error
 import com.gulfappdeveloper.projectreport.domain.models.general.GetDataFromRemote
 import com.gulfappdeveloper.projectreport.domain.models.ledger.GetCustomerForLedgerReportResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseMastersResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.PurchaseSummaryResponse
 import com.gulfappdeveloper.projectreport.domain.models.purchase.supplier_ledger_report.Detail
 import com.gulfappdeveloper.projectreport.domain.services.FirebaseService
+import com.gulfappdeveloper.projectreport.presentation.screen_util.PresentationConstants
 import com.gulfappdeveloper.projectreport.presentation.screen_util.UiEvent
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.navigation.PurchaseScreens
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.purchase_models.PurchaseMasterSelection
@@ -31,6 +34,7 @@ import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.
 import com.gulfappdeveloper.projectreport.root.CommonMemory
 import com.gulfappdeveloper.projectreport.root.HttpRoutes
 import com.gulfappdeveloper.projectreport.root.localDateToStringConverter
+import com.gulfappdeveloper.projectreport.root.localTimeToStringConverter
 import com.gulfappdeveloper.projectreport.root.sendErrorDataToFirebase
 import com.gulfappdeveloper.projectreport.usecases.UseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,6 +44,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.Date
 import javax.inject.Inject
 
@@ -175,13 +180,19 @@ class PurchaseViewModel @Inject constructor(
     private val _fromDateState = mutableStateOf("")
     val fromDateState: State<String> = _fromDateState
 
+    private val _fromTimeState = mutableStateOf("")
+    val fromTimeState: State<String> = _fromTimeState
+
     private val _toDateState = mutableStateOf("")
     val toDateState: State<String> = _toDateState
+
+    private val _toTimeState = mutableStateOf("")
+    val toTimeState: State<String> = _toTimeState
 
     private val _partyName = mutableStateOf("")
     val partyName: State<String> = _partyName
 
-    private val _balance = mutableStateOf(0f)
+    private val _balance = mutableFloatStateOf(0f)
     val balance: State<Float> = _balance
 
     private val _orientation = mutableStateOf(true)
@@ -218,15 +229,36 @@ class PurchaseViewModel @Inject constructor(
     val supplierLedgerReportTotals: State<SupplierLedgerTotals?> = _supplierLedgerReportTotals
 
 
-    fun getPurchaseMastersReport(fromDate: LocalDate, toDate: LocalDate) {
+    fun getPurchaseMastersReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
         val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
 
-        _fromDateState.value = fromDate.localDateToStringConverter()
-        _toDateState.value = toDate.localDateToStringConverter()
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        if (falseDateSelection) {
+            sendQueryPurchaseMastersReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
+
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
+
+        _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
+
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.PURCHASE_MASTERS_REPORT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}"
         purchaseMastersReportList.clear()
@@ -262,6 +294,8 @@ class PurchaseViewModel @Inject constructor(
                         )
 
                     }
+
+                    else -> {}
                 }
             }
         }
@@ -296,16 +330,43 @@ class PurchaseViewModel @Inject constructor(
 
     }
 
-    fun getPurchaseSummaryReport(fromDate: LocalDate, toDate: LocalDate) {
+    fun getPurchaseSummaryReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
         val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
 
         purchaseMastersReportList.clear()
-        _fromDateState.value = fromDate.localDateToStringConverter()
-        _toDateState.value = toDate.localDateToStringConverter()
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}"
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}"
+        if (falseDateSelection) {
+            sendQueryPurchaseSummaryReportScreenUiEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
+
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
+
+        _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+
+        /*  val fromDateString =
+              "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}"
+
+          val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}"*/
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
+
+
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.PURCHASE_SUMMARY_REPORT
 
@@ -341,6 +402,8 @@ class PurchaseViewModel @Inject constructor(
                             )
                         )
                     }
+
+                    else -> {}
                 }
 
             }
@@ -367,19 +430,38 @@ class PurchaseViewModel @Inject constructor(
     }
 
 
-    fun getSupplierPurchaseReport(fromDate: LocalDate, toDate: LocalDate) {
+    fun getSupplierPurchaseReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
         val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
+
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
+
+        if (falseDateSelection) {
+            sendQuerySupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
+            return
+        }
 
         if (_selectedAccount.value == null) {
             sendQuerySupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar("Account is not selected"))
             return
         }
         _fromDateState.value = fromDate.localDateToStringConverter()
-        _toDateState.value = toDate.localDateToStringConverter()
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.SUPPLIER_PURCHASE_REPORT + fromDateString + "/$toDateString" + "/${commonMemory.companyId}" + "/${_selectedAccount.value?.accountId}"
         supplierPurchaseReportList.clear()
@@ -413,6 +495,8 @@ class PurchaseViewModel @Inject constructor(
                         )
 
                     }
+
+                    else -> {}
                 }
             }
         }
@@ -454,67 +538,123 @@ class PurchaseViewModel @Inject constructor(
     fun getSupplierAccountList() {
         val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
 
-        accountList.clear()
+
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.GET_CUSTOMER_FOR_LEDGER + commonMemory.companyId + "/Supplier"
 
-        viewModelScope.launch(Dispatchers.IO) {
-            useCase.getCustomerForLedgerUseCase(url = url).collectLatest { value ->
-                when (value) {
-                    is GetDataFromRemote.Loading -> {
-                        sendQuerySupplierPurchaseReportScreenEvent(UiEvent.ShowProgressBar)
-                        sendQuerySupplierLedgerReportScreenEvent(UiEvent.ShowProgressBar)
-                    }
+        try {
+            accountList.clear()
 
-                    is GetDataFromRemote.Success -> {
-                        sendQuerySupplierPurchaseReportScreenEvent(UiEvent.CloseProgressBar)
-                        sendQuerySupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
-                        accountList.addAll(value.data)
-                        setSelectedAccount(value.data[0])
-                    }
+            viewModelScope.launch(Dispatchers.IO) {
+                useCase.getCustomerForLedgerUseCase(url = url).collectLatest { value ->
+                    when (value) {
+                        is GetDataFromRemote.Loading -> {
+                            sendQuerySupplierPurchaseReportScreenEvent(UiEvent.ShowProgressBar)
+                            sendQuerySupplierLedgerReportScreenEvent(UiEvent.ShowProgressBar)
+                        }
 
-                    is GetDataFromRemote.Failed -> {
-                        val error = value.error
-                        firebaseService.sendErrorDataToFirebase(
-                            url = url,
-                            error = error,
-                            funcName = funcName
-                        )
-                        sendQuerySupplierPurchaseReportScreenEvent(UiEvent.CloseProgressBar)
-                        sendQuerySupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
-                        sendQuerySupplierPurchaseReportScreenEvent(
-                            UiEvent.ShowSnackBar(
-                                value.error.message ?: "There have some error"
+                        is GetDataFromRemote.Success -> {
+                            sendQuerySupplierPurchaseReportScreenEvent(UiEvent.CloseProgressBar)
+                            sendQuerySupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
+                            accountList.addAll(value.data)
+                            if (accountList.size > 0) {
+                                setSelectedAccount(accountList[0])
+                            } else {
+                                sendQuerySupplierLedgerReportScreenEvent(UiEvent.ShowSnackBar("There have some problemm while fetching account list"))
+                                sendQuerySupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar("There have some problemm while fetching account list"))
+                                firebaseService.sendErrorDataToFirebase(
+                                    url = url,
+                                    error = Error(
+                                        702,
+                                        message = "Account list is not more than 0"
+                                    ),
+                                    funcName = funcName
+                                )
+                            }
+                        }
+
+                        is GetDataFromRemote.Failed -> {
+                            val error = value.error
+                            firebaseService.sendErrorDataToFirebase(
+                                url = url,
+                                error = error,
+                                funcName = funcName
                             )
-                        )
-                        sendQuerySupplierLedgerReportScreenEvent(
-                            UiEvent.ShowSnackBar(
-                                value.error.message ?: "There have some error"
+                            sendQuerySupplierPurchaseReportScreenEvent(UiEvent.CloseProgressBar)
+                            sendQuerySupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
+                            sendQuerySupplierPurchaseReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    value.error.message ?: "There have some error"
+                                )
                             )
-                        )
-                        accountList.clear()
+                            sendQuerySupplierLedgerReportScreenEvent(
+                                UiEvent.ShowSnackBar(
+                                    value.error.message ?: "There have some error"
+                                )
+                            )
+                            accountList.clear()
+                        }
+
+
+                        else -> {}
                     }
-
-
                 }
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            viewModelScope.launch {
+                firebaseService.sendErrorDataToFirebase(
+                    url = url,
+                    error = Error(
+                        code = 700,
+                        message = e.message
+                    ),
+                    funcName = funcName
+                )
+            }
+
+        } catch (e: Exception) {
+            viewModelScope.launch {
+                firebaseService.sendErrorDataToFirebase(
+                    url = url,
+                    error = Error(
+                        code = 701,
+                        message = e.message
+                    ),
+                    funcName = funcName
+                )
             }
         }
     }
 
-    fun getSupplierLedgerReport(fromDate: LocalDate, toDate: LocalDate) {
+    fun getSupplierLedgerReport(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ) {
         val funcName = "RootViewModel." + object {}.javaClass.enclosingMethod?.name + Date()
 
-        reArrangedSupplierLedgerReportList.clear()
-        if (_selectedAccount.value == null) {
-            sendQuerySupplierLedgerReportScreenEvent(UiEvent.ShowSnackBar("No Account is selected"))
+        val falseDateSelection = checkForInvalidDateSelection(fromDate, fromTime, toDate, toTime)
+
+        if (falseDateSelection) {
+            sendQuerySupplierLedgerReportScreenEvent(UiEvent.ShowSnackBar(PresentationConstants.FALSE_DATE_SELECTION))
             return
         }
-        val fromDateString =
-            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T00:00:00"
-        _fromDateState.value = fromDate.localDateToStringConverter()
 
-        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T00:00:00"
+        reArrangedSupplierLedgerReportList.clear()
+        _fromDateState.value = fromDate.localDateToStringConverter()
+        _fromTimeState.value = fromTime.localTimeToStringConverter()
+
         _toDateState.value = toDate.localDateToStringConverter()
+        _toTimeState.value = toTime.localTimeToStringConverter()
+
+        val fromTimeString = "${fromTime.hour}:${fromTime.minute}:00"
+        val toTimeString = "${toTime.hour}:${toTime.minute}:00"
+
+        val fromDateString =
+            "${fromDate.year}-${fromDate.monthValue}-${fromDate.dayOfMonth}T$fromTimeString"
+
+        val toDateString = "${toDate.year}-${toDate.monthValue}-${toDate.dayOfMonth}T$toTimeString"
 
         val url =
             HttpRoutes.BASE_URL + HttpRoutes.SUPPLIER_LEDGER_REPORT + fromDateString + "/$toDateString" + "/${_selectedAccount.value?.accountId}" + "/${commonMemory.companyId}"
@@ -527,7 +667,7 @@ class PurchaseViewModel @Inject constructor(
 
                     is GetDataFromRemote.Success -> {
                         _partyName.value = value.data.partyName
-                        _balance.value = value.data.balance
+                        _balance.floatValue = value.data.balance
                         calculateSupplierLedgerTotalsAndReArrange(value.data.details)
 
                     }
@@ -547,6 +687,8 @@ class PurchaseViewModel @Inject constructor(
                         )
 
                     }
+
+                    else -> {}
                 }
             }
         }
@@ -595,10 +737,12 @@ class PurchaseViewModel @Inject constructor(
                 useCase.pdfMakerSupplierLedgerReportUseCase(
                     list = reArrangedSupplierLedgerReportList,
                     _supplierLedgerReportTotals.value!!,
-                    balance = _balance.value,
+                    balance = _balance.floatValue,
                     partyName = _partyName.value,
                     fromDate = fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     haveAnyError = { haveAnyError, error ->
                         sendSupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
@@ -625,10 +769,12 @@ class PurchaseViewModel @Inject constructor(
                 sendSupplierLedgerReportScreenEvent(UiEvent.ShowProgressBar)
                 useCase.excelMakerForSupplierLedgerReportUseCase(
                     list = reArrangedSupplierLedgerReportList,
-                    balance = _balance.value,
+                    balance = _balance.floatValue,
                     partyName = _partyName.value,
                     fromDate = fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     haveAnyError = { haveAnyError, error ->
                         sendSupplierLedgerReportScreenEvent(UiEvent.CloseProgressBar)
@@ -665,7 +811,9 @@ class PurchaseViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.pdfMakerPurchaseMastersReportUseCase(
                     fromDate = fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     list = purchaseMastersReportList,
                     purchaseMastersReportListTotals = _purchaseMastersReportTotal.value!!,
@@ -695,7 +843,9 @@ class PurchaseViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.purchaseSummaryReportPdfUseCase(
                     fromDate = fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     list = purchaseSummaryReportList,
                     purchaseSummaryTotals = _purchaseSummaryReportTotal.value!!,
@@ -724,7 +874,9 @@ class PurchaseViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.purchaseSummaryReportExcelUseCase(
                     fromDate = fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     list = purchaseSummaryReportList,
                     haveAnyError = { haveAnyError, error ->
@@ -751,7 +903,9 @@ class PurchaseViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.excelMakerPurchaseMastersReportUseCase(
                     fromDate = fromDateState.value,
+                    fromTime = _fromTimeState.value,
                     toDate = toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     purchaseMasterSelection = PurchaseMasterSelection.PURCHASE_MASTER,
                     list = purchaseMastersReportList,
@@ -778,8 +932,10 @@ class PurchaseViewModel @Inject constructor(
             sendSupplierPurchaseReportScreenEvent(UiEvent.ShowProgressBar)
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.pdfMakerPurchaseMastersReportUseCase(
-                    fromDate = fromDateState.value,
-                    toDate = toDateState.value,
+                    fromDate = _fromDateState.value,
+                    fromTime = _fromDateState.value,
+                    toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     list = supplierPurchaseReportList,
                     purchaseMastersReportListTotals = _supplierPurchaseReportTotal.value!!,
@@ -807,8 +963,10 @@ class PurchaseViewModel @Inject constructor(
             sendSupplierPurchaseReportScreenEvent(UiEvent.ShowProgressBar)
             viewModelScope.launch(Dispatchers.IO) {
                 useCase.excelMakerPurchaseMastersReportUseCase(
-                    fromDate = fromDateState.value,
-                    toDate = toDateState.value,
+                    fromDate = _fromDateState.value,
+                    fromTime = _fromTimeState.value,
+                    toDate = _toDateState.value,
+                    toTime = _toTimeState.value,
                     getUri = getUri,
                     list = supplierPurchaseReportList,
                     purchaseMasterSelection = PurchaseMasterSelection.SUPPLIER_PURCHASE,
@@ -827,6 +985,23 @@ class PurchaseViewModel @Inject constructor(
 
         } else {
             sendSupplierPurchaseReportScreenEvent(UiEvent.ShowSnackBar("List is empty"))
+        }
+    }
+
+
+    private fun checkForInvalidDateSelection(
+        fromDate: LocalDate,
+        fromTime: LocalTime,
+        toDate: LocalDate,
+        toTime: LocalTime
+    ): Boolean {
+
+        return if (toDate.isBefore(fromDate)) {
+            true
+        } else if (toDate.isEqual(fromDate)) {
+            toTime.minusSeconds(1L).isBefore(fromTime)
+        } else {
+            false
         }
     }
 

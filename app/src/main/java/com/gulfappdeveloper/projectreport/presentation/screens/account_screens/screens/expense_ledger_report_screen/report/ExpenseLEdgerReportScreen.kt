@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,8 +43,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -65,8 +70,14 @@ fun ExpenseLedgerReportScreen(
         SnackbarHostState()
     }
 
+    val partyName by accountViewModel.partyName
+    val balance by accountViewModel.balance
+
     val fromDate by accountViewModel.fromDateState
+    val fromTime by accountViewModel.fromTimeState
+
     val toDate by accountViewModel.toDateState
+    val toTime by accountViewModel.toTimeState
 
     val expenseLedgerReportList = accountViewModel.reArrangedExpenseLedgerReportList
     val expenseLedgerReportTotals by accountViewModel.expenseLedgerReportTotals
@@ -225,14 +236,100 @@ fun ExpenseLedgerReportScreen(
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-
-                Text(text = "Report from ")
-                Text(text = fromDate, color = MaterialTheme.colorScheme.primary, fontSize = 17.sp)
-                Text(text = " to ")
-                Text(text = toDate, color = MaterialTheme.colorScheme.primary, fontSize = 17.sp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Name",
+                    modifier = Modifier
+                        // .fillMaxWidth()
+                        .weight(0.5f)
+                )
+                Text(
+                    text = ":",
+                    modifier = Modifier
+                        // .fillMaxWidth()
+                        .weight(.1f),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = partyName,
+                    modifier = Modifier
+                        //.fillMaxWidth()
+                        .weight(2f),
+                    textAlign = TextAlign.Start,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
             Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Balance",
+                    modifier = Modifier
+                        .weight(0.5f)
+                )
+                Text(
+                    text = " :",
+                    modifier = Modifier
+                        .weight(.1f),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = balance.toString(),
+                    modifier = Modifier
+                        .weight(2f),
+                    textAlign = TextAlign.Start,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = "Period",
+                    modifier = Modifier
+                        //.fillMaxWidth()
+                        .weight(0.5f)
+                )
+                Text(
+                    text = ":",
+                    modifier = Modifier
+                        //.fillMaxWidth()
+                        .weight(.1f),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                            append("$fromDate, $fromTime")
+                        }
+                        append(" to ")
+                        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                            append("$toDate, $toTime")
+                        }
+                    },
+                    modifier = Modifier.weight(2f),
+                )
+
+            }
+            Spacer(modifier = Modifier.height(25.dp))
 
             if (expenseLedgerReportList.isEmpty()) {
                 Spacer(modifier = Modifier.height(20.dp))

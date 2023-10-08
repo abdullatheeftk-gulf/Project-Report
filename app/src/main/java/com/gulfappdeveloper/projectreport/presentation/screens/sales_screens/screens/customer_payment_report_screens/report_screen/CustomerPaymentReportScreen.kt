@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,8 +42,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -59,12 +64,17 @@ fun CustomerPaymentReportScreen(
     salesViewModel: SalesViewModel,
     salesNavHostController: NavHostController
 ) {
+
+
     val snackBarHostState = remember {
         SnackbarHostState()
     }
 
     val fromDate by salesViewModel.fromDateState
+    val fromTime by salesViewModel.fromTimeState
+
     val toDate by salesViewModel.toDateState
+    val toTime by salesViewModel.toTimeState
 
 
     val customerPaymentReportList = salesViewModel.customerPaymentReportList
@@ -80,20 +90,23 @@ fun CustomerPaymentReportScreen(
 
 
     LaunchedEffect(key1 = true) {
-        salesViewModel.customerPaymentReportScreenEvent.collectLatest {value ->
-        when(value.uiEvent){
-            is UiEvent.ShowProgressBar->{
-                showProgressBar = true
-            }
-            is UiEvent.CloseProgressBar->{
-                showProgressBar = false
+        salesViewModel.customerPaymentReportScreenEvent.collectLatest { value ->
+            when (value.uiEvent) {
+                is UiEvent.ShowProgressBar -> {
+                    showProgressBar = true
+                }
 
+                is UiEvent.CloseProgressBar -> {
+                    showProgressBar = false
+
+                }
+
+                is UiEvent.ShowSnackBar -> {
+                    snackBarHostState.showSnackbar(value.uiEvent.message)
+                }
+
+                else -> Unit
             }
-            is UiEvent.ShowSnackBar->{
-                snackBarHostState.showSnackbar(value.uiEvent.message)
-            }
-            else->Unit
-        }
 
         }
     }
@@ -102,7 +115,7 @@ fun CustomerPaymentReportScreen(
     val context = LocalContext.current
 
     val orientation by remember {
-        mutableStateOf(context.resources.configuration.orientation)
+        mutableIntStateOf(context.resources.configuration.orientation)
     }
     salesViewModel.setOrientation(orientation)
 
@@ -127,13 +140,13 @@ fun CustomerPaymentReportScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                     }
-                    
+
                 },
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                        salesNavHostController.popBackStack()
-                    },
+                            salesNavHostController.popBackStack()
+                        },
                         enabled = !showProgressBar
                     ) {
                         Icon(
@@ -149,6 +162,7 @@ fun CustomerPaymentReportScreen(
                         salesViewModel = salesViewModel,
                         context = context
                     )
+
                     Box(
                         modifier = Modifier
                             .wrapContentSize(Alignment.TopEnd)
@@ -194,7 +208,8 @@ fun CustomerPaymentReportScreen(
                                         val shareIntent = Intent().apply {
                                             action = Intent.ACTION_SEND
                                             putExtra(Intent.EXTRA_STREAM, it)
-                                            type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                            type =
+                                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
                                         }
@@ -226,13 +241,23 @@ fun CustomerPaymentReportScreen(
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
 
-                Text(text = "Report from ")
-                Text(text = fromDate, color = MaterialTheme.colorScheme.primary, fontSize = 17.sp)
-                Text(text = " to ")
-                Text(text = toDate, color = MaterialTheme.colorScheme.primary, fontSize = 17.sp)
-            }
+
+            Text(
+                buildAnnotatedString {
+                    append("Report from ")
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                        append("$fromDate, $fromTime")
+                    }
+                    append(" to ")
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                        append("$toDate, $toTime")
+                    }
+                },
+                modifier = Modifier.align(Alignment.Start)
+            )
+
+
             Spacer(modifier = Modifier.height(10.dp))
 
             if (customerPaymentReportList.isEmpty()) {
@@ -258,20 +283,24 @@ fun CustomerPaymentReportScreen(
 
             }
 
+
+
             CustomerPaymentReportTable(
                 customerPaymentReportList = customerPaymentReportList,
                 customerPaymentReportTotalList = customerPaymentReportTotalList
             )
+
         }
 
     }
-    if (showProgressBar){
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+    if (showProgressBar) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
     }
 
 }
+
 
 @Composable
 fun ScreenOrientationActionForCustomerPayment(
@@ -299,5 +328,6 @@ fun ScreenOrientationActionForCustomerPayment(
             tint = Color(0xFFEF8484)
         )
     }
+
 }
 

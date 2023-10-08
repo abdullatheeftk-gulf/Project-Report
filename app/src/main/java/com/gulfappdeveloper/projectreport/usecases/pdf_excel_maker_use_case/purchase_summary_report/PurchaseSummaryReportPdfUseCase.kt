@@ -10,14 +10,18 @@ class PurchaseSummaryReportPdfUseCase(
 ) {
     suspend operator fun invoke(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseSummaryResponse>,
         purchaseSummaryTotals: PurchaseSummaryTotals
     ) = pdfExcelRepository.writePdfForPurchaseSummaryReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list,

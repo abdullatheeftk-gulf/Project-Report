@@ -13,7 +13,14 @@ fun Canvas.writeHeading(headingTitle: String, xPosition: Float, yPosition: Float
     })
 }
 
-fun Canvas.writePeriodText(fromDate: String, toDate: String, yPosition: Float) {
+fun Canvas.writePeriodText(
+    fromDate: String,
+    fromTime:String,
+    toDate: String,
+    toTime:String,
+    yPosition: Float,
+
+) {
     var xPosition = 30f
     drawText("Period : ", xPosition, yPosition, Paint().apply {
         textSize = 14f
@@ -22,7 +29,7 @@ fun Canvas.writePeriodText(fromDate: String, toDate: String, yPosition: Float) {
 
     var textWidth = Paint().measureText("Period :-") + 5
     xPosition += textWidth
-    drawText(fromDate, xPosition, yPosition, Paint().apply {
+    drawText("$fromDate, $fromTime", xPosition, yPosition, Paint().apply {
         textSize = 14f
         color = Color.argb(255, 102, 80, 164)
     })
@@ -36,14 +43,20 @@ fun Canvas.writePeriodText(fromDate: String, toDate: String, yPosition: Float) {
 
     textWidth = Paint().measureText("-to") + 5f
     xPosition += textWidth
-    drawText(toDate, xPosition, yPosition, Paint().apply {
+    drawText("$toDate, $toTime", xPosition, yPosition, Paint().apply {
         textSize = 14f
         color = Color.argb(255, 102, 80, 164)
     })
 
 }
 
-fun Canvas.writePeriodTextLedger(fromDate: String, toDate: String, yPosition: Float) {
+fun Canvas.writePeriodTextLedger(
+    fromDate: String,
+    fromTime: String,
+    toDate: String,
+    toTime: String,
+    yPosition: Float
+) {
     var xPosition = 30f
     drawText("Period", xPosition, yPosition, Paint().apply {
         textSize = 12f
@@ -57,12 +70,12 @@ fun Canvas.writePeriodTextLedger(fromDate: String, toDate: String, yPosition: Fl
 
     var textWidth = 0f
     xPosition += 10
-    drawText(fromDate, xPosition, yPosition, Paint().apply {
+    drawText("$fromDate, $fromTime", xPosition, yPosition, Paint().apply {
         textSize = 12f
         color = Color.argb(255, 102, 80, 164)
     })
 
-    textWidth = Paint().measureText(fromDate)
+    textWidth = Paint().measureText("$fromDate, $fromTime")
     xPosition += textWidth
     drawText(" to", xPosition, yPosition, Paint().apply {
         textSize = 12f
@@ -71,7 +84,7 @@ fun Canvas.writePeriodTextLedger(fromDate: String, toDate: String, yPosition: Fl
 
     textWidth = Paint().measureText("-to")+4f
     xPosition += textWidth
-    drawText(toDate, xPosition, yPosition, Paint().apply {
+    drawText("$toDate, $toTime", xPosition, yPosition, Paint().apply {
         textSize = 12f
         color = Color.argb(255, 102, 80, 164)
     })

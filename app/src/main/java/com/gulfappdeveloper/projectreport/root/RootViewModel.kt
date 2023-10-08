@@ -315,6 +315,7 @@ class RootViewModel @Inject constructor(
                             error.message ?: "Error on loading Data from server"
                     }
 
+                    else -> {}
                 }
             }
         }

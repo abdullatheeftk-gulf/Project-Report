@@ -21,6 +21,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
+import java.time.LocalTime
 import java.util.Date
 import java.util.Locale
 
@@ -29,7 +30,9 @@ object CustomerPaymentReportExcel {
     suspend fun writeExcelSheet(
         context: Context,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         list: List<CustomerPaymentResponse>,
         companyName:String,
@@ -44,7 +47,9 @@ object CustomerPaymentReportExcel {
             sheet = sheet,
             wb = wb,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             companyName = companyName
         )
         createHeaderOfTable(sheet = sheet, wb = wb)
@@ -106,7 +111,9 @@ object CustomerPaymentReportExcel {
         sheet: Sheet,
         wb: XSSFWorkbook,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime: String,
         companyName: String
     ) {
         val periodRow = sheet.createRow(1)
@@ -114,9 +121,9 @@ object CustomerPaymentReportExcel {
             color = IndexedColors.BLUE.index
         }
 
-        val richTextString = XSSFRichTextString("Period : $fromDate to $toDate").apply {
-            val lengthOfFromDate = fromDate.length
-            val totalLength = "Period : $fromDate to $toDate".length - 1
+        val richTextString = XSSFRichTextString("Period : $fromDate, $fromTime to $toDate, $toTime").apply {
+            val lengthOfFromDate = "$fromDate, $fromTime".length
+            val totalLength = "Period : $fromDate, $fromTime to $toDate, $toTime".length - 1
 
             applyFont(9, 9 + lengthOfFromDate, font)
             applyFont(13 + lengthOfFromDate, totalLength + 1, font)

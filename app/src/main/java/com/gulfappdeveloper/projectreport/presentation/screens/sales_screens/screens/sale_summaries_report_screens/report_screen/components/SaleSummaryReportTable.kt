@@ -59,7 +59,7 @@ fun SaleSummaryReportTable(
 
             },
             rowSize = {
-                if (it == 0) 48.dp else 44.dp
+                if (it == 0) 58.dp else 54.dp
             }
         )
     ) {

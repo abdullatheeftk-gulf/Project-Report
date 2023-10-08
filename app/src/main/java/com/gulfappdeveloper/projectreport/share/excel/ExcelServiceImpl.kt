@@ -38,7 +38,9 @@ class ExcelServiceImpl(
     override suspend fun makeExcelForCustomerPaymentReport(
         list: List<CustomerPaymentResponse>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (Boolean, String?) -> Unit
     ) {
@@ -47,7 +49,9 @@ class ExcelServiceImpl(
             list = list,
             haveAnyError = haveAnyError,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             companyName = commonMemory.companyName
         )
@@ -56,7 +60,9 @@ class ExcelServiceImpl(
     override suspend fun makeExcelForPosPaymentReport(
         list: List<PosPaymentResponse>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (Boolean, String?) -> Unit
     ) {
@@ -64,7 +70,9 @@ class ExcelServiceImpl(
             companyName = commonMemory.companyName,
             context = context,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             list = list,
             haveAnyError = haveAnyError
@@ -76,7 +84,9 @@ class ExcelServiceImpl(
         partyName: String,
         balance: Float,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (isError: Boolean, errorString: String?) -> Unit
     ) {
@@ -86,7 +96,9 @@ class ExcelServiceImpl(
             balance = balance,
             context = context,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             list = list,
             haveAnyError = haveAnyError
@@ -99,7 +111,9 @@ class ExcelServiceImpl(
         partyName: String,
         balance: Float,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (isError: Boolean, errorString: String?) -> Unit
     ) {
@@ -109,7 +123,9 @@ class ExcelServiceImpl(
             balance = balance,
             context = context,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             list = list,
             haveAnyError = haveAnyError
@@ -118,7 +134,9 @@ class ExcelServiceImpl(
 
     override suspend fun makeExcelForSalesInvoiceReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<SalesInvoiceResponse>
@@ -127,7 +145,9 @@ class ExcelServiceImpl(
             companyName = commonMemory.companyName,
             context = context,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             list = list,
             haveAnyError = haveAnyError
@@ -136,7 +156,9 @@ class ExcelServiceImpl(
 
     override suspend fun makeExcelForSaleSummariesReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<SaleSummariesResponse>
@@ -145,7 +167,9 @@ class ExcelServiceImpl(
             companyName = commonMemory.companyName,
             context = context,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             list = list,
             haveAnyError = haveAnyError
@@ -157,7 +181,9 @@ class ExcelServiceImpl(
         partyName: String,
         balance: Float,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (isError: Boolean, errorString: String?) -> Unit
     ) {
@@ -167,7 +193,9 @@ class ExcelServiceImpl(
             balance = balance,
             context = context,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             list = list,
             haveAnyError = haveAnyError
@@ -176,7 +204,9 @@ class ExcelServiceImpl(
 
     override suspend fun makeExcelForPaymentsReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PaymentResponse>
@@ -185,6 +215,8 @@ class ExcelServiceImpl(
             companyName = commonMemory.companyName,
             context = context,
             fromDate = fromDate,
+            fromTime = fromTime,
+            toTime = toTime,
             toDate = toDate,
             getUri = getUri,
             list = list,
@@ -194,7 +226,9 @@ class ExcelServiceImpl(
 
     override suspend fun makeExcelForReceiptsReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<ReceiptResponse>
@@ -203,7 +237,9 @@ class ExcelServiceImpl(
             companyName = commonMemory.companyName,
             context = context,
             fromDate = fromDate,
+            fromTime= fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             list = list,
             haveAnyError = haveAnyError
@@ -212,7 +248,9 @@ class ExcelServiceImpl(
 
     override suspend fun makeExcelForPurchaseMastersReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseMastersResponse>,
@@ -222,7 +260,9 @@ class ExcelServiceImpl(
             companyName = commonMemory.companyName,
             context = context,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             purchaseMastersSelection = purchaseMasterSelection,
             list = list,
@@ -232,7 +272,9 @@ class ExcelServiceImpl(
 
     override suspend fun makeExcelForUserSalesReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<UserSalesResponse>
@@ -241,7 +283,9 @@ class ExcelServiceImpl(
             companyName = commonMemory.companyName,
             context = context,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             list = list,
             haveAnyError = haveAnyError
@@ -250,7 +294,9 @@ class ExcelServiceImpl(
 
     override suspend fun makeExcelForPurchaseSummaryReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseSummaryResponse>
@@ -259,7 +305,9 @@ class ExcelServiceImpl(
             companyName = commonMemory.companyName,
             context = context,
             fromDate = fromDate,
+            fromTime = fromTime,
             toDate = toDate,
+            toTime = toTime,
             getUri = getUri,
             list = list,
             haveAnyError = haveAnyError

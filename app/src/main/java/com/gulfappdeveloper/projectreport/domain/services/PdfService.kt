@@ -28,7 +28,9 @@ interface PdfService {
       list: List<CustomerPaymentResponse>,
       listOfTotal: List<Double>,
       fromDate:String,
+      fromTime:String,
       toDate:String,
+      toTime:String,
       getUri:(Uri)->Unit,
       haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
    )
@@ -36,8 +38,10 @@ interface PdfService {
    suspend fun writePdfAndShareItForPosPaymentReport(
       list: List<PosPaymentResponse>,
       listOfTotal: List<Double>,
-      fromDate:String,
-      toDate:String,
+      fromDate: String,
+      fromTime: String,
+      toDate: String,
+      toTime: String,
       getUri:(Uri)->Unit,
       haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
    )
@@ -46,7 +50,9 @@ interface PdfService {
       list:List<ReArrangedCustomerLedgerDetails>,
       customerLedgerTotals: CustomerLedgerTotals,
       fromDate: String,
+      fromTime: String,
       toDate: String,
+      toTime: String,
       partyName:String,
       balance:Float,
       getUri: (Uri) -> Unit,
@@ -57,7 +63,9 @@ interface PdfService {
       list:List<ReArrangedSupplierLedgerDetail>,
       supplierLedgerTotal: SupplierLedgerTotals,
       fromDate: String,
+      fromTime: String,
       toDate: String,
+      toTime: String,
       partyName:String,
       balance:Float,
       getUri: (Uri) -> Unit,
@@ -68,7 +76,9 @@ interface PdfService {
       list:List<ReArrangedExpenseLedgerDetail>,
       expenseLedgerTotal: ExpenseLedgerReportTotals,
       fromDate: String,
+      fromTime: String,
       toDate: String,
+      toTime: String,
       partyName:String,
       balance:Float,
       getUri: (Uri) -> Unit,
@@ -77,7 +87,9 @@ interface PdfService {
 
    suspend fun writePdfForSalesInvoiceReport(
       fromDate: String,
+      fromTime: String,
       toDate: String,
+      toTime: String,
       getUri: (Uri) -> Unit,
       haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
       list:List<SalesInvoiceResponse>,
@@ -85,7 +97,9 @@ interface PdfService {
    )
    suspend fun writePdfForSaleSummariesReport(
       fromDate: String,
+      fromTime: String,
       toDate: String,
+      toTime: String,
       getUri: (Uri) -> Unit,
       haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
       list:List<SaleSummariesResponse>,
@@ -94,7 +108,9 @@ interface PdfService {
 
    suspend fun writePdfForPaymentsReport(
       fromDate: String,
+      fromTime: String,
       toDate: String,
+      toTime: String,
       getUri: (Uri) -> Unit,
       haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
       list:List<PaymentResponse>,
@@ -103,7 +119,9 @@ interface PdfService {
 
    suspend fun writePdfForReceiptsReport(
       fromDate: String,
+      fromTime: String,
       toDate: String,
+      toTime: String,
       getUri: (Uri) -> Unit,
       haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
       list:List<ReceiptResponse>,
@@ -112,7 +130,9 @@ interface PdfService {
 
    suspend fun writePdfForPurchaseMastersReport(
       fromDate: String,
+      fromTime: String,
       toDate: String,
+      toTime: String,
       getUri: (Uri) -> Unit,
       haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
       list:List<PurchaseMastersResponse>,
@@ -122,7 +142,9 @@ interface PdfService {
 
    suspend fun writePdfForUserSalesReportByItext(
       fromDate: String,
+      fromTime: String,
       toDate: String,
+      toTime: String,
       getUri: (Uri) -> Unit,
       haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
       list:List<UserSalesResponse>,
@@ -130,7 +152,9 @@ interface PdfService {
 
    suspend fun writePdfForPurchaseSummaryReport(
       fromDate: String,
+      fromTime: String,
       toDate: String,
+      toTime: String,
       getUri: (Uri) -> Unit,
       haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
       list:List<PurchaseSummaryResponse>,

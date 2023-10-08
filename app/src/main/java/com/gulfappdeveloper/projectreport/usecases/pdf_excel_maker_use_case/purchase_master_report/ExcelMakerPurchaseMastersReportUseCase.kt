@@ -10,17 +10,21 @@ class ExcelMakerPurchaseMastersReportUseCase(
 ) {
     suspend operator fun invoke(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseMastersResponse>,
         purchaseMasterSelection: PurchaseMasterSelection
     ) = pdfExcelRepository.makeExcelForPurchaseMastersReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list,
-        purchaseMasterSelection
+        purchaseMasterSelection = purchaseMasterSelection
     )
 }

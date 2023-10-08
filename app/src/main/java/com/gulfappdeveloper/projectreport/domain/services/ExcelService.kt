@@ -19,14 +19,18 @@ interface ExcelService {
     suspend fun makeExcelForCustomerPaymentReport(
         list: List<CustomerPaymentResponse>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (Boolean, String?) -> Unit
     )
     suspend fun makeExcelForPosPaymentReport(
         list: List<PosPaymentResponse>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (Boolean, String?) -> Unit
     )
@@ -36,7 +40,9 @@ interface ExcelService {
         partyName:String,
         balance:Float,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (isError:Boolean, errorString:String?) -> Unit
     )
@@ -46,14 +52,18 @@ interface ExcelService {
         partyName:String,
         balance:Float,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (isError:Boolean, errorString:String?) -> Unit
     )
 
     suspend fun makeExcelForSalesInvoiceReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
         list:List<SalesInvoiceResponse>
@@ -61,7 +71,9 @@ interface ExcelService {
 
     suspend fun makeExcelForSaleSummariesReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
         list:List<SaleSummariesResponse>
@@ -72,22 +84,28 @@ interface ExcelService {
         partyName:String,
         balance:Float,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (isError:Boolean, errorString:String?) -> Unit
     )
 
     suspend fun makeExcelForPaymentsReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
-        haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
-        list:List<PaymentResponse>,
+        haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
+        list: List<PaymentResponse>
     )
 
     suspend fun makeExcelForReceiptsReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError:Boolean,error:String?)->Unit,
         list:List<ReceiptResponse>,
@@ -95,7 +113,9 @@ interface ExcelService {
 
     suspend fun makeExcelForPurchaseMastersReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseMastersResponse>,
@@ -103,7 +123,9 @@ interface ExcelService {
     )
     suspend fun makeExcelForUserSalesReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<UserSalesResponse>,
@@ -111,7 +133,9 @@ interface ExcelService {
 
     suspend fun makeExcelForPurchaseSummaryReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseSummaryResponse>,

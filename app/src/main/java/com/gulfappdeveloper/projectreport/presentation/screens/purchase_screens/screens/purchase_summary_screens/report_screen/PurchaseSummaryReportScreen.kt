@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,10 +29,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,8 +42,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -54,7 +56,6 @@ import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.
 import com.gulfappdeveloper.projectreport.presentation.screens.purchase_screens.screens.purchase_summary_screens.report_screen.componenets.PurchaseSummaryReportTable
 import kotlinx.coroutines.flow.collectLatest
 
-private const val TAG = "PurchaseSummaryReportSc"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +68,10 @@ fun PurchaseSummaryReportScreen(
     }
 
     val fromDate by purchaseViewModel.fromDateState
+    val fromTime by purchaseViewModel.fromTimeState
+
     val toDate by purchaseViewModel.toDateState
+    val toTime by purchaseViewModel.toTimeState
 
     val purchaseSummaryReportList = purchaseViewModel.purchaseSummaryReportList
     val purchaseSummaryTotals by purchaseViewModel.purchaseSummaryReportTotal
@@ -80,7 +84,7 @@ fun PurchaseSummaryReportScreen(
     val context = LocalContext.current
 
     val orientation by remember {
-        mutableStateOf(context.resources.configuration.orientation)
+        mutableIntStateOf(context.resources.configuration.orientation)
     }
     purchaseViewModel.setOrientation(orientation)
 
@@ -230,13 +234,19 @@ fun PurchaseSummaryReportScreen(
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-
-                Text(text = "Report from ")
-                Text(text = fromDate, color = MaterialTheme.colorScheme.primary, fontSize = 17.sp)
-                Text(text = " to ")
-                Text(text = toDate, color = MaterialTheme.colorScheme.primary, fontSize = 17.sp)
-            }
+            Text(
+                buildAnnotatedString {
+                    append("Report from ")
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                        append("$fromDate, $fromTime")
+                    }
+                    append(" to ")
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                        append("$toDate, $toTime")
+                    }
+                },
+                modifier = Modifier.align(Alignment.Start)
+            )
             Spacer(modifier = Modifier.height(10.dp))
 
             if (purchaseSummaryReportList.isEmpty()) {

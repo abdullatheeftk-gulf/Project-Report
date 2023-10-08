@@ -34,14 +34,18 @@ class PdfExcelRepository @Inject constructor(
         list: List<CustomerPaymentResponse>,
         listOfTotal: List<Double>,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) = pdfService.writePdfAndShareItForCustomerPaymentReport(
         list = list,
         listOfTotal = listOfTotal,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError
     )
@@ -49,13 +53,17 @@ class PdfExcelRepository @Inject constructor(
     suspend fun writeExcelForCustomerPaymentReport(
         list: List<CustomerPaymentResponse>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) = excelService.makeExcelForCustomerPaymentReport(
         list = list,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError
     )
@@ -64,14 +72,18 @@ class PdfExcelRepository @Inject constructor(
         list: List<PosPaymentResponse>,
         listOfTotal: List<Double>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) = pdfService.writePdfAndShareItForPosPaymentReport(
         list = list,
         listOfTotal = listOfTotal,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError
     )
@@ -83,14 +95,18 @@ class PdfExcelRepository @Inject constructor(
         partyName: String,
         balance: Float,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) = pdfService.writePdfForCustomerLedgerReport(
         list = list,
         customerLedgerTotals = customerLedgerTotals,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         partyName = partyName,
         balance = balance,
         getUri = getUri,
@@ -101,7 +117,9 @@ class PdfExcelRepository @Inject constructor(
         list: List<ReArrangedSupplierLedgerDetail>,
         supplierLedgerTotal: SupplierLedgerTotals,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         partyName: String,
         balance: Float,
         getUri: (Uri) -> Unit,
@@ -110,7 +128,9 @@ class PdfExcelRepository @Inject constructor(
         list = list,
         supplierLedgerTotal = supplierLedgerTotal,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         partyName = partyName,
         balance = balance,
         getUri = getUri,
@@ -121,13 +141,17 @@ class PdfExcelRepository @Inject constructor(
     suspend fun writeExcelForPosPaymentReport(
         list: List<PosPaymentResponse>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) = excelService.makeExcelForPosPaymentReport(
         list = list,
         fromDate = fromDate,
+        fromTime,
         toDate = toDate,
+        toTime,
         getUri = getUri,
         haveAnyError = haveAnyError
     )
@@ -137,7 +161,9 @@ class PdfExcelRepository @Inject constructor(
         partyName: String,
         balance: Float,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (isError: Boolean, errorString: String?) -> Unit
     ) = excelService.makeExcelForCustomerLedgerReport(
@@ -145,7 +171,9 @@ class PdfExcelRepository @Inject constructor(
         partyName = partyName,
         balance = balance,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError
     )
@@ -155,7 +183,9 @@ class PdfExcelRepository @Inject constructor(
         partyName: String,
         balance: Float,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (isError: Boolean, errorString: String?) -> Unit
     ) = excelService.makeExcelForSupplierLedgerReport(
@@ -163,7 +193,9 @@ class PdfExcelRepository @Inject constructor(
         partyName = partyName,
         balance = balance,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError
     )
@@ -171,14 +203,18 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun writePdfForSalesInvoiceReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<SalesInvoiceResponse>,
         salesInvoiceReportTotals: SalesInvoiceReportTotals
     ) = pdfService.writePdfForSalesInvoiceReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list,
@@ -187,14 +223,18 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun writePdfForSaleSummariesReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<SaleSummariesResponse>,
         saleSummariesReportTotals: SaleSummariesReportTotals
     ) = pdfService.writePdfForSaleSummariesReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list,
@@ -203,13 +243,17 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun makeExcelForSalesInvoiceReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<SalesInvoiceResponse>
     ) = excelService.makeExcelForSalesInvoiceReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list
@@ -217,13 +261,17 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun makeExcelForSaleSummariesReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<SaleSummariesResponse>
     ) = excelService.makeExcelForSaleSummariesReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list
@@ -233,7 +281,9 @@ class PdfExcelRepository @Inject constructor(
         list: List<ReArrangedExpenseLedgerDetail>,
         expenseLedgerTotal: ExpenseLedgerReportTotals,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         partyName: String,
         balance: Float,
         getUri: (Uri) -> Unit,
@@ -242,7 +292,9 @@ class PdfExcelRepository @Inject constructor(
         list = list,
         expenseLedgerTotal = expenseLedgerTotal,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         partyName = partyName,
         balance = balance,
         getUri = getUri,
@@ -254,7 +306,9 @@ class PdfExcelRepository @Inject constructor(
         partyName: String,
         balance: Float,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (isError: Boolean, errorString: String?) -> Unit
     ) = excelService.makeExcelForExpenseLedgerReport(
@@ -262,21 +316,27 @@ class PdfExcelRepository @Inject constructor(
         partyName = partyName,
         balance = balance,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError
     )
 
     suspend fun writePdfForPaymentsReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PaymentResponse>,
         paymentReportListTotal: Double
     ) = pdfService.writePdfForPaymentsReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list,
@@ -285,14 +345,18 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun writePdfForReceiptsReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<ReceiptResponse>,
         receiptReportListTotal: Double
     ) = pdfService.writePdfForReceiptsReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list,
@@ -301,13 +365,17 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun makeExcelForPaymentsReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PaymentResponse>
     ) = excelService.makeExcelForPaymentsReport(
         fromDate = fromDate,
+        fromTime= fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list
@@ -316,13 +384,17 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun makeExcelForReceiptsReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<ReceiptResponse>
     ) = excelService.makeExcelForReceiptsReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list
@@ -330,7 +402,9 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun writePdfForPurchaseMastersReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseMastersResponse>,
@@ -338,7 +412,9 @@ class PdfExcelRepository @Inject constructor(
         purchaseMasterSelection: PurchaseMasterSelection
     ) = pdfService.writePdfForPurchaseMastersReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list,
@@ -348,14 +424,18 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun makeExcelForPurchaseMastersReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseMastersResponse>,
         purchaseMasterSelection: PurchaseMasterSelection
     ) = excelService.makeExcelForPurchaseMastersReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list,
@@ -364,13 +444,17 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun writePdfForUserSalesReportByItext(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<UserSalesResponse>
     ) = pdfService.writePdfForUserSalesReportByItext(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list
@@ -378,13 +462,17 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun makeExcelForUserSalesReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<UserSalesResponse>
     ) = excelService.makeExcelForUserSalesReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list
@@ -392,13 +480,17 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun makeExcelForPurchaseSummaryReport(
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseSummaryResponse>
     ) = excelService.makeExcelForPurchaseSummaryReport(
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list
@@ -406,14 +498,18 @@ class PdfExcelRepository @Inject constructor(
 
     suspend fun writePdfForPurchaseSummaryReport(
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
         list: List<PurchaseSummaryResponse>,
         purchaseSummaryTotals: PurchaseSummaryTotals
     ) = pdfService.writePdfForPurchaseSummaryReport(
         fromDate = fromDate,
+        fromTime,
         toDate = toDate,
+        toTime,
         getUri = getUri,
         haveAnyError = haveAnyError,
         list = list,

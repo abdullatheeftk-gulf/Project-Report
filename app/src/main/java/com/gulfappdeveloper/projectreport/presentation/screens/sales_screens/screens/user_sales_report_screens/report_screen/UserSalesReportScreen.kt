@@ -45,8 +45,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -66,7 +69,11 @@ fun UserSalesReportScreen(
         SnackbarHostState()
     }
     val fromDate by salesViewModel.fromDateState
+    val fromTime by salesViewModel.fromTimeState
+
     val toDate by salesViewModel.toDateState
+    val toTime by salesViewModel.toTimeState
+
 
     val userSalesReportList = salesViewModel.userSalesReportList
 
@@ -212,14 +219,21 @@ fun UserSalesReportScreen(
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-
-                Text(text = "Report from ")
-                Text(text = fromDate, color = MaterialTheme.colorScheme.primary, fontSize = 17.sp)
-                Text(text = " to ")
-                Text(text = toDate, color = MaterialTheme.colorScheme.primary, fontSize = 17.sp)
-            }
             Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                buildAnnotatedString {
+                    append("Report from ")
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                        append("$fromDate, $fromTime")
+                    }
+                    append(" to ")
+                    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)) {
+                        append("$toDate, $toTime")
+                    }
+                },
+                modifier = Modifier.align(Alignment.Start)
+            )
 
             if (userSalesReportList.isEmpty()) {
                 Spacer(modifier = Modifier.height(20.dp))

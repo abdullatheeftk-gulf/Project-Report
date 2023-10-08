@@ -31,7 +31,9 @@ object PdfReceiptsReport {
         list: List<ReceiptResponse>,
         receiptReportListTotal: Double,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit
     ) {
@@ -51,7 +53,9 @@ object PdfReceiptsReport {
                         list = pageList,
                         receiptReportListTotal = receiptReportListTotal,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                         companyName = companyName
@@ -69,7 +73,9 @@ object PdfReceiptsReport {
                         list = pageList,
                         receiptReportListTotal = receiptReportListTotal,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                         companyName = companyName
@@ -85,7 +91,9 @@ object PdfReceiptsReport {
                         list = pageList,
                         receiptReportListTotal = receiptReportListTotal,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                         companyName = companyName
@@ -98,7 +106,9 @@ object PdfReceiptsReport {
                         list = pageList,
                         receiptReportListTotal = receiptReportListTotal,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                         companyName = companyName
@@ -113,7 +123,9 @@ object PdfReceiptsReport {
                         list = pageList,
                         receiptReportListTotal = receiptReportListTotal,
                         fromDate = fromDate,
+                        fromTime = fromTime,
                         toDate = toDate,
+                        toTime = toTime,
                         totalPages = totalPages,
                         haveAnyError = haveAnyError,
                         companyName = companyName
@@ -152,7 +164,9 @@ object PdfReceiptsReport {
         list: List<ReceiptResponse>,
         receiptReportListTotal: Double,
         fromDate: String,
+        fromTime:String,
         toDate: String,
+        toTime:String,
         totalPages: Int,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
     ) {
@@ -180,7 +194,13 @@ object PdfReceiptsReport {
 
             // dates
             yPosition += 30f
-            canvas.writePeriodText(fromDate, toDate, yPosition)
+            canvas.writePeriodText(
+                fromDate = fromDate,
+                fromTime = fromTime,
+                toDate = toDate,
+                toTime = toTime,
+                yPosition = yPosition
+            )
             canvas.writeCompanyName(
                 companyName = companyName,
                 yPosition = yPosition,

@@ -20,6 +20,7 @@ import com.gulfappdeveloper.projectreport.root.RootViewModel
 
 private const val TAG = "MainScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     navHostController: NavHostController,

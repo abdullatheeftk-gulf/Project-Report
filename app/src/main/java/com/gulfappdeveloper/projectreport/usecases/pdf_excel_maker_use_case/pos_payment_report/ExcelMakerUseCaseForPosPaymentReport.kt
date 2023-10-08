@@ -10,13 +10,17 @@ class ExcelMakerUseCaseForPosPaymentReport(
     suspend operator fun invoke(
         list: List<PosPaymentResponse>,
         fromDate: String,
+        fromTime: String,
         toDate: String,
+        toTime: String,
         getUri: (uri: Uri) -> Unit,
         haveAnyError: (haveAnyError: Boolean, error: String?) -> Unit,
     ) = pdfExcelRepository.writeExcelForPosPaymentReport(
         list = list,
         fromDate = fromDate,
+        fromTime = fromTime,
         toDate = toDate,
+        toTime = toTime,
         getUri = getUri,
         haveAnyError = haveAnyError
     )

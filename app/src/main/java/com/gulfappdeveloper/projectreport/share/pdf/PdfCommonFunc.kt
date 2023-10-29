@@ -34,7 +34,7 @@ fun Canvas.writePeriodText(
         color = Color.argb(255, 102, 80, 164)
     })
 
-    textWidth = Paint().measureText(fromDate) + 10f
+    textWidth = Paint().measureText("$fromDate, $fromTime  ") + 10f
     xPosition += textWidth
     drawText(" to", xPosition, yPosition, Paint().apply {
         textSize = 14f
